@@ -8,7 +8,12 @@ from stl import mesh
 import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib import cm
+from matplotlib.colors import Normalize, colorConverter
+from matplotlib.cm import ScalarMappable, get_cmap
 from scipy.optimize import basinhopping
+
+
+MAX_EDGE_LENGTH = 0.2
 
 
 class MirrorSurface:
@@ -29,7 +34,13 @@ class MirrorSurface:
             engine="python",
         )
         points = self.cleanup_columns(points)
+        points = self.scale_mm_to_m(points)
         return self.centre_and_rotate_points(points)
+
+    def scale_mm_to_m(self, points):
+        points = points.copy()
+        points /= 1000
+        return points
 
     def cleanup_columns(self, points):
         points = points.copy()
@@ -48,6 +59,7 @@ class MirrorSurface:
             "del_y",
             "del_z",
         ]
+        points = points.set_index("index")
         return points
 
     def centre_and_rotate_points(self, points: pd.DataFrame) -> pd.DataFrame:
@@ -77,12 +89,24 @@ class MirrorSurface:
     def create_mesh(self, data: pd.DataFrame) -> mesh.Mesh:
         xy_points = data[["x", "y"]].to_numpy()
         xyz_points = data[["x", "y", "z"]].to_numpy()
-        triangles = Delaunay(xy_points)
+        self.triangles = Delaunay(xy_points)
+
+        small_triangles = []
+        for i, triangle in enumerate(self.triangles.simplices):
+            a, b, c = triangle
+            ab = np.sqrt((self.triangles.points[a][0] - self.triangles.points[b][0])**2 + (self.triangles.points[a][1] - self.triangles.points[b][1])**2)
+            bc = np.sqrt((self.triangles.points[b][0] - self.triangles.points[c][0])**2 + (self.triangles.points[b][1] - self.triangles.points[c][1])**2)
+            ca = np.sqrt((self.triangles.points[c][0] - self.triangles.points[a][0])**2 + (self.triangles.points[c][1] - self.triangles.points[a][1])**2)
+            if np.all(np.array([ab, bc, ca]) < MAX_EDGE_LENGTH):
+                small_triangles.append(triangle)
+
+        self.triangles.simplices = np.array(small_triangles)
+
 
         surface_mesh = mesh.Mesh(
-            np.zeros(triangles.simplices.shape[0], dtype=mesh.Mesh.dtype)
+            np.zeros(self.triangles.simplices.shape[0], dtype=mesh.Mesh.dtype)
         )
-        for i, simplex in enumerate(triangles.simplices):
+        for i, simplex in enumerate(self.triangles.simplices):
             for j in range(3):
                 surface_mesh.vectors[i][j] = xyz_points[simplex[j], :]
 
@@ -115,29 +139,145 @@ class MirrorSurface:
 
         return facets
 
+    def plot(self):
+        fig = plt.figure(figsize=(10, 10))
+        ax = fig.add_subplot(111, projection="3d")
+        p3dc = ax.plot_trisurf(
+            self.points["x"],
+            self.points["y"],
+            self.points["z"],
+            triangles=self.triangles.simplices,
+        )
+        norm = Normalize()
+        cmap = "hot"
+        colors = get_cmap(cmap)(norm(self.facets["z"]))
+        p3dc.set_fc(colors)
+
+        cbar = fig.colorbar(ScalarMappable(cmap=cmap, norm=norm), shrink=0.5)
+
+        fig.tight_layout()
+        plt.show()
+
+        # ax.scatter(self.points["x"], self.points["z"])
+        # ax.scatter(self.points["y"], self.points["z"])
+        # for _, row in self.points.iterrows():
+        #     ax.text(row["x"], row["z"], row.name)
+
     def fit_circular_paraboloid(self, points: pd.DataFrame) -> float:
         """
         Fit a circular paraboloid to the data.
-        z = ax^2 + ay^2
-        Return the a coefficient
+        z = a(x^2 + y^2) + bx + cy + d
         """
         x = np.array(points["x"])
         y = np.array(points["y"])
         z = np.array(points["z"])
 
-        Z = x
+        A = np.array([x**2 + y**2, x, y, x*0+1]).T
 
-        A = np.array([])
+        coeff, r, rank, s = np.linalg.lstsq(A, z, rcond=None)
 
-        r = np.linalg.norm(
-            points[["x", "y"]],
-            axis=1,
+        parab = coeff[0]*(x**2 + y**2) + coeff[1]*x + coeff[2]*y + coeff[1]
+        error = z - parab
+
+        ##
+        fig = plt.figure(figsize=(10, 10))
+        ax = fig.add_subplot(111, projection="3d")
+        p3dc = ax.plot_trisurf(
+            x,
+            y,
+            error,
+            triangles=self.triangles.simplices,
         )
+
+        norm = Normalize()
+        cmap = "hot"
+        colors = get_cmap(cmap)(norm(self.facets["z"]))
+        p3dc.set_fc(colors)
+
+        cbar = fig.colorbar(ScalarMappable(cmap=cmap, norm=norm), shrink=0.5)
+
+        fig.tight_layout()
+        plt.show()
+        ##
+
+        return coeff
+
+    def fit_elliptic_paraboloid(self, points: pd.DataFrame) -> float:
+        """
+        Fit an ellipitc paraboloid to the data.
+        z = ax^2 + by^2 + c
+        """
+        x = np.array(points["x"])
+        y = np.array(points["y"])
         z = np.array(points["z"])
-        p = np.polyfit(r, z, 2)
-        poly = np.poly1d(p)
-        print(poly)
-        return poly
+
+        A = np.array([x**2, y**2, x*0+1]).T
+
+        coeff, _, _, _ = np.linalg.lstsq(A, z, rcond=None)
+
+
+        parab = coeff[0]*x**2 + coeff[1]*y**2 + coeff[2]
+        error = z - parab
+
+        ##
+        fig = plt.figure(figsize=(10, 10))
+        ax = fig.add_subplot(111, projection="3d")
+        p3dc = ax.plot_trisurf(
+            x,
+            y,
+            error,
+            triangles=self.triangles.simplices,
+        )
+
+        norm = Normalize()
+        cmap = "hot"
+        colors = get_cmap(cmap)(norm(self.facets["z"]))
+        p3dc.set_fc(colors)
+
+        cbar = fig.colorbar(ScalarMappable(cmap=cmap, norm=norm), shrink=0.5)
+
+        fig.tight_layout()
+        plt.show()
+        ##
+
+    def fit_general_paraboloid(self, points: pd.DataFrame) -> float:
+        """
+        Fit an general paraboloid to the data.
+        z = ax^2 + bx + cy^2 + dy + exy + f
+        """
+        x = np.array(points["x"])
+        y = np.array(points["y"])
+        z = np.array(points["z"])
+
+        A = np.array([x**2, x, y**2, y, x*y, x*0+1]).T
+
+        coeff, _, _, _ = np.linalg.lstsq(A, z, rcond=None)
+
+        parab = coeff[0]*x**2 + coeff[1]*y**2 + coeff[2]
+        error = z - parab
+
+        ##
+        fig = plt.figure(figsize=(10, 10))
+        ax = fig.add_subplot(111, projection="3d")
+        p3dc = ax.plot_trisurf(
+            x,
+            y,
+            error,
+            triangles=self.triangles.simplices,
+        )
+
+        norm = Normalize()
+        cmap = "hot"
+        colors = get_cmap(cmap)(norm(self.facets["z"]))
+        p3dc.set_fc(colors)
+
+        cbar = fig.colorbar(ScalarMappable(cmap=cmap, norm=norm), shrink=0.5)
+
+        fig.tight_layout()
+        plt.show()
+        ##
+
+        
 
     def make_ideal_data(self):
         self.surface_mesh_data["design_z"] = \
