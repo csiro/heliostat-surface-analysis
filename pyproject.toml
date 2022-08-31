@@ -5,7 +5,7 @@ description = ""
 authors = ["Calum Acutt <calum.acutt@csiro.au>"]
 
 packages = [
-    { include = "heliomaths/**/*", from = "src" }
+    { include = "surface_analysis/**/*", from = "src" }
 ]
 
 [tool.poetry.dependencies]

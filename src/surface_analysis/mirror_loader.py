@@ -1,16 +1,32 @@
 import pandas as pd
 
-from mirror_surface import MirrorSurface
+from surface_analysis.mirror_surface import MirrorSurface
+from surface_analysis.points_to_mesh_converter import PointsToMeshConverter as p2m
 
 
 class MirrorLoader:
+    @staticmethod
     def from_leica(
-        self, mirror_id: str, design_focal_length: float, file_path: str
+        name: str, design_focal_length: float, file_path: str
     ) -> MirrorSurface:
+        """
+        Loads a pointcloud data file from the Leica Absolute Tracker.
+        Pre-processes it to create mesh data as well.
+        """
         points = MirrorLoader.load_leica_points(file_path)
+        tris = p2m.points_to_tris(points)
+        mesh = p2m.points_and_tris_to_mesh(points, tris)
+        facets = p2m.mesh_to_facets(mesh)
+        return MirrorSurface(
+            name, design_focal_length, points, tris, mesh, facets, uncertainties=True
+        )
 
+    @staticmethod
     def load_leica_points(file_path: str) -> pd.DataFrame:
-        """Loads a pointcloud data file from the Leica Absolute Tracker."""
+        """
+        Load Leica 
+        Leica data includes uncertainty and has been pre-orientated.
+        """
         points = pd.read_csv(
             file_path,
             skiprows=7,
@@ -20,10 +36,11 @@ class MirrorLoader:
         )
         points = MirrorLoader.cleanup_leica_columns(points)
         points = MirrorLoader.scale_mm_to_m(points)
-        return MirrorLoader.centre_and_rotate_points(points)
+        return MirrorLoader.centre_points(points)
 
-    def cleanup_leica_columns(self, points: pd.DataFrame) -> pd.DataFrame:
-        """Label columns and drop the unnecessary ones."""
+    @staticmethod
+    def cleanup_leica_columns(points: pd.DataFrame) -> pd.DataFrame:
+        """Drop unnecessary Leica columns and label remaining ones."""
         points = points.copy()
         columns_to_drop = list(range(4, 6)) + list(range(9, len(points.columns)))
         points.drop(
@@ -36,31 +53,16 @@ class MirrorLoader:
         points = points.set_index("index")
         return points
 
-    def scale_mm_to_m(self, points: pd.DataFrame) -> pd.DataFrame:
+    @staticmethod
+    def scale_mm_to_m(points: pd.DataFrame) -> pd.DataFrame:
         points = points.copy()
         points /= 1000
         return points
 
-    def centre_and_rotate_points(self, points: pd.DataFrame) -> pd.DataFrame:
+    @staticmethod
+    def centre_points(points: pd.DataFrame) -> pd.DataFrame:
+        points = points.copy()
         points["x"] -= points["x"].mean()
         points["y"] -= points["y"].mean()
         points["z"] -= points["z"].mean()
-
-        positions = np.array(points[["x", "y", "z"]], copy=True)
-        uncertainties = np.array(points[["del_x", "del_y", "del_z"]], copy=True)
-
-        pca = PCA(n_components=3)
-        pca.fit(positions)
-
-        rotation = np.array(pca.components_).T
-        new_positions = rotation.dot(positions.T).T
-        new_uncertainties = rotation.dot(uncertainties.T).T
-
-        points["x"] = new_positions[:, 0]
-        points["y"] = new_positions[:, 1]
-        points["z"] = new_positions[:, 2]
-        points["del_x"] = new_uncertainties[:, 0]
-        points["del_y"] = new_uncertainties[:, 1]
-        points["del_z"] = new_uncertainties[:, 2]
-
         return points
