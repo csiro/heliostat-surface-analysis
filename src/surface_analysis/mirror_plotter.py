@@ -1,4 +1,5 @@
 from typing import Callable
+import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 from matplotlib.colors import Normalize
@@ -69,4 +70,39 @@ class MirrorPlotter:
         fig.colorbar(cm.ScalarMappable(cmap=cmap, norm=norm), shrink=0.5)
 
         fig.tight_layout()
+        plt.show()
+
+    @staticmethod
+    def plot_2d_func(func: Callable[[np.ndarray], float], points: np.ndarray) -> None:
+        """
+        func must operate on 1x2 array.
+        points must be Nx2 array.
+        """
+        output = np.apply_along_axis(func, 1, points)
+        MirrorPlotter.plot_2d(points, output)
+
+    @staticmethod
+    def plot_2d_func_diff(
+        func0: Callable[[np.ndarray], float],
+        func1: Callable[[np.ndarray], float],
+        points: np.ndarray
+    ) -> None:
+        """
+        func must operate on 1x2 array.
+        points must be Nx2 array.
+        """
+        output0 = np.apply_along_axis(func0, 1, points)
+        output1 = np.apply_along_axis(func1, 1, points)
+        MirrorPlotter.plot_2d(points, output1 - output0)
+
+
+    @staticmethod
+    def plot_2d(xy: np.ndarray, z: np.ndarray) -> None:
+        fig = plt.figure(figsize=(10, 10))
+        ax = fig.add_subplot(111, projection="3d")
+        ax.scatter(
+            xy[:, 0],
+            xy[:, 1],
+            z
+        )
         plt.show()

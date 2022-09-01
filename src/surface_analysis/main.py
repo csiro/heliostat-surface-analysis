@@ -1,3 +1,6 @@
+from typing import Callable
+import numpy as np
+
 from surface_analysis.mirror_fitter import MirrorFitter
 from surface_analysis.mirror_loader import MirrorLoader
 from surface_analysis.mirror_plotter import MirrorPlotter
@@ -10,10 +13,14 @@ def main():
         r"C:\Users\ACU005\CSIRO\ASTRI P11 Heliostats - HelioCon\HeliostatMetrology\HelioJigScans\surface_C_manually_cleaned.txt",
     )
 
-    coeff = MirrorFitter.fit_circular_paraboloid(mirror.points)
-    def eval_circular_paraboloid_eval(x: float, y: float):
-        return coeff[0]*(x**2+y**2) + coeff[1]*x + coeff[2]*y + coeff[3]
-    MirrorPlotter.plot_mirror_and_fit(mirror, eval_circular_paraboloid_eval)
+
+
+    func0 = make_centred_circular_paraboloid_callable(centred_coeffs)
+    func1 = make_circular_paraboloid_callable(offset_coeffs)
+
+    MirrorPlotter.plot_2d_func_diff(func0, func1, mirror.points[["x", "y"]].to_numpy())
+    # MirrorPlotter.plot_2d_func(func0, mirror.points[["x", "y"]].to_numpy())
+    # MirrorPlotter.plot_mirror_and_fit(mirror, eval_circular_paraboloid_eval)
     # mirror.plot()
     # mirror.plot()
     # coeffs = mirror.fit_circular_paraboloid(mirror.points)
