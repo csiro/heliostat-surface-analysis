@@ -6,8 +6,22 @@ import numpy as np
 from surface_analysis.polynomial_evaluator import PolynomialEvaluator
 
 
-class MirrorFitter:
-    @staticmethod
+class LinearLeastSquaresFitter:
+    def fit_linear_function(
+        self,
+        x: np.ndarray,
+        y: np.ndarray,
+        z: np.ndarray,
+        terms: list[Callable[[np.ndarray, np.ndarray], np.ndarray]],
+    ):
+        """
+        Fits the "term" functions to the data z
+        """
+        evaluated_terms = [term(x, y) for term in terms]
+        A = np.hstack(evaluated_terms)
+        coeff, r, rank, s = np.linalg.lstsq(A, z, rcond=None)
+        return coeff
+
     def fit_centred_circular_paraboloid(
         points: pd.DataFrame,
     ) -> tuple[list[float], Callable[[float, float], float]]:
