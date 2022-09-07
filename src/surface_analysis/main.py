@@ -1,6 +1,6 @@
-from turtle import position
 import numpy as np
 
+from surface_analysis.linear_terms import LinearTerms
 from surface_analysis.slope_error import calculate_angular_differences, slope_error_weighted_mean, slope_error_weighted_rms
 from surface_analysis import mirror_loader
 from surface_analysis.linear_least_squares_fitter import LinearLeastSquaresFitter
@@ -9,42 +9,40 @@ from surface_analysis.mirror_plotter import MirrorPlotter
 
 
 def main():
-    x = np.array([
-        [0],
-        [1],
-        [2]
-    ])
-    y = np.array([
-        [1],
-        [0],
-        [0]
-    ])
-    z = np.array([
-        [1],
-        [1],
-        [4]
-    ])
-    terms = [
-        lambda x, y: x**2,
-        lambda x, y: y**2,
-        lambda x, y: x * 0 + 1
-    ]
+    mirror = from_leica(
+        "cal_mirror",
+        40.0,
+        r"C:\Users\ACU005\CSIRO\ASTRI P11 Heliostats - HelioCon\HeliostatMetrology\HelioJigScans\surface_C_manually_cleaned.txt",
+    )
+
+    lt = LinearTerms()
+    terms = lt.centred_circular_paraboloid_with_z_offset()
 
     fitter = LinearLeastSquaresFitter()
-    coeffs = fitter.fit_linear_function(x, y, z, terms)
+    coeffs = fitter.fit_linear_function(
+        mirror.points["x"].to_numpy().reshape(-1, 1),
+        mirror.points["y"].to_numpy().reshape(-1, 1),
+        mirror.points["z"].to_numpy().reshape(-1, 1),
+        terms
+    )
 
     paraboloid_func = fitter.assemble_linear_function(
         terms,
         coeffs
     )
 
+    print(coeffs)
+
+    x = np.array([
+        [0],
+        [0]
+    ])
+    y = np.array([
+        [0],
+        [1]
+    ])
     print(paraboloid_func(x, y))
 
-    # mirror = from_leica(
-    #     "cal_mirror",
-    #     40.0,
-    #     r"C:\Users\ACU005\CSIRO\ASTRI P11 Heliostats - HelioCon\HeliostatMetrology\HelioJigScans\surface_C_manually_cleaned.txt",
-    # )
 
 
 
