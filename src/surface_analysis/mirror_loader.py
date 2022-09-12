@@ -3,107 +3,120 @@ import numpy as np
 from sklearn.decomposition import PCA
 
 from surface_analysis.mirror_surface import MirrorSurface
-from surface_analysis.points_to_mesh_converter import PointsToMeshConverter as p2m
+from surface_analysis.points_to_mesh_converter import PointsToMeshConverter
 
 
-def from_leica(
-    name: str, design_focal_length: float, file_path: str
-) -> MirrorSurface:
-    """
-    Loads a pointcloud data file from the Leica Absolute Tracker.
-    Pre-processes it to create mesh data as well.
-    """
-    points = load_leica_points(file_path)
-    tris = p2m.points_to_tris(points)
-    mesh = p2m.points_and_tris_to_mesh(points, tris)
-    facets = p2m.mesh_to_facets(mesh)
-    return MirrorSurface(
-        name, design_focal_length, points, tris, mesh, facets, uncertainties=True
-    )
+class MirrorLoader:
+    def from_leica(
+        self, file_path: str
+    ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+        """
+        Load a leica point cloud and just return the x,y,z
+        """
+        points = self.load_leica_points(file_path)
+        return (
+            points["x"].to_numpy().reshape(-1, 1),
+            points["y"].to_numpy().reshape(-1, 1),
+            points["z"].to_numpy().reshape(-1, 1),
+        )
 
-def load_leica_points(file_path: str) -> pd.DataFrame:
-    """
-    Load Leica 
-    Leica data includes uncertainty and has been pre-orientated.
-    """
-    points = pd.read_csv(
-        file_path,
-        skiprows=7,
-        delimiter=",  ",
-        header=None,
-        engine="python",
-    )
-    points = cleanup_leica_columns(points)
-    points = scale_mm_to_m(points)
-    return centre_points(points)
+    def load_leica_points(self, file_path: str) -> pd.DataFrame:
+        """
+        Load Leica
+        Leica data includes uncertainty and has been pre-orientated.
+        """
+        points = pd.read_csv(
+            file_path,
+            skiprows=7,
+            delimiter=",  ",
+            header=None,
+            engine="python",
+        )
+        points = self.cleanup_leica_columns(points)
+        points = self.scale_mm_to_m(points)
+        return self.centre_points(points)
 
-def cleanup_leica_columns(points: pd.DataFrame) -> pd.DataFrame:
-    """Drop unnecessary Leica columns and label remaining ones."""
-    points = points.copy()
-    columns_to_drop = list(range(4, 6)) + list(range(9, len(points.columns)))
-    points.drop(
-        points.columns[columns_to_drop],
-        axis=1,
-        inplace=True,
-    )
+    def cleanup_leica_columns(self, points: pd.DataFrame) -> pd.DataFrame:
+        """Drop unnecessary Leica columns and label remaining ones."""
+        points = points.copy()
+        columns_to_drop = list(range(4, 6)) + list(range(9, len(points.columns)))
+        points.drop(
+            points.columns[columns_to_drop],
+            axis=1,
+            inplace=True,
+        )
 
-    points.columns = ["index", "x", "y", "z", "del_x", "del_y", "del_z"]
-    points = points.set_index("index")
-    return points
+        points.columns = ["index", "x", "y", "z", "del_x", "del_y", "del_z"]
+        points = points.set_index("index")
+        return points
 
-def scale_mm_to_m(points: pd.DataFrame) -> pd.DataFrame:
-    points = points.copy()
-    points /= 1000
-    return points
+    def scale_mm_to_m(self, points: pd.DataFrame) -> pd.DataFrame:
+        points = points.copy()
+        points /= 1000
+        return points
 
-def centre_points(points: pd.DataFrame) -> pd.DataFrame:
-    points = points.copy()
-    points["x"] -= points["x"].mean()
-    points["y"] -= points["y"].mean()
-    points["z"] -= points["z"].mean()
-    return points
+    def centre_points(self, points: pd.DataFrame) -> pd.DataFrame:
+        points = points.copy()
+        points["x"] -= points["x"].mean()
+        points["y"] -= points["y"].mean()
+        points["z"] -= points["z"].mean()
+        return points
 
-def from_csv(
-    name: str, design_focal_length: float, file_path: str
-) -> MirrorSurface:
-    """
-    Loads a pointcloud data file from a csv.
-    Pre-processes it to create mesh data as well.
-    """
-    points = load_csv_points(file_path)
-    tris = p2m.points_to_tris(points)
-    mesh = p2m.points_and_tris_to_mesh(points, tris)
-    facets = p2m.mesh_to_facets(mesh)
-    return MirrorSurface(
-        name, design_focal_length, points, tris, mesh, facets, uncertainties=True
-    )
+    def from_leica_old(
+        self, name: str, design_focal_length: float, file_path: str
+    ) -> MirrorSurface:
+        """
+        Loads a pointcloud data file from the Leica Absolute Tracker.
+        Pre-processes it to create mesh data as well.
+        """
+        p2m = PointsToMeshConverter()
+        points = self.load_leica_points(file_path)
+        tris = p2m.points_to_tris_old(points)
+        mesh = p2m.points_and_tris_to_mesh_old(points, tris)
+        facets = p2m.mesh_to_facets(mesh)
+        return MirrorSurface(
+            name, design_focal_length, points, tris, mesh, facets, uncertainties=True
+        )
 
-def load_csv_points(file_path: str) -> pd.DataFrame:
-    """
-    Load csv 
-    Doesn't have uncertainty and can't assume it's been pre-orientated.
-    """
-    points = pd.read_csv(
-        file_path,
-        delimiter=",",
-        header=None,
-        names=["x", "y", "z"]
-    )
-    points = scale_mm_to_m(points)
-    return points
- 
-def rotate_points(points: pd.DataFrame) -> pd.DataFrame:
-    points = points.copy()
-    positions = np.array(points[["x", "y", "z"]])
+    def from_csv(
+        self, name: str, design_focal_length: float, file_path: str
+    ) -> MirrorSurface:
+        """
+        Loads a pointcloud data file from a csv.
+        Pre-processes it to create mesh data as well.
+        """
+        p2m = PointsToMeshConverter()
+        points = self.load_csv_points(file_path)
+        tris = p2m.points_to_tris_old(points)
+        mesh = p2m.points_and_tris_to_mesh_old(points, tris)
+        facets = p2m.mesh_to_facets(mesh)
+        return MirrorSurface(
+            name, design_focal_length, points, tris, mesh, facets, uncertainties=True
+        )
 
-    pca = PCA(n_components=3)
-    pca.fit(positions)
+    def load_csv_points(self, file_path: str) -> pd.DataFrame:
+        """
+        Load csv
+        Doesn't have uncertainty and can't assume it's been pre-orientated.
+        """
+        points = pd.read_csv(
+            file_path, delimiter=",", header=None, names=["x", "y", "z"]
+        )
+        points = self.scale_mm_to_m(points)
+        return points
 
-    rotation = np.array(pca.components_).T
-    new_positions = rotation.dot(positions.T).T
+    def rotate_points(self, points: pd.DataFrame) -> pd.DataFrame:
+        points = points.copy()
+        positions = np.array(points[["x", "y", "z"]])
 
-    points["x"] = new_positions[:, 0]
-    points["y"] = new_positions[:, 1]
-    points["z"] = new_positions[:, 2]
+        pca = PCA(n_components=3)
+        pca.fit(positions)
 
-    return points
+        rotation = np.array(pca.components_).T
+        new_positions = rotation.dot(positions.T).T
+
+        points["x"] = new_positions[:, 0]
+        points["y"] = new_positions[:, 1]
+        points["z"] = new_positions[:, 2]
+
+        return points
