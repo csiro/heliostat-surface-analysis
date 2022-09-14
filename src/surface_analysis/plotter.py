@@ -1,3 +1,4 @@
+import os
 from typing import Callable
 
 import numpy as np
@@ -77,6 +78,56 @@ class Plotter:
         self.add_points_as_surface_subplot(fig, 224, x, y, z3)
         plt.show()
 
+    def initial_verification_plots(
+        self,
+        x: np.ndarray,
+        y: np.ndarray,
+        z: np.ndarray,
+        output_dir: str,
+    ):
+        fig = plt.figure()
+        self.add_points_subplot(fig, 111, x, y, z)
+        plt.savefig(os.path.join(output_dir, "3d_points"))
+
+        fig = plt.figure()
+        self.add_points_as_surface_subplot(fig, 111, x, y, z)
+        plt.savefig(os.path.join(output_dir, "3d_surface"))
+
+        fig = plt.figure()
+        self.add_points_with_text_subplot(fig, 111, x, y, z)
+        plt.savefig(os.path.join(output_dir, "points_with_text"))
+
+    def fit_verification_plots(
+        self,
+        x: np.ndarray,
+        y: np.ndarray,
+        z: np.ndarray,
+        output_dir: str,
+        function_name: str,
+    ) -> None:
+        fig = plt.figure()
+        self.add_points_subplot(fig, 111, x, y, z)
+        plt.savefig(os.path.join(output_dir, f"{function_name}_3d_points"))
+
+        fig = plt.figure()
+        self.add_points_as_surface_subplot(fig, 111, x, y, z)
+        plt.savefig(os.path.join(output_dir, f"{function_name}_3d_surface"))
+
+    def slope_verification_plots(
+        self,
+        values: np.ndarray,
+        output_dir: str,
+        function_name: str,
+        bins: int = 100,
+    ) -> None:
+        fig = plt.figure()
+        ax = fig.add_subplot(111)
+        ax.hist(
+            values,
+            bins = bins,
+        )
+        plt.savefig(os.path.join(output_dir, f"{function_name}_slope_hist"))
+
     def plot_hist(
         self,
         values: np.ndarray,
@@ -93,9 +144,7 @@ class Plotter:
     def plot_hist_and_curve(
         self,
         values: np.ndarray,
-        mean_sigma: float,
-        mle_sigma: float,
-        mode_sigma: float,
+        sigma: float,
         bin_count: int = 100,
     ) -> None:
         fig = plt.figure()
@@ -107,18 +156,8 @@ class Plotter:
         )
         plt.plot(
             bins,
-            bins / (mean_sigma **2) * np.exp(-1 * (bins) ** 2 / (2 * mean_sigma ** 2)),
-            color = "g",
-        )
-        plt.plot(
-            bins,
-            bins / (mle_sigma **2) * np.exp(-1 * (bins) ** 2 / (2 * mle_sigma ** 2)),
+            bins / (sigma **2) * np.exp(-1 * (bins) ** 2 / (2 * sigma ** 2)),
             color = "r",
-        )
-        plt.plot(
-            bins,
-            bins / (mode_sigma **2) * np.exp(-1 * (bins) ** 2 / (2 * mode_sigma ** 2)),
-            color = "b",
         )
         plt.show()
 
@@ -167,6 +206,23 @@ class Plotter:
         cbar.set_label("z (mm)")
         fig.tight_layout()
         ax.set_zlim(self.z_lim)
+
+    def add_points_with_text_subplot(
+        self,
+        fig: plt.Figure,
+        subplot_number: int,
+        x: np.ndarray,
+        y: np.ndarray,
+        z: np.ndarray,
+    ) -> None:
+        ax = fig.add_subplot(subplot_number)
+        ax.scatter(x, z)
+        for i in range(len(x)):
+            ax.text(
+                x[i],
+                z[i],
+                str(i)
+            )
 
     def plot_mirror_3d(
         self,
