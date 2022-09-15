@@ -5,13 +5,15 @@ from scipy import stats
 from matplotlib import pyplot as plt
 import nlopt
 
-from surface_analysis.loader import Loader
-from surface_analysis.cleaner import Cleaner
+from surface_analysis.loader import from_leica
+from surface_analysis.preprocessor import centre_points_centroid, rotate_points_PCA
 from surface_analysis.linear_functions.linear_function_creator import (
-    LinearFunctionCreator,
-)
-from surface_analysis.linear_functions.linear_function_assembler import (
-    LinearFunctionAssembler,
+    centred_circular_paraboloid,
+    centred_circular_paraboloid_with_z_offset,
+    circular_paraboloid,
+    elliptic_paraboloid,
+    general_paraboloid,
+    high_order_poly
 )
 from surface_analysis.linear_least_squares_fitter import LinearLeastSquaresFitter
 from surface_analysis.linear_objective_functions import (
@@ -19,7 +21,7 @@ from surface_analysis.linear_objective_functions import (
     squared_z_distance_objective,
 )
 from surface_analysis.plotter import Plotter
-from surface_analysis.points_to_mesh_converter import PointsToMeshConverter
+from surface_analysis.points_to_mesh_converter import points_to_normals
 from surface_analysis.slope_error import SlopeErrorCalculator
 
 
@@ -30,56 +32,21 @@ def main():
     output_dir = os.path.join("outputs", mirror_name)
     os.makedirs(output_dir, exist_ok=True)
 
-    # anu_method(file_name, output_dir)
     csiro_method(file_name, output_dir)
+    anu_method(file_name, output_dir)
 
 
 def csiro_method(file_name, output_dir):
-    loader = Loader()
-    raw_x, raw_y, raw_z = loader.from_leica(file_name)
+    raw_x, raw_y, raw_z = from_leica(file_name)
+    centred_x, centred_y, centred_z = centre_points_centroid(raw_x, raw_y, raw_z)
+    x, y, z = rotate_points_PCA(centred_x, centred_y, centred_z)
+    x_c, y_c, z_c, area, n = points_to_normals(x, y, z)
 
-    cleaner = Cleaner()
-    centred_x, centred_y, centred_z = cleaner.centre_points_centroid(
-        raw_x, raw_y, raw_z
-    )
-    x, y, z = cleaner.rotate_points_PCA(centred_x, centred_y, centred_z)
-
-    lfc = LinearFunctionCreator()
-    poly = lfc.circular_paraboloid()
-
-    p2m = PointsToMeshConverter()
-    x_c, y_c, z_c, area, n = p2m.points_to_normals(x, y, z)
-
-    obj = squared_z_distance_objective(x, y, z, poly)
-    opt = nlopt.opt(nlopt.LN_COBYLA, 4)
-    opt.set_lower_bounds([-1, -1, -1, -1])
-    opt.set_upper_bounds([1, 1, 1, 1])
-    opt.set_min_objective(obj)
-    opt.set_xtol_rel(1e-6)
-    xopt = opt.optimize([0, 0, 0, 0])
-    minf = opt.last_optimum_value()
-    print(f"optimum at {xopt[0]}, {xopt[1]}, {xopt[2]} {xopt[3]}\n")
-    print(f"minimum value = {minf}\n")
-    print(f"result code = {opt.last_optimize_result()}\n")
-    print("\n")
-
-    obj = mean_slope_error_objective(x_c, y_c, n, area, poly)
-    opt = nlopt.opt(nlopt.LN_COBYLA, 4)
-    opt.set_lower_bounds([-1, -1, -1, -1])
-    opt.set_upper_bounds([1, 1, 1, 1])
-    opt.set_min_objective(obj)
-    opt.set_xtol_rel(1e-6)
-    xopt = opt.optimize([0, 0, 0, 0])
-    minf = opt.last_optimum_value()
-    print(f"optimum at {xopt[0]}, {xopt[1]}, {xopt[2]} {xopt[3]}\n")
-    print(f"minimum value = {minf}\n")
-    print(f"result code = {opt.last_optimize_result()}\n")
-
-    exit()
+    poly = circular_paraboloid()
 
     with open(os.path.join(output_dir, "nlopt_results.txt"), "w") as file:
         file.write("Doing nlopt for OLS of circular paraboloid\n")
-        obj = ordinary_least_squares_objective(x, y, z)
+        obj = squared_z_distance_objective(x, y, z, poly)
         opt = nlopt.opt(nlopt.LN_COBYLA, 4)
         opt.set_lower_bounds([-1, -1, -1, -1])
         opt.set_upper_bounds([1, 1, 1, 1])
@@ -93,9 +60,7 @@ def csiro_method(file_name, output_dir):
         file.write("\n")
 
         file.write("Doing nlopt for min mean slope error of circular paraboloid\n")
-        p2m = PointsToMeshConverter()
-        x_c, y_c, z_c, area, n = p2m.points_to_normals(x, y, z)
-        obj = min_mean_slope_error_objective(x_c, y_c, n, area)
+        obj = mean_slope_error_objective(x_c, y_c, n, area, poly)
         opt = nlopt.opt(nlopt.LN_COBYLA, 4)
         opt.set_lower_bounds([-1, -1, -1, -1])
         opt.set_upper_bounds([1, 1, 1, 1])
@@ -106,34 +71,28 @@ def csiro_method(file_name, output_dir):
         file.write(f"optimum at {xopt[0]}, {xopt[1]}, {xopt[2]} {xopt[3]}\n")
         file.write(f"minimum value = {minf}\n")
         file.write(f"result code = {opt.last_optimize_result()}\n")
+        file.write("\n")
 
 
 def anu_method(file_name, output_dir):
-    loader = Loader()
-    raw_x, raw_y, raw_z = loader.from_leica(file_name)
-
-    cleaner = Cleaner()
-    centred_x, centred_y, centred_z = cleaner.centre_points_centroid(
-        raw_x, raw_y, raw_z
-    )
-    x, y, z = cleaner.rotate_points_PCA(centred_x, centred_y, centred_z)
+    raw_x, raw_y, raw_z = from_leica(file_name)
+    centred_x, centred_y, centred_z = centre_points_centroid(raw_x, raw_y, raw_z)
+    x, y, z = rotate_points_PCA(centred_x, centred_y, centred_z)
 
     plotter = Plotter()
     plotter.initial_verification_plots(x, y, z, output_dir)
 
-    lfc = LinearFunctionCreator()
     polynomials = [
-        lfc.centred_circular_paraboloid(),
-        lfc.centred_circular_paraboloid_with_z_offset(),
-        lfc.circular_paraboloid(),
-        lfc.elliptic_paraboloid(),
-        lfc.general_paraboloid(),
-        lfc.high_order_poly(),
+        centred_circular_paraboloid(),
+        centred_circular_paraboloid_with_z_offset(),
+        circular_paraboloid(),
+        elliptic_paraboloid(),
+        general_paraboloid(),
+        high_order_poly(),
     ]
 
     decimals = 6
     fitter = LinearLeastSquaresFitter()
-    assembler = LinearFunctionAssembler()
     sec = SlopeErrorCalculator()
     with open(os.path.join(output_dir, "fit_results.txt"), "w") as file:
         for poly in polynomials:
@@ -148,10 +107,8 @@ def anu_method(file_name, output_dir):
                 f"RMS of Residuals (z-value): {round(np.sqrt(ssr / len(x)), decimals)}\n"
             )
 
-            f = assembler.assemble_linear_function(poly.terms, coeffs)
-            normal_func = assembler.assemble_normal_function(
-                poly.df_dx_terms, poly.df_dy_terms, coeffs
-            )
+            f = poly.assemble_function(coeffs)
+            normal_func = poly.assemble_normal_function(coeffs)
 
             z_fit = f(x, y)
             residual = z - z_fit
@@ -160,8 +117,7 @@ def anu_method(file_name, output_dir):
                 x, y, residual, output_dir, f"{poly.name}_residual"
             )
 
-            p2m = PointsToMeshConverter()
-            x_c, y_c, z_c, area, n = p2m.points_to_normals(x, y, z)
+            x_c, y_c, z_c, area, n = points_to_normals(x, y, z)
             angular_differences = sec.calculate_angular_differences(
                 x_c, y_c, n, normal_func
             )

@@ -8,7 +8,9 @@ from matplotlib.colors import Normalize
 from matplotlib.figure import Figure
 
 from surface_analysis.mirror_surface import MirrorSurface
-from surface_analysis.points_to_mesh_converter import PointsToMeshConverter
+from surface_analysis.points_to_mesh_converter import (
+    points_to_tris, points_and_tris_to_mesh, mesh_to_facets
+)
 
 
 class Plotter:
@@ -181,10 +183,9 @@ class Plotter:
         y: np.ndarray,
         z: np.ndarray,
     ) -> None:
-        p2m = PointsToMeshConverter()
-        tris = p2m.points_to_tris(x, y)
-        mesh = p2m.points_and_tris_to_mesh(x, y, z, tris)
-        facets = p2m.mesh_to_facets(mesh)
+        tris = points_to_tris(x, y)
+        mesh = points_and_tris_to_mesh(x, y, z, tris)
+        facets = mesh_to_facets(mesh)
 
         ax = fig.add_subplot(subplot_number, projection="3d")
         ax.set_xlabel("x (m)")
