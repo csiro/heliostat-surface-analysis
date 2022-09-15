@@ -1,13 +1,16 @@
 import os
+
 import numpy as np
 from scipy import stats
 from matplotlib import pyplot as plt
+import nlopt
 
 from surface_analysis.loader import Loader
 from surface_analysis.cleaner import Cleaner
 from surface_analysis.linear_functions.linear_function_creator import LinearFunctionCreator 
 from surface_analysis.linear_functions.linear_function_assembler import LinearFunctionAssembler 
 from surface_analysis.linear_least_squares_fitter import LinearLeastSquaresFitter
+from surface_analysis.objective_functions import ordinary_least_squares_objective, min_mean_slope_error_objective
 from surface_analysis.plotter import Plotter
 from surface_analysis.points_to_mesh_converter import PointsToMeshConverter
 from surface_analysis.slope_error import SlopeErrorCalculator
@@ -20,6 +23,50 @@ def main():
     output_dir = os.path.join("outputs", mirror_name) 
     os.makedirs(output_dir, exist_ok=True)
 
+    # anu_method(file_name, output_dir)
+    csiro_method(file_name, output_dir)
+
+
+def csiro_method(file_name, output_dir):
+    loader = Loader()
+    raw_x, raw_y, raw_z = loader.from_leica(file_name)
+
+    cleaner = Cleaner()
+    centred_x, centred_y, centred_z = cleaner.centre_points_centroid(raw_x, raw_y, raw_z)
+    x, y, z = cleaner.rotate_points_PCA(centred_x, centred_y, centred_z)
+
+    with open(os.path.join(output_dir, "nlopt_results.txt"), "w") as file:
+        file.write("Doing nlopt for OLS of circular paraboloid\n")
+        obj = ordinary_least_squares_objective(x, y, z)
+        opt = nlopt.opt(nlopt.LN_COBYLA, 4)
+        opt.set_lower_bounds([-1, -1, -1, -1])
+        opt.set_upper_bounds([1, 1, 1, 1])
+        opt.set_min_objective(obj)
+        opt.set_xtol_rel(1e-6)
+        xopt = opt.optimize([0, 0, 0, 0])
+        minf = opt.last_optimum_value()
+        file.write(f"optimum at {xopt[0]}, {xopt[1]}, {xopt[2]} {xopt[3]}\n")
+        file.write(f"minimum value = {minf}\n")
+        file.write(f"result code = {opt.last_optimize_result()}\n")
+        file.write("\n")
+
+        file.write("Doing nlopt for min mean slope error of circular paraboloid\n")
+        p2m = PointsToMeshConverter()
+        x_c, y_c, z_c, area, n = p2m.points_to_normals(x, y, z)
+        obj = min_mean_slope_error_objective(x_c, y_c, n, area)
+        opt = nlopt.opt(nlopt.LN_COBYLA, 4)
+        opt.set_lower_bounds([-1, -1, -1, -1])
+        opt.set_upper_bounds([1, 1, 1, 1])
+        opt.set_min_objective(obj)
+        opt.set_xtol_rel(1e-6)
+        xopt = opt.optimize([0, 0, 0, 0])
+        minf = opt.last_optimum_value()
+        file.write(f"optimum at {xopt[0]}, {xopt[1]}, {xopt[2]} {xopt[3]}\n")
+        file.write(f"minimum value = {minf}\n")
+        file.write(f"result code = {opt.last_optimize_result()}\n")
+
+
+def anu_method(file_name, output_dir):
     loader = Loader()
     raw_x, raw_y, raw_z = loader.from_leica(file_name)
 
@@ -54,9 +101,11 @@ def main():
             file.write(f"RMS of Residuals (z-value): {round(np.sqrt(ssr / len(x)), decimals)}\n")
 
             f = assembler.assemble_linear_function(poly.terms, coeffs)
-            df_dx = assembler.assemble_linear_function(poly.df_dx_terms, coeffs)
-            df_dy = assembler.assemble_linear_function(poly.df_dy_terms, coeffs)
-            normal_func = assembler.assemble_normal_function(df_dx, df_dy)
+            normal_func = assembler.assemble_normal_function(
+                poly.df_dx_terms,
+                poly.df_dy_terms,
+                coeffs
+            )
 
             z_fit = f(x, y)
             residual = z - z_fit

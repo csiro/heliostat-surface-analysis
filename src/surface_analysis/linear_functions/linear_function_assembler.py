@@ -25,17 +25,21 @@ class LinearFunctionAssembler:
 
     def assemble_normal_function(
         self,
-        gradient_func_x: Callable[[np.ndarray, np.ndarray], np.ndarray],
-        gradient_func_y: Callable[[np.ndarray, np.ndarray], np.ndarray],
+        df_dx_terms: list[Callable[[np.ndarray, np.ndarray], np.ndarray]],
+        df_dy_terms: list[Callable[[np.ndarray, np.ndarray], np.ndarray]],
+        coeffs: np.ndarray,
     ) -> Callable[[np.ndarray, np.ndarray], np.ndarray]:
         """
         Make z component equal 1
         x component is then -dz/dx
         y component is then -dz/dy
         """
+        df_dx = self.assemble_linear_function(df_dx_terms, coeffs)
+        df_dy = self.assemble_linear_function(df_dy_terms, coeffs)
+
         def assembled_function(x: np.ndarray, y: np.ndarray) -> np.ndarray:
-            nx = -1 * gradient_func_x(x, y)
-            ny = -1 * gradient_func_y(x, y)
+            nx = -1 * df_dx(x, y)
+            ny = -1 * df_dy(x, y)
             nz = np.ones(x.shape)
             return np.hstack([nx, ny, nz])
 
