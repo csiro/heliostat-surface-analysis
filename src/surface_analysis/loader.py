@@ -6,9 +6,7 @@ from surface_analysis.points_to_mesh_converter import PointsToMeshConverter
 
 
 class Loader:
-    def from_leica(
-        self, file_path: str
-    ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    def from_leica(self, file_path: str) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
         """
         Load a leica point cloud and just return the x,y,z
         """

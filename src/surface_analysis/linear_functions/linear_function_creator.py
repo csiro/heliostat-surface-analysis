@@ -33,7 +33,6 @@ class LinearFunctionCreator:
         ]
         return LinearFunction(name, formula, terms, df_dx_terms, df_dy_terms)
 
-
     def circular_paraboloid(self) -> LinearFunction:
         name = "circular_paraboloid"
         formula = "z = a(x^2 + y^2) + bx + cy + d"
@@ -56,7 +55,6 @@ class LinearFunctionCreator:
             lambda x, y: 0 * x,
         ]
         return LinearFunction(name, formula, terms, df_dx_terms, df_dy_terms)
-
 
     def elliptic_paraboloid(self) -> LinearFunction:
         name = "elliptic_paraboloid"

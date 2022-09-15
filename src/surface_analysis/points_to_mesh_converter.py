@@ -25,11 +25,7 @@ class PointsToMeshConverter:
         tris.simplices = self.filter_short_tris(tris, max_edge_length)
         return tris
 
-    def filter_short_tris(
-        self,
-        tris: Delaunay,
-        max_edge_length: float
-    ) -> np.array:
+    def filter_short_tris(self, tris: Delaunay, max_edge_length: float) -> np.array:
         small_tris = []
         for tri in tris.simplices:
             p0 = tris.points[tri[0]]
@@ -46,11 +42,7 @@ class PointsToMeshConverter:
         return np.array(small_tris)
 
     def points_and_tris_to_mesh(
-        self,
-        x: np.ndarray,
-        y: np.ndarray,
-        z: np.ndarray,
-        tris: Delaunay
+        self, x: np.ndarray, y: np.ndarray, z: np.ndarray, tris: Delaunay
     ) -> Mesh:
         """
         Create a Mesh object from the Delaunay triangulation.
@@ -74,13 +66,7 @@ class PointsToMeshConverter:
         x: np.ndarray,
         y: np.ndarray,
         z: np.ndarray,
-    ) -> tuple[
-        np.ndarray,
-        np.ndarray,
-        np.ndarray,
-        np.ndarray,
-        np.ndarray,
-    ]:
+    ) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray,]:
         tris = self.points_to_tris(x, y)
         mesh = self.points_and_tris_to_mesh(x, y, z, tris)
         facets = self.mesh_to_facets(mesh)

@@ -16,6 +16,7 @@ class LinearFunctionAssembler:
         term matrix: [F1(X, Y), F2(X, Y)]
         results: Z = [F1(X, Y) F2(X, Y)][C]
         """
+
         def assembled_function(x: np.ndarray, y: np.ndarray) -> np.ndarray:
             evaluated_terms = [term(x, y) for term in terms]
             A = np.hstack(evaluated_terms)

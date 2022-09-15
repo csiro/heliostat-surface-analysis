@@ -124,7 +124,7 @@ class Plotter:
         ax = fig.add_subplot(111)
         ax.hist(
             values,
-            bins = bins,
+            bins=bins,
         )
         plt.savefig(os.path.join(output_dir, f"{function_name}_slope_hist"))
 
@@ -137,7 +137,7 @@ class Plotter:
         ax = fig.add_subplot(111)
         ax.hist(
             values,
-            bins = bins,
+            bins=bins,
         )
         plt.show()
 
@@ -151,13 +151,13 @@ class Plotter:
         ax = fig.add_subplot(111)
         count, bins, ignored = ax.hist(
             values,
-            bins = bin_count,
+            bins=bin_count,
             density=True,
         )
         plt.plot(
             bins,
-            bins / (sigma **2) * np.exp(-1 * (bins) ** 2 / (2 * sigma ** 2)),
-            color = "r",
+            bins / (sigma**2) * np.exp(-1 * (bins) ** 2 / (2 * sigma**2)),
+            color="r",
         )
         plt.show()
 
@@ -218,11 +218,7 @@ class Plotter:
         ax = fig.add_subplot(subplot_number)
         ax.scatter(x, z)
         for i in range(len(x)):
-            ax.text(
-                x[i],
-                z[i],
-                str(i)
-            )
+            ax.text(x[i], z[i], str(i))
 
     def plot_mirror_3d(
         self,

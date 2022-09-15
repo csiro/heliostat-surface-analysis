@@ -16,19 +16,7 @@ class LinearFunction:
         self,
         coeffs: np.ndarray,
     ) -> Callable[[np.ndarray, np.ndarray], np.ndarray]:
-        """
-        Put together the term matrix and coefficient vector to make the whole function.
-        e.g.
-        coeff column vector: C = [a; b]
-        term matrix: [F1(X, Y), F2(X, Y)]
-        results: Z = [F1(X, Y) F2(X, Y)][C]
-        """
-        def assembled_function(x: np.ndarray, y: np.ndarray) -> np.ndarray:
-            evaluated_terms = [term(x, y) for term in self.terms]
-            A = np.hstack(evaluated_terms)
-            return np.matmul(A, coeffs)
-
-        return assembled_function
+        return self.assemble_terms_and_coeffs(self.terms, coeffs)
 
     def assemble_normal_function(
         self,
@@ -39,13 +27,33 @@ class LinearFunction:
         x component is then -dz/dx
         y component is then -dz/dy
         """
-        df_dx = self.assemble_linear_function(self.df_dx_terms, coeffs)
-        df_dy = self.assemble_linear_function(self.df_dy_terms, coeffs)
+        df_dx = self.assemble_terms_and_coeffs(self.df_dx_terms, coeffs)
+        df_dy = self.assemble_terms_and_coeffs(self.df_dy_terms, coeffs)
 
         def assembled_function(x: np.ndarray, y: np.ndarray) -> np.ndarray:
             nx = -1 * df_dx(x, y)
             ny = -1 * df_dy(x, y)
             nz = np.ones(x.shape)
             return np.hstack([nx, ny, nz])
+
+        return assembled_function
+
+    def assemble_terms_and_coeffs(
+        self,
+        terms: list[Callable[[np.ndarray, np.ndarray], np.ndarray]],
+        coeffs: np.ndarray,
+    ) -> Callable[[np.ndarray, np.ndarray], np.ndarray]:
+        """
+        Put together the term matrix and coefficient vector to make the whole function.
+        e.g.
+        coeff column vector: C = [a; b]
+        term matrix: [F1(X, Y), F2(X, Y)]
+        results: Z = [F1(X, Y) F2(X, Y)][C]
+        """
+
+        def assembled_function(x: np.ndarray, y: np.ndarray) -> np.ndarray:
+            evaluated_terms = [term(x, y) for term in terms]
+            F = np.hstack(evaluated_terms)
+            return np.matmul(F, coeffs)
 
         return assembled_function
