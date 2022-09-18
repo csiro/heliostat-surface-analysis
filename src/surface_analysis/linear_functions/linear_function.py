@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Callable
+from typing import Callable, Optional
 
 import numpy as np
 
@@ -11,6 +11,7 @@ class LinearFunction:
     terms: list[Callable[[np.ndarray, np.ndarray], np.ndarray]]
     df_dx_terms: list[Callable[[np.ndarray, np.ndarray], np.ndarray]]
     df_dy_terms: list[Callable[[np.ndarray, np.ndarray], np.ndarray]]
+    offset_function: Optional[Callable[[np.ndarray], tuple[float, float, float]]] = None
 
     def assemble_function(
         self,
@@ -57,3 +58,11 @@ class LinearFunction:
             return np.matmul(F, coeffs)
 
         return assembled_function
+
+    def get_offsets(self, coeffs: np.ndarray) -> float:
+        """
+        For the given coefficients, calculate the x offset that would
+        remove the plain "bx", "cy" and "e" terms.
+        These summarise the x, y and z offset.
+        """
+        return self.offset_function(coeffs)

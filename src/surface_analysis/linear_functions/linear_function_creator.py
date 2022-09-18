@@ -1,3 +1,5 @@
+import numpy as np
+
 from surface_analysis.linear_functions.linear_function import LinearFunction
 
 
@@ -55,7 +57,12 @@ def circular_paraboloid() -> LinearFunction:
         lambda x, y: 0 * x + 1,
         lambda x, y: 0 * x,
     ]
-    return LinearFunction(name, formula, terms, df_dx_terms, df_dy_terms)
+    offset_function = lambda coeffs: np.array([
+        coeffs[1, 0] / (2 * coeffs[0, 0]),
+        coeffs[2, 0] / (2 * coeffs[0, 0]),
+        -1 * (coeffs[1, 0]**2 + coeffs[2, 0]**2) / (4 * coeffs[0, 0]) + coeffs[3, 0]
+    ])
+    return LinearFunction(name, formula, terms, df_dx_terms, df_dy_terms, offset_function)
 
 
 def elliptic_paraboloid() -> LinearFunction:

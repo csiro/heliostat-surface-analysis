@@ -6,7 +6,7 @@ def centre_points_centroid(
     raw_x: np.ndarray,
     raw_y: np.ndarray,
     raw_z: np.ndarray,
-) -> tuple[np.ndarray, np.ndarray, np.ndarray,]:
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     x = raw_x - raw_x.mean()
     y = raw_y - raw_y.mean()
     z = raw_z - raw_z.mean()
@@ -17,7 +17,7 @@ def rotate_points_PCA(
     raw_x: np.ndarray,
     raw_y: np.ndarray,
     raw_z: np.ndarray,
-) -> tuple[np.ndarray, np.ndarray, np.ndarray,]:
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     positions = np.hstack([raw_x, raw_y, raw_z])
 
     pca = PCA(n_components=3)
@@ -31,3 +31,14 @@ def rotate_points_PCA(
         new_positions[:, 1].reshape(-1, 1),
         new_positions[:, 2].reshape(-1, 1),
     )
+
+
+def remove_offset(
+    x: np.ndarray,
+    y: np.ndarray,
+    z: np.ndarray,
+    x_off: np.ndarray,
+    y_off: np.ndarray,
+    z_off: np.ndarray,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    return (x - x_off, y - y_off, z - z_off)

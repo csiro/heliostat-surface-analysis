@@ -1,12 +1,15 @@
 import os
 
 import numpy as np
+import pandas as pd
 from scipy import stats
 from matplotlib import pyplot as plt
 import nlopt
 
 from surface_analysis.loader import from_leica
-from surface_analysis.preprocessor import centre_points_centroid, rotate_points_PCA
+from surface_analysis.preprocessor import centre_points_centroid, rotate_points_PCA, remove_offset
+from surface_analysis.exporter import export_points_delaunay_stl, export_points_resampled_stl
+from surface_analysis.linear_functions.linear_function import LinearFunction
 from surface_analysis.linear_functions.linear_function_creator import (
     centred_circular_paraboloid,
     centred_circular_paraboloid_with_z_offset,
@@ -17,6 +20,7 @@ from surface_analysis.linear_functions.linear_function_creator import (
 )
 from surface_analysis.linear_least_squares_fitter import LinearLeastSquaresFitter
 from surface_analysis.linear_objective_functions import (
+    rms_slope_error_objective,
     mean_slope_error_objective,
     squared_z_distance_objective,
 )
@@ -29,11 +33,139 @@ def main():
     file_name = r"C:\Users\ACU005\CSIRO\ASTRI P11 Heliostats - HelioCon\HeliostatMetrology\HelioJigScans\surface_D.txt"
     mirror_name_with_extension = os.path.basename(os.path.normpath(file_name))
     mirror_name = mirror_name_with_extension.split(".")[0]
-    output_dir = os.path.join("outputs", mirror_name)
+    output_dir = "outputs"
     os.makedirs(output_dir, exist_ok=True)
+
 
     csiro_method(file_name, output_dir)
     anu_method(file_name, output_dir)
+    # outputs = []
+    # for mirror in [mirror_name]:
+    #     mirror_path = os.path.join(output_dir, mirror_name)
+    #     os.makedirs(mirror_path, exist_ok=True)
+    #     outputs.append(dan_output(file_name, mirror, mirror_path, 18, 2.44, 1.85))
+
+    # output = pd.concat(outputs)
+    # output.to_pickle(os.path.join(output_dir, f"outputs.pkl"))
+
+def dan_output(file_name, mirror_name, output_dir, design_focal_length, width, height):
+    raw_x, raw_y, raw_z = from_leica(file_name)
+    centred_x, centred_y, centred_z = centre_points_centroid(raw_x, raw_y, raw_z)
+    x, y, z = rotate_points_PCA(centred_x, centred_y, centred_z)
+    x_c, y_c, z_c, area, n = points_to_normals(x, y, z)
+
+    results = {}
+    results["name"] = mirror_name
+    results["design_focal_length"] = design_focal_length
+    results["width"] = width
+    results["height"] = height
+    poly = circular_paraboloid()
+
+    fit_sum_squared_z_method(x, y, z, x_c, y_c, z_c, n, area, output_dir, mirror_name, results, poly, width, height)
+    fit_rms_angular_diff_method(x, y, z, x_c, y_c, z_c, n, area, output_dir, mirror_name, results, poly, width, height)
+
+    output = pd.DataFrame(columns=results.keys())
+    for key, value in results.items():
+        output.at[0, key] = value
+    return output
+
+
+def fit_rms_angular_diff_method(
+    x,
+    y,
+    z,
+    x_c,
+    y_c,
+    z_c,
+    n,
+    area,
+    output_dir,
+    file_name,
+    results,
+    poly: LinearFunction,
+    width,
+    height,
+):
+    obj = rms_slope_error_objective(x_c, y_c, n, area, poly)
+    opt = nlopt.opt(nlopt.LN_COBYLA, 4)
+    opt.set_lower_bounds([-1, -1, -1, -1])
+    opt.set_upper_bounds([1, 1, 1, 1])
+    opt.set_min_objective(obj)
+    opt.set_xtol_rel(1e-6)
+    xopt = opt.optimize([0, 0, 0, 0])
+    minf = opt.last_optimum_value()
+
+    x_off, y_off, z_off = poly.get_offsets(xopt.reshape(-1, 1))
+
+    results["circular_paraboloid_rms_angular_diff_coeffs"] = xopt
+    results["circular_paraboloid_rms_angular_diff_focal_length"] = 1 / (4 * xopt[0])
+    results["circular_paraboloid_rms_angular_diff_weighted_rms"] = minf
+    results["circular_paraboloid_rms_angular_diff_mle_sigma"] = minf / np.sqrt(2)
+
+    x_shift, y_shift, z_shift = remove_offset(x, y, z, x_off, y_off, z_off)
+    export_points_delaunay_stl(
+        x_shift,
+        y_shift,
+        z_shift,
+        os.path.join(output_dir, f"{file_name}_circular_paraboloid_rms_angular_diff_delaunay.stl")
+    )
+    export_points_resampled_stl(
+        x_shift,
+        y_shift,
+        z_shift,
+        width,
+        height,
+        os.path.join(output_dir, f"{file_name}_circular_paraboloid_rms_angular_diff_resampled.stl")
+    )
+
+
+def fit_sum_squared_z_method(
+    x,
+    y,
+    z,
+    x_c,
+    y_c,
+    z_c,
+    n,
+    area,
+    output_dir,
+    file_name,
+    results,
+    poly: LinearFunction,
+    width,
+    height,
+):
+    fitter = LinearLeastSquaresFitter()
+    sec = SlopeErrorCalculator()
+    coeffs, ssr = fitter.fit_linear_function(x, y, z, poly.terms)
+    x_off, y_off, z_off = poly.get_offsets(coeffs)
+    normal_func = poly.assemble_normal_function(coeffs)
+    angular_differences = sec.calculate_angular_differences(
+        x_c, y_c, n, normal_func
+    )
+    weighted_rms = sec.calculate_weighted_rms(angular_differences, area)
+    sigma_mle = weighted_rms / np.sqrt(2)
+
+    results["circular_paraboloid_sum_squared_z_diff_coeffs"] = coeffs.reshape((-1,))
+    results["circular_paraboloid_sum_squared_z_diff_focal_length"] = 1 / (4 * coeffs[0, 0])
+    results["circular_paraboloid_sum_squared_z_diff_weighted_rms"] = weighted_rms
+    results["circular_paraboloid_sum_squared_z_diff_mle_sigma"] = sigma_mle
+
+    x_shift, y_shift, z_shift = remove_offset(x, y, z, x_off, y_off, z_off)
+    export_points_delaunay_stl(
+        x_shift,
+        y_shift,
+        z_shift,
+        os.path.join(output_dir, f"{file_name}_circular_paraboloid_sum_squared_z_diff_delaunay.stl")
+    )
+    export_points_resampled_stl(
+        x_shift,
+        y_shift,
+        z_shift,
+        width,
+        height,
+        os.path.join(output_dir, f"{file_name}_circular_paraboloid_sum_squared_z_diff_resampled.stl")
+    )
 
 
 def csiro_method(file_name, output_dir):
