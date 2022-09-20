@@ -1,8 +1,66 @@
+from abc import ABC, abstractmethod
 from typing import Callable
 
 import numpy as np
 
 
+class Aggregator(ABC):
+    @abstractmethod
+    def aggregate(self, values: np.ndarray) -> float:
+        pass
+
+
+class WeightedAggregator(Aggregator):
+    def __init__(self, weights: np.ndarray):
+        self.weights = weights
+
+
+class SumAggregator(Aggregator):
+    def aggregate(self, values: np.ndarray) -> float:
+        return np.sum(values)
+
+
+class SquaredSumAggregator(Aggregator):
+    def aggregate(self, values: np.ndarray) -> float:
+        return np.sum(np.square(values))
+
+
+class MeanAggregator(Aggregator):
+    def aggregate(self, values: np.ndarray) -> float:
+        return np.sum(values) / len(values)
+
+
+class RMSAggregator(Aggregator):
+    def aggregate(self, values: np.ndarray) -> float:
+        square = np.square(values)
+        mean_square = np.sum(square) / len(square)
+        return np.sqrt(mean_square)
+
+
+class WeightedSumAggregator(WeightedAggregator):
+    def aggregate(self, values: np.ndarray) -> float:
+        return np.sum(values * self.weights)
+
+
+class WeightedSquaredSumAggregator(WeightedAggregator):
+    def aggregate(self, values: np.ndarray) -> float:
+        return np.sum(np.square(values) * self.weights)
+
+
+class WeightedMeanAggregator(WeightedAggregator):
+    def aggregate(self, values: np.ndarray) -> float:
+        weighted_values = values * self.weights
+        return np.sum(weighted_values) / np.sum(self.weights)
+
+
+class WeightedRMSAggregator(WeightedAggregator):
+    def aggregate(self, values: np.ndarray) -> float:
+        weighted_squared_values = np.square(values) * self.weights
+        mean_square = np.sum(weighted_squared_values) / np.sum(self.weights)
+        return np.sqrt(mean_square)
+
+
+# Delete following code
 def create_sum_aggregator() -> Callable[[np.ndarray], np.ndarray]:
     def aggregator(values):
         return np.sum(values)

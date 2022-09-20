@@ -1,17 +1,17 @@
 from dataclasses import dataclass
-from typing import Callable, Optional
+from typing import Callable
+from abc import ABC, abstractmethod
 
 import numpy as np
 
 
 @dataclass
-class LinearFunction:
+class LinearFunction(ABC):
     name: str
     formula: str
     terms: list[Callable[[np.ndarray, np.ndarray], np.ndarray]]
     df_dx_terms: list[Callable[[np.ndarray, np.ndarray], np.ndarray]]
     df_dy_terms: list[Callable[[np.ndarray, np.ndarray], np.ndarray]]
-    offset_function: Optional[Callable[[np.ndarray], tuple[float, float, float]]] = None
 
     def assemble_function(
         self,
@@ -59,10 +59,11 @@ class LinearFunction:
 
         return assembled_function
 
-    def get_offsets(self, coeffs: np.ndarray) -> float:
+    @abstractmethod
+    def get_offsets(self, coeffs: np.ndarray) -> tuple[float, float, float]:
         """
         For the given coefficients, calculate the x offset that would
         remove the plain "bx", "cy" and "e" terms.
         These summarise the x, y and z offset.
         """
-        return self.offset_function(coeffs)
+        pass

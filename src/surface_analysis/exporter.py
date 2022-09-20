@@ -1,13 +1,12 @@
+from typing import Callable
+
 import numpy as np
 from scipy import interpolate
 
-from surface_analysis.points_to_mesh_converter import (
-    points_to_tris,
-    points_and_tris_to_mesh,
-)
+from surface_analysis.points_to_mesh_converter import points_to_tris
+from surface_analysis.points_to_mesh_converter import points_and_tris_to_mesh
 
-MIRROR_WIDTH = 2.4
-MIRROR_HEIGHT = 1.8
+
 GRID_SIZE = 0.015
 
 
@@ -16,6 +15,37 @@ def export_points_delaunay_stl(x, y, z, file_name):
     mesh = points_and_tris_to_mesh(x, y, z, tris)
     mesh.save(file_name)
 
+
+def export_function_stl(
+    x: np.ndarray,
+    y: np.ndarray,
+    func: Callable[[np.ndarray, np.ndarray], np.ndarray],
+    width,
+    height,
+    file_name: str,
+):
+    xmin = -width / 2
+    xmax = width / 2
+    ymin = -height / 2
+    ymax = height / 2
+
+    xcount = int(round((xmax - xmin) / GRID_SIZE))
+    ycount = int(round((ymax - ymin) / GRID_SIZE))
+    xi = np.linspace(xmin, xmax, xcount)
+    yi = np.linspace(ymin, ymax, ycount)
+
+    vertexes = np.ndarray((xi.size, yi.size, 3))
+    for y in range(yi.size):
+        for x in range(xi.size):
+            vertexes[x, y, 0] = xi[x]
+            vertexes[x, y, 1] = yi[y]
+            x_value = xi[x]
+            y_value = yi[y]
+            x_array = np.array([x_value]).reshape((-1, 1))
+            y_array = np.array([y_value]).reshape((-1, 1))
+            vertexes[x, y, 2] = func(x_array, y_array)[0, 0]
+
+    write_stl(file_name, vertexes)
 
 def export_points_resampled_stl(
     x: np.ndarray,
