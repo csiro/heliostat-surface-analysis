@@ -1,7 +1,7 @@
-from stl.mesh import Mesh
-import pandas as pd
-from scipy.spatial import Delaunay
 import numpy as np
+import pandas as pd
+from stl.mesh import Mesh
+from scipy.spatial import Delaunay
 
 from surface_analysis.vector_math import area_of_triangles, area_of_triangles_xy
 

@@ -6,7 +6,7 @@ from surface_analysis.linear_functions.linear_function import LinearFunction
 class ANUPolynomial(LinearFunction):
     def __init__(self):
         self.name = "anu_polynomial"
-        self.formula = "ax^2*y^2 + bx^2*y + cx^2 + dxy^2 + exy + fx + gy^2 + hy + i"
+        self.formula = "z = ax^2*y^2 + bx^2*y + cx^2 + dxy^2 + exy + fx + gy^2 + hy + i"
         self.terms = [
             lambda x, y: x**2 * y**2,
             lambda x, y: x**2 * y,

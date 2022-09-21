@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 import numpy as np
 import nlopt
 
-from surface_analysis.linear_objective_function import LinearObjectiveFunction
+from surface_analysis.objectives.linear_objective_function import LinearObjectiveFunction
 
 
 class Fitter(ABC):

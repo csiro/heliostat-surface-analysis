@@ -4,21 +4,22 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
+from surface_analysis.loaders.loader import Loader
 from surface_analysis.loaders.default_loader import DefaultLoader
-from surface_analysis.loaders.leica_loader import LeicaLoader
-from surface_analysis.preprocessor import Preprocessor
-from surface_analysis.preprocessor import BasicPreprocessor
+from surface_analysis.preprocessors.preprocessor import Preprocessor
+from surface_analysis.preprocessors.basic_preprocessor import BasicPreprocessor
 from surface_analysis.linear_functions.linear_function import LinearFunction
 from surface_analysis.linear_functions.circular_paraboloid import CircularParaboloid
 from surface_analysis.linear_functions.anu_polynomial import ANUPolynomial
-from surface_analysis.fitter import LinearLeastSquaresFitter
-from surface_analysis.fitter import NonLinearFitter
-from surface_analysis.linear_objective_function import SlopeErrorObjectiveFunction
+from surface_analysis.fitters.fitter import LinearLeastSquaresFitter
+from surface_analysis.fitters.fitter import NonLinearFitter
+from surface_analysis.objectives.linear_objective_function import SlopeErrorObjectiveFunction
 from surface_analysis.measured_surface import MeasuredSurface
 from surface_analysis.points_to_mesh_converter import points_to_normals
-from surface_analysis.exporter import export_points_delaunay_stl
-from surface_analysis.exporter import export_points_resampled_stl
-from surface_analysis.exporter import export_function_stl
+from surface_analysis.exporters.exporter import export_points_delaunay_stl
+from surface_analysis.exporters.exporter import export_points_resampled_stl
+from surface_analysis.exporters.exporter import export_function_stl
+from surface_analysis.plotter import Plotter
 
 
 MANIFEST_FILE = "designfocallengths.txt"
@@ -28,43 +29,45 @@ HEIGHT = 2.25
 
 
 def analyse_scans(
-    input_path: str,
-    output_path: str
+    input_path: str = "input",
+    output_path: str = "output",
+    loader: Loader = DefaultLoader,
+    preprocessor: Preprocessor = BasicPreprocessor,
 ):
-    manifest_path = os.path.join(input_path, MANIFEST_FILE)
-    focal_lengths = load_focal_lengths(manifest_path)
+    design_focal_lengths = load_design_focal_lengths(input_path)
 
-    # loader = DefaultLoader()
-    loader = LeicaLoader()
-    scan_dir_path = os.path.join(input_path, SCANS_DIR)
-    scan_file_names = os.listdir(scan_dir_path)
+    scans_path = os.path.join(input_path, SCANS_DIR)
+    scan_files = os.listdir(scans_path)
     analysis_results = []
-    for scan_file_name in scan_file_names:
-        scan_path = os.path.join(scan_dir_path, scan_file_name)
-        scan_name = scan_file_name.split(".")[0]
+    for scan_file in scan_files:
+        scan_path = os.path.join(scans_path, scan_file)
+        scan_name = scan_file.split(".")[0]
         scan_output_dir = os.path.join(output_path, scan_name)
         os.makedirs(scan_output_dir, exist_ok=True)
 
-        x, y, z = loader.load_points(scan_path)
+        surface = load_measured_surface(scan_path, loader, preprocessor)
         analysis_result = analyse_scan(
-            x,
-            y,
-            z,
+            surface,
             scan_name,
             scan_output_dir,
             WIDTH,
             HEIGHT,
-            focal_lengths[scan_name],
-            BasicPreprocessor(),
+            design_focal_lengths[scan_name],
         )
-        analysis_results.append(analysis_result)
+
+        output = pd.DataFrame(columns=analysis_result.keys())
+        for key, value in analysis_result.items():
+            output.at[0, key] = value
+        analysis_results.append(output)
 
     output_table = pd.concat(analysis_results)
     output_table_path = os.path.join(output_path, f"outputs.pkl")
     output_table.to_pickle(output_table_path)
 
 
-def load_focal_lengths(manifest_path: str) -> dict[str, float]:
+def load_design_focal_lengths(input_path: str) -> dict[str, float]:
+    manifest_path = os.path.join(input_path, MANIFEST_FILE)
+
     focal_lengths = {}
     with open(manifest_path, "r") as manifest_file:
         for line in manifest_file.readlines():
@@ -75,42 +78,32 @@ def load_focal_lengths(manifest_path: str) -> dict[str, float]:
     return focal_lengths
 
 
+def load_measured_surface(
+    scan_path: str,
+    loader: Loader = DefaultLoader,
+    preprocessor: Preprocessor = BasicPreprocessor,
+) -> MeasuredSurface:
+    raw_x, raw_y, raw_z = loader.load_points(scan_path)
+    x, y, z = preprocessor.preprocess_points(raw_x, raw_y, raw_z)
+    x_c, y_c, z_c, area, n = points_to_normals(x, y, z)
+    return MeasuredSurface(x, y, z, x_c, y_c, z_c, n, area)
+
+
 def analyse_scan(
-    raw_x: np.ndarray,
-    raw_y: np.ndarray,
-    raw_z: np.ndarray,
+    surface: MeasuredSurface,
     scan_name: str,
     scan_output_dir: str,
     width: float,
     height: float,
     design_focal_length: float,
-    preprocessor: Preprocessor,
 ) -> pd.DataFrame:
-    x, y, z = preprocessor.preprocess_points(raw_x, raw_y, raw_z)
-    x_c, y_c, z_c, area, n = points_to_normals(x, y, z)
-    surface = MeasuredSurface(x, y, z, x_c, y_c, z_c, n, area)
-
-
     results = {}
     results["name"] = scan_name
     results["width"] = width
     results["height"] = height
     results["design_focal_length"] = design_focal_length
 
-    export_points_delaunay_stl(
-        surface.x,
-        surface.y,
-        surface.z,
-        os.path.join(scan_output_dir, f"{scan_name}_raw_delaunay.stl")
-    )
-    export_points_resampled_stl(
-        surface.x,
-        surface.y,
-        surface.z,
-        width,
-        height,
-        os.path.join(scan_output_dir, f"{scan_name}_raw_resampled.stl")
-    )
+    export_raw_surface(surface, scan_name, scan_output_dir, width, height)
 
     poly = CircularParaboloid()
     fitter = LinearLeastSquaresFitter(poly.terms)
@@ -163,10 +156,30 @@ def analyse_scan(
         height,
     )
 
-    output = pd.DataFrame(columns=results.keys())
-    for key, value in results.items():
-        output.at[0, key] = value
-    return output
+    return results
+
+
+def export_raw_surface(
+    surface: MeasuredSurface,
+    scan_name: str,
+    scan_output_dir: str,
+    width: float,
+    height: float,
+) -> None:
+    export_points_delaunay_stl(
+        surface.x,
+        surface.y,
+        surface.z,
+        os.path.join(scan_output_dir, f"{scan_name}_raw_delaunay.stl")
+    )
+    export_points_resampled_stl(
+        surface.x,
+        surface.y,
+        surface.z,
+        width,
+        height,
+        os.path.join(scan_output_dir, f"{scan_name}_raw_resampled.stl")
+    )
 
 
 def analyse_polynomial(
