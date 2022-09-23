@@ -7,7 +7,6 @@ import matplotlib.cm as cm
 from matplotlib.colors import Normalize
 from matplotlib.figure import Figure
 
-from surface_analysis.mirror_surface import MirrorSurface
 from surface_analysis.points_to_mesh_converter import (
     points_to_tris, points_and_tris_to_mesh, mesh_to_facets
 )
@@ -141,6 +140,9 @@ class Plotter:
             values,
             bins=bins,
         )
+        ax.set_xlabel("Surface normal deviation (radian)")
+        ax.set_ylabel("Frequency (counts per bin)")
+        ax.set_xlim((0, 0.01))
         plt.show()
 
     def plot_hist_and_curve(
@@ -188,9 +190,9 @@ class Plotter:
         facets = mesh_to_facets(mesh)
 
         ax = fig.add_subplot(subplot_number, projection="3d")
-        ax.set_xlabel("x (m)")
-        ax.set_ylabel("y (m)")
-        ax.set_zlabel("z (m)")
+        ax.set_xlabel("\nX (m)")
+        ax.set_ylabel("\nY (m)")
+        ax.set_zlabel("\nZ (m)")
         p3dc = ax.plot_trisurf(
             x.reshape((-1,)),
             y.reshape((-1,)),
@@ -203,10 +205,16 @@ class Plotter:
         cmap = cm.get_cmap("plasma")
         colors = cmap(norm(facets["z"]))
         p3dc.set_fc(colors)
-        cbar = fig.colorbar(cm.ScalarMappable(cmap=cmap, norm=norm), shrink=0.5)
-        cbar.set_label("z (mm)")
-        fig.tight_layout()
+        # cbar = fig.colorbar(
+        #     cm.ScalarMappable(cmap=cmap, norm=norm),
+        #     shrink=0.4,
+        #     pad=0,
+        #     orientation="horizontal",
+        # )
+        # cbar.set_label("Z-axis position (m)")
+        # fig.tight_layout()
         ax.set_zlim(self.z_lim)
+        ax.set_box_aspect((1,1,0.5))
 
     def add_points_with_text_subplot(
         self,
@@ -221,113 +229,17 @@ class Plotter:
         for i in range(len(x)):
             ax.text(x[i], z[i], str(i))
 
-    def plot_mirror_3d(
+    def plot_points_top_view(
         self,
-        mirror: MirrorSurface,
+        x: np.ndarray,
+        y: np.ndarray,
     ) -> None:
-        """
-        Plot a triangulated surface.
-        Triangulation is just done with x and y so need to include points for z data.
-        """
-        points = mirror.points
-        tris = mirror.tris
-        facets = mirror.facets
-
-        ax = self.fig.add_subplot(1, 2, 1, projection="3d")
-        ax.set_xlabel("x (m)")
-        ax.set_ylabel("y (m)")
-        ax.set_zlabel("z (m)")
-
-        p3dc = ax.plot_trisurf(
-            points["x"],
-            points["y"],
-            points["z"],
-            triangles=tris.simplices,
-        )
-
-        # Set up colours
-        norm = Normalize()
-        cmap = cm.get_cmap("plasma")
-        colors = cmap(norm(facets["z"]))
-        p3dc.set_fc(colors)
-        cbar = self.fig.colorbar(cm.ScalarMappable(cmap=cmap, norm=norm), shrink=0.5)
-        cbar.set_label("z (mm)")
-        self.fig.tight_layout()
-        ax.set_zlim(self.z_lim)
-
-    def plot_mirror_and_3d_func(
-        self,
-        mirror: MirrorSurface,
-        z_func: Callable[[np.ndarray, np.ndarray], np.ndarray],
-    ) -> None:
-        """
-        Plot a triangulated surface.
-        Triangulation is just done with x and y so need to include points for z data.
-        """
-        points = mirror.points
-        tris = mirror.tris
-        facets = mirror.facets
-
-        x = points["x"].to_numpy().reshape(-1, 1)
-        y = points["y"].to_numpy().reshape(-1, 1)
-        facet_z = facets["z"].to_numpy().reshape(-1, 1)
-
-        ax = self.fig.add_subplot(111, projection="3d")
-        p3dc = ax.plot_trisurf(
-            points["x"],
-            points["y"],
-            points["z"],
-            triangles=tris.simplices,
-        )
-        ax.scatter(
-            x,
-            y,
-            z_func(x, y),
-        )
-
-        # Set up colours
-        norm = Normalize()
-        cmap = cm.get_cmap("plasma")
-        colors = cmap(norm(facet_z))
-        p3dc.set_fc(colors)
-        self.fig.colorbar(cm.ScalarMappable(cmap=cmap, norm=norm), shrink=0.5)
-        self.fig.tight_layout()
-
-    def plot_mirror_and_3d_func_diff(
-        self,
-        mirror: MirrorSurface,
-        z_func: Callable[[np.ndarray, np.ndarray], np.ndarray],
-    ) -> None:
-        """
-        Plot a triangulated surface.
-        Triangulation is just done with x and y so need to include points for z data.
-        """
-        points = mirror.points
-        tris = mirror.tris
-        facets = mirror.facets
-
-        x = points["x"].to_numpy().reshape(-1, 1)
-        y = points["y"].to_numpy().reshape(-1, 1)
-        z = points["z"].to_numpy().reshape(-1, 1)
-        facet_x = facets["x"].to_numpy().reshape(-1, 1)
-        facet_y = facets["y"].to_numpy().reshape(-1, 1)
-        facet_z = facets["z"].to_numpy().reshape(-1, 1)
-
-        ax = self.fig.add_subplot(111, projection="3d")
-        p3dc = ax.plot_trisurf(
-            points["x"],
-            points["y"],
-            (z - z_func(x, y)).reshape((-1,)),
-            triangles=tris.simplices,
-        )
-
-        # Set up colours
-        norm = Normalize()
-        cmap = cm.get_cmap("plasma")
-        colors = cmap(norm(facet_z - z_func(facet_x, facet_y)))
-        p3dc.set_fc(colors)
-        self.fig.colorbar(cm.ScalarMappable(cmap=cmap, norm=norm), shrink=0.5)
-        self.fig.tight_layout()
+        fig = plt.figure()
+        ax = fig.add_subplot()
+        ax.plot(x, y, markersize=5)
+        ax.set_xlabel("X (m)")
+        ax.set_ylabel("Y (m)")
+        fig.show()
 
     def plot_3d_func_diff(
         self,
@@ -358,17 +270,125 @@ class Plotter:
         )
         ax.set_zlim(self.z_lim)
 
-    def plot_mirror_front_with_text(
-        self,
-        mirror: MirrorSurface,
-    ) -> None:
-        """
-        Plot mirror viewed from the x direction with text of each point.
-        """
-        points = mirror.points
+    # def plot_mirror_3d(
+    #     self,
+    #     mirror: MirrorSurface,
+    # ) -> None:
+    #     """
+    #     Plot a triangulated surface.
+    #     Triangulation is just done with x and y so need to include points for z data.
+    #     """
+    #     points = mirror.points
+    #     tris = mirror.tris
+    #     facets = mirror.facets
 
-        fig, ax = plt.subplots(figsize=(10, 10))
-        ax.scatter(points["y"], points["z"])
+    #     ax = self.fig.add_subplot(1, 2, 1, projection="3d")
+    #     ax.set_xlabel("x (m)")
+    #     ax.set_ylabel("y (m)")
+    #     ax.set_zlabel("z (m)")
 
-        for _, row in points.iterrows():
-            ax.text(row["y"], row["z"], str(int(row.name) + 1))
+    #     p3dc = ax.plot_trisurf(
+    #         points["x"],
+    #         points["y"],
+    #         points["z"],
+    #         triangles=tris.simplices,
+    #     )
+
+    #     # Set up colours
+    #     norm = Normalize()
+    #     cmap = cm.get_cmap("plasma")
+    #     colors = cmap(norm(facets["z"]))
+    #     p3dc.set_fc(colors)
+    #     cbar = self.fig.colorbar(cm.ScalarMappable(cmap=cmap, norm=norm), shrink=0.5)
+    #     cbar.set_label("z (mm)")
+    #     self.fig.tight_layout()
+    #     ax.set_zlim(self.z_lim)
+
+    # def plot_mirror_and_3d_func(
+    #     self,
+    #     mirror: MirrorSurface,
+    #     z_func: Callable[[np.ndarray, np.ndarray], np.ndarray],
+    # ) -> None:
+    #     """
+    #     Plot a triangulated surface.
+    #     Triangulation is just done with x and y so need to include points for z data.
+    #     """
+    #     points = mirror.points
+    #     tris = mirror.tris
+    #     facets = mirror.facets
+
+    #     x = points["x"].to_numpy().reshape(-1, 1)
+    #     y = points["y"].to_numpy().reshape(-1, 1)
+    #     facet_z = facets["z"].to_numpy().reshape(-1, 1)
+
+    #     ax = self.fig.add_subplot(111, projection="3d")
+    #     p3dc = ax.plot_trisurf(
+    #         points["x"],
+    #         points["y"],
+    #         points["z"],
+    #         triangles=tris.simplices,
+    #     )
+    #     ax.scatter(
+    #         x,
+    #         y,
+    #         z_func(x, y),
+    #     )
+
+    #     # Set up colours
+    #     norm = Normalize()
+    #     cmap = cm.get_cmap("plasma")
+    #     colors = cmap(norm(facet_z))
+    #     p3dc.set_fc(colors)
+    #     self.fig.colorbar(cm.ScalarMappable(cmap=cmap, norm=norm), shrink=0.5)
+    #     self.fig.tight_layout()
+
+    # def plot_mirror_and_3d_func_diff(
+    #     self,
+    #     mirror: MirrorSurface,
+    #     z_func: Callable[[np.ndarray, np.ndarray], np.ndarray],
+    # ) -> None:
+    #     """
+    #     Plot a triangulated surface.
+    #     Triangulation is just done with x and y so need to include points for z data.
+    #     """
+    #     points = mirror.points
+    #     tris = mirror.tris
+    #     facets = mirror.facets
+
+    #     x = points["x"].to_numpy().reshape(-1, 1)
+    #     y = points["y"].to_numpy().reshape(-1, 1)
+    #     z = points["z"].to_numpy().reshape(-1, 1)
+    #     facet_x = facets["x"].to_numpy().reshape(-1, 1)
+    #     facet_y = facets["y"].to_numpy().reshape(-1, 1)
+    #     facet_z = facets["z"].to_numpy().reshape(-1, 1)
+
+    #     ax = self.fig.add_subplot(111, projection="3d")
+    #     p3dc = ax.plot_trisurf(
+    #         points["x"],
+    #         points["y"],
+    #         (z - z_func(x, y)).reshape((-1,)),
+    #         triangles=tris.simplices,
+    #     )
+
+    #     # Set up colours
+    #     norm = Normalize()
+    #     cmap = cm.get_cmap("plasma")
+    #     colors = cmap(norm(facet_z - z_func(facet_x, facet_y)))
+    #     p3dc.set_fc(colors)
+    #     self.fig.colorbar(cm.ScalarMappable(cmap=cmap, norm=norm), shrink=0.5)
+    #     self.fig.tight_layout()
+
+    # def plot_mirror_front_with_text(
+    #     self,
+    #     mirror: MirrorSurface,
+    # ) -> None:
+    #     """
+    #     Plot mirror viewed from the x direction with text of each point.
+    #     """
+    #     points = mirror.points
+
+    #     fig, ax = plt.subplots(figsize=(10, 10))
+    #     ax.scatter(points["y"], points["z"])
+
+    #     for _, row in points.iterrows():
+    #         ax.text(row["y"], row["z"], str(int(row.name) + 1))

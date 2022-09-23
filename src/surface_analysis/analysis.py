@@ -20,6 +20,8 @@ from surface_analysis.exporters.exporter import export_points_delaunay_stl
 from surface_analysis.exporters.exporter import export_points_resampled_stl
 from surface_analysis.exporters.exporter import export_function_stl
 from surface_analysis.plotter import Plotter
+from surface_analysis.comparitors.comparitor import AngularDifferenceComparitor
+from surface_analysis.aggregators.aggregator import WeightedRMSAggregator, WeightedMeanAggregator
 
 
 MANIFEST_FILE = "designfocallengths.txt"
@@ -46,6 +48,12 @@ def analyse_scans(
         os.makedirs(scan_output_dir, exist_ok=True)
 
         surface = load_measured_surface(scan_path, loader, preprocessor)
+
+        # plotter = Plotter()
+        # plotter.plot_points_as_surface(surface.x, surface.y, surface.z)
+        # plotter.plot_points(surface.x, surface.y, surface.z)
+        # plotter.plot_points_top_view(surface.x, surface.y)
+
         analysis_result = analyse_scan(
             surface,
             scan_name,
@@ -105,56 +113,92 @@ def analyse_scan(
 
     export_raw_surface(surface, scan_name, scan_output_dir, width, height)
 
-    poly = CircularParaboloid()
-    fitter = LinearLeastSquaresFitter(poly.terms)
-    coeffs = fitter.fit(surface.x, surface.y, surface.z)
-    analyse_polynomial(
-        results,
-        "circular_paraboloid_sum_squared_z_diff",
-        surface,
-        poly,
-        coeffs,
-        scan_output_dir,
-        scan_name,
-        width,
-        height,
-    )
+    # plotter = Plotter()
 
-    poly = ANUPolynomial()
-    fitter = LinearLeastSquaresFitter(poly.terms)
-    coeffs = fitter.fit(surface.x, surface.y, surface.z)
+    # poly1 = CircularParaboloid()
+    poly2 = ANUPolynomial()
+    # fitter1 = LinearLeastSquaresFitter(poly1.terms)
+    fitter2 = LinearLeastSquaresFitter(poly2.terms)
+    # coeffs1 = fitter1.fit(surface.x, surface.y, surface.z)
+    coeffs2 = fitter2.fit(surface.x, surface.y, surface.z)
+    # f1 = poly1.assemble_normal_function(coeffs1)
+    f2 = poly2.assemble_normal_function(coeffs2)
+
+    # n1 = f1(surface.x_c, surface.y_c)
+    n2 = f2(surface.x_c, surface.y_c)
+    # del1 = AngularDifferenceComparitor().compare(n1, surface.n)
+    del2 = AngularDifferenceComparitor().compare(n2, surface.n)
+    # print(WeightedRMSAggregator(surface.area).aggregate(del1))
+    print(WeightedRMSAggregator(surface.area).aggregate(del2))
+    print(WeightedMeanAggregator(surface.area).aggregate(del2))
+    # del1.sort(axis=0)
+    # del2.sort(axis=0)
+    # count1 = len(del1)
+    # count2 = len(del2)
+    # del1 = del1[0: round(count1 * 99 / 100)]
+    # del2 = del2[0: round(count2 * 99 / 100)]
+    # plotter.plot_hist(del1)
+    # plotter.plot_hist(del2)
+
+    # min1 = min(surface.z - f1(surface.x, surface.y))
+    # min2 = min(surface.z - f2(surface.x, surface.y))
+    # max1 = max(surface.z - f1(surface.x, surface.y))
+    # max2 = max(surface.z - f2(surface.x, surface.y))
+    # mini = min(min1, min2)
+    # maxi = max(max1, max2)
+
+    # plotter.z_lim = (mini, maxi)
+    # plotter.plot_points_as_surface_pair(
+    #     surface.x,
+    #     surface.y,
+    #     surface.z - f1(surface.x, surface.y),
+    #     surface.z - f2(surface.x, surface.y),
+    # )
+
+    # analyse_polynomial(
+    #     results,
+    #     "circular_paraboloid_sum_squared_z_diff",
+    #     surface,
+    #     poly1,
+    #     coeffs1,
+    #     scan_output_dir,
+    #     scan_name,
+    #     width,
+    #     height,
+    # )
+
     analyse_polynomial(
         results,
         "anu_polynomial_sum_squared_z_diff",
         surface,
-        poly,
-        coeffs,
+        poly2,
+        coeffs2,
         scan_output_dir,
         scan_name,
         width,
         height,
     )
 
-    poly = CircularParaboloid()
-    fitter = NonLinearFitter(
-        4,
-        SlopeErrorObjectiveFunction(surface.x_c, surface.y_c, surface.n, surface.area, poly),
-        [-1, -1, -1, -1],
-        [1, 1, 1, 1],
-        [0, 0, 0, 0]
-    )
-    coeffs = fitter.fit()
-    analyse_polynomial(
-        results,
-        "circular_paraboloid_rms_angular_diff",
-        surface,
-        poly,
-        coeffs,
-        scan_output_dir,
-        scan_name,
-        width,
-        height,
-    )
+    # poly = CircularParaboloid()
+    # fitter = NonLinearFitter(
+    #     4,
+    #     SlopeErrorObjectiveFunction(surface.x_c, surface.y_c, surface.n, surface.area, poly),
+    #     [-1, -1, -1, -1],
+    #     [1, 1, 1, 1],
+    #     [0, 0, 0, 0]
+    # )
+    # coeffs = fitter.fit()
+    # analyse_polynomial(
+    #     results,
+    #     "circular_paraboloid_rms_angular_diff",
+    #     surface,
+    #     poly,
+    #     coeffs,
+    #     scan_output_dir,
+    #     scan_name,
+    #     width,
+    #     height,
+    # )
 
     return results
 
