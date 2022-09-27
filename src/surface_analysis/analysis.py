@@ -9,8 +9,10 @@ from surface_analysis.loaders.default_loader import DefaultLoader
 from surface_analysis.preprocessors.preprocessor import Preprocessor
 from surface_analysis.preprocessors.basic_preprocessor import BasicPreprocessor
 from surface_analysis.linear_functions.linear_function import LinearFunction
+
 from surface_analysis.linear_functions.circular_paraboloid import CircularParaboloid
 from surface_analysis.linear_functions.anu_polynomial import ANUPolynomial
+
 from surface_analysis.fitters.fitter import LinearLeastSquaresFitter
 from surface_analysis.fitters.fitter import NonLinearFitter
 from surface_analysis.objectives.linear_objective_function import SlopeErrorObjectiveFunction
@@ -108,18 +110,47 @@ def analyse_scan(
     results["height"] = height
     results["design_focal_length"] = design_focal_length
 
-    export_raw_surface(surface, scan_name, scan_output_dir, width, height)
+    # export_raw_surface(surface, scan_name, scan_output_dir, width, height)
 
     poly1 = CircularParaboloid()
     fitter1 = LinearLeastSquaresFitter(poly1.terms)
     coeffs1 = fitter1.fit(surface.x, surface.y, surface.z)
-
     analyse_polynomial(
         results,
         "circular_paraboloid_sum_squared_z_diff",
         surface,
         poly1,
         coeffs1,
+        scan_output_dir,
+        scan_name,
+        width,
+        height,
+    )
+
+
+    poly2 = ANUPolynomial()
+    fitter2 = LinearLeastSquaresFitter(poly2.terms)
+    coeffs2 = fitter2.fit(surface.x, surface.y, surface.z)
+    analyse_polynomial(
+        results,
+        "anu_polynomial_sum_squared_z_diff",
+        surface,
+        poly2,
+        coeffs2,
+        scan_output_dir,
+        scan_name,
+        width,
+        height,
+    )
+
+    coeffs3 = coeffs1.copy()
+    coeffs3[0][0] = 1 / (4 * design_focal_length)
+    analyse_polynomial(
+        results,
+        "design_paraboloid_sum_squared_z_diff",
+        surface,
+        poly1,
+        coeffs3,
         scan_output_dir,
         scan_name,
         width,
@@ -205,11 +236,11 @@ def analyse_polynomial(
     results[f"{method_name}_weighted_rms"] = weighted_rms
     results[f"{method_name}_mle_sigma"] = sigma_mle
 
-    export_function_stl(
-        surface.x,
-        surface.y,
-        poly.assemble_function(coeffs),
-        width,
-        height,
-        os.path.join(output_dir, f"{file_name}_{method_name}.stl")
-    )
+    # export_function_stl(
+    #     surface.x,
+    #     surface.y,
+    #     poly.assemble_function(coeffs),
+    #     width,
+    #     height,
+    #     os.path.join(output_dir, f"{file_name}_{method_name}.stl")
+    # )
