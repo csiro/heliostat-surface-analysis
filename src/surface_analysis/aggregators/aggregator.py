@@ -37,6 +37,23 @@ class RMSAggregator(Aggregator):
         return np.sqrt(mean_square)
 
 
+class ModeAggregator(Aggregator):
+    def aggregate(self, values: np.ndarray) -> float:
+        mini = 0
+        maxi = 0.01
+        increment = 2e-4
+        bins = round((maxi - mini) / increment)
+
+        counts, bin_edges = np.histogram(
+            values,
+            bins=bins,
+            range=(mini, maxi)    
+        )
+
+        index_of_max = counts.argmax()
+        return (bin_edges[index_of_max] + bin_edges[index_of_max + 1]) / 2
+
+
 class WeightedSumAggregator(WeightedAggregator):
     def aggregate(self, values: np.ndarray) -> float:
         return np.sum(values * self.weights)
@@ -59,6 +76,23 @@ class WeightedRMSAggregator(WeightedAggregator):
         mean_square = np.sum(weighted_squared_values) / np.sum(self.weights)
         return np.sqrt(mean_square)
 
+
+class WeightedModeAggregator(WeightedAggregator):
+    def aggregate(self, values: np.ndarray) -> float:
+        mini = 0
+        maxi = 0.01
+        increment = 1e-4
+        bins = round((maxi - mini) / increment)
+
+        counts, bin_edges = np.histogram(
+            values,
+            bins=bins,
+            range=(mini, maxi),
+            weights=self.weights
+        )
+
+        index_of_max = counts.argmax()
+        return (bin_edges[index_of_max] + bin_edges[index_of_max + 1]) / 2
 
 # Delete following code
 def create_sum_aggregator() -> Callable[[np.ndarray], np.ndarray]:

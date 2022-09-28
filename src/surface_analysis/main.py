@@ -11,10 +11,12 @@ from surface_analysis.preprocessors.outlier_preprocessor import OutlierPreproces
 
 def main():
     analyse_scans(
-        input_path=r"C:\Users\ACU005\CSIRO\ASTRI P11 Heliostats - HelioCon\HeliostatMetrology\old-scans\newcastle-field-2",
+        input_path=r"C:\Users\ACU005\CSIRO\ASTRI P11 Heliostats - HelioCon\HeliostatMetrology\new-scans",
+        # input_path=r"C:\Users\ACU005\CSIRO\ASTRI P11 Heliostats - HelioCon\HeliostatMetrology\old-scans\newcastle-field-2",
         # input_path=r"C:\Users\ACU005\CSIRO\ASTRI P11 Heliostats - HelioCon\HeliostatMetrology\test-scans",
         output_path="outputs",
-        loader=ScalingLoader(),
+        loader=LeicaLoader(),
+        # loader=ScalingLoader(),
         preprocessor=OutlierPreprocessor(),
     )
 

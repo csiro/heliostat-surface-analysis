@@ -23,7 +23,10 @@ from surface_analysis.exporters.exporter import export_points_resampled_stl
 from surface_analysis.exporters.exporter import export_function_stl
 from surface_analysis.plotter import Plotter
 from surface_analysis.comparitors.comparitor import AngularDifferenceComparitor
-from surface_analysis.aggregators.aggregator import WeightedRMSAggregator, WeightedMeanAggregator
+from surface_analysis.aggregators.aggregator import Aggregator
+from surface_analysis.aggregators.aggregator import WeightedRMSAggregator
+from surface_analysis.aggregators.aggregator import WeightedMeanAggregator
+from surface_analysis.aggregators.aggregator import WeightedModeAggregator
 
 
 MANIFEST_FILE = "designfocallengths.txt"
@@ -112,50 +115,59 @@ def analyse_scan(
 
     # export_raw_surface(surface, scan_name, scan_output_dir, width, height)
 
-    poly1 = CircularParaboloid()
+    poly1 = ANUPolynomial()
     fitter1 = LinearLeastSquaresFitter(poly1.terms)
     coeffs1 = fitter1.fit(surface.x, surface.y, surface.z)
-    analyse_polynomial(
-        results,
-        "circular_paraboloid_sum_squared_z_diff",
-        surface,
-        poly1,
-        coeffs1,
-        scan_output_dir,
-        scan_name,
-        width,
-        height,
-    )
+    f_n = poly1.assemble_normal_function(coeffs1)
+    normals = f_n(surface.x_c, surface.y_c)
+    comparitor = AngularDifferenceComparitor()
+    diffs = comparitor.compare(normals, surface.n)
+    # aggregator = WeightedRMSAggregator(surface.area)
+    aggregator = WeightedModeAggregator(surface.area)
+    print(aggregator.aggregate(diffs))
+    exit()
+
+    # analyse_polynomial(
+    #     results,
+    #     "circular_paraboloid_sum_squared_z_diff",
+    #     surface,
+    #     poly1,
+    #     coeffs1,
+    #     scan_output_dir,
+    #     scan_name,
+    #     width,
+    #     height,
+    # )
 
 
-    poly2 = ANUPolynomial()
-    fitter2 = LinearLeastSquaresFitter(poly2.terms)
-    coeffs2 = fitter2.fit(surface.x, surface.y, surface.z)
-    analyse_polynomial(
-        results,
-        "anu_polynomial_sum_squared_z_diff",
-        surface,
-        poly2,
-        coeffs2,
-        scan_output_dir,
-        scan_name,
-        width,
-        height,
-    )
+    # poly2 = ANUPolynomial()
+    # fitter2 = LinearLeastSquaresFitter(poly2.terms)
+    # coeffs2 = fitter2.fit(surface.x, surface.y, surface.z)
+    # analyse_polynomial(
+    #     results,
+    #     "anu_polynomial_sum_squared_z_diff",
+    #     surface,
+    #     poly2,
+    #     coeffs2,
+    #     scan_output_dir,
+    #     scan_name,
+    #     width,
+    #     height,
+    # )
 
-    coeffs3 = coeffs1.copy()
-    coeffs3[0][0] = 1 / (4 * design_focal_length)
-    analyse_polynomial(
-        results,
-        "design_paraboloid_sum_squared_z_diff",
-        surface,
-        poly1,
-        coeffs3,
-        scan_output_dir,
-        scan_name,
-        width,
-        height,
-    )
+    # coeffs3 = coeffs1.copy()
+    # coeffs3[0][0] = 1 / (4 * design_focal_length)
+    # analyse_polynomial(
+    #     results,
+    #     "design_paraboloid_sum_squared_z_diff",
+    #     surface,
+    #     poly1,
+    #     coeffs3,
+    #     scan_output_dir,
+    #     scan_name,
+    #     width,
+    #     height,
+    # )
 
     # analyse_polynomial(
     #     results,
