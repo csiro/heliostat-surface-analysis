@@ -18,6 +18,9 @@ print(a["anu_polynomial_sum_squared_z_diff_mle_sigma"].mean())
 print(a["design_paraboloid_sum_squared_z_diff_mle_sigma"].std())
 print(a["circular_paraboloid_sum_squared_z_diff_mle_sigma"].std())
 print(a["anu_polynomial_sum_squared_z_diff_mle_sigma"].std())
+mean_1 = a["design_paraboloid_sum_squared_z_diff_mle_sigma"].mean()
+mean_2 = a["circular_paraboloid_sum_squared_z_diff_mle_sigma"].mean()
+mean_3 = a["anu_polynomial_sum_squared_z_diff_mle_sigma"].mean()
 # print(a["circular_paraboloid_sum_squared_z_diff_mle_sigma"].std())
 
 # print(normalised_focal_length.std())
@@ -32,7 +35,7 @@ print(a["anu_polynomial_sum_squared_z_diff_mle_sigma"].std())
 # ax.set_ylabel("Frequency (counts per bin)")
 # plt.show()
 
-fig, (ax1, ax2, ax3) = plt.subplots(3, 1, sharex=True)
+fig, (ax1, ax2, ax3) = plt.subplots(3, 1, sharex=True, dpi=200)
 
 ax1.ticklabel_format(style="sci", axis="x", scilimits=(0, 0))
 ax1.grid()
@@ -41,6 +44,8 @@ ax1.hist(
     bins=40,
 )
 ax1.set_xlim((5e-4, 2e-3))
+ax1.axline((mean_1, 0), (mean_1, 100), color="r")
+ax1.text(mean_1, 75, f"  $\mu = {mean_1:.2e}$")
 
 ax2.grid()
 ax2.hist(
@@ -50,6 +55,8 @@ ax2.hist(
     # range=(0.5, 2)
 )
 ax2.set_ylabel("Frequency (counts per bin)")
+ax2.axline((mean_2, 0), (mean_2, 100), color="r")
+ax2.text(mean_2, 75, f"  $\mu = {mean_2:.2e}$")
 
 ax3.grid()
 ax3.hist(
@@ -58,5 +65,7 @@ ax3.hist(
     # range=(5e-4, 25e-4)
 )
 ax3.set_xlabel(r"$\sigma$")
+ax3.axline((mean_3, 0), (mean_3, 100), color="r")
+ax3.text(mean_3, 75, f"  $\mu = {mean_3:.2e}$")
 
 plt.show()
