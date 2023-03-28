@@ -19,6 +19,6 @@ class DefaultLoader(Loader):
     def tab_delim_points(self, file_path: str) -> pd.DataFrame:
         return pd.read_csv(
             file_path,
-            delimiter="\t",
+            delim_whitespace=True,
             names=["x", "y", "z"],
         )

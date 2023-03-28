@@ -23,6 +23,7 @@ from surface_analysis.exporters.exporter import export_points_resampled_stl
 from surface_analysis.exporters.exporter import export_function_stl
 from surface_analysis.plotter import Plotter
 from surface_analysis.comparitors.comparitor import AngularDifferenceComparitor
+from surface_analysis.comparitors.comparitor import DifferenceComparitor
 from surface_analysis.aggregators.aggregator import Aggregator
 from surface_analysis.aggregators.aggregator import WeightedRMSAggregator
 from surface_analysis.aggregators.aggregator import WeightedMeanAggregator
@@ -54,7 +55,7 @@ def analyse_scans(
         scan_output_dir = os.path.join(output_path, scan_name)
         os.makedirs(scan_output_dir, exist_ok=True)
 
-        surface = load_measured_surface(scan_path, loader, preprocessor)
+        surface = load_measured_points(scan_path, loader, preprocessor)
 
         analysis_result = analyse_scan(
             surface,
@@ -88,7 +89,7 @@ def load_design_focal_lengths(input_path: str) -> dict[str, float]:
     return focal_lengths
 
 
-def load_measured_surface(
+def load_measured_points(
     scan_path: str,
     loader: Loader = DefaultLoader,
     preprocessor: Preprocessor = BasicPreprocessor,
@@ -97,7 +98,6 @@ def load_measured_surface(
     x, y, z = preprocessor.preprocess_points(raw_x, raw_y, raw_z)
     x_c, y_c, z_c, area, n = points_to_normals(x, y, z)
     return MeasuredSurface(x, y, z, x_c, y_c, z_c, n, area)
-
 
 def analyse_scan(
     surface: MeasuredSurface,

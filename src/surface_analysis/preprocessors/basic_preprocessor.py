@@ -20,9 +20,11 @@ class BasicPreprocessor(Preprocessor):
         raw_y: np.ndarray,
         raw_z: np.ndarray,
     ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+               
         x = raw_x - raw_x.mean()
         y = raw_y - raw_y.mean()
         z = raw_z - raw_z.mean()
+        
         return x, y, z
 
     def rotate_points_PCA(
