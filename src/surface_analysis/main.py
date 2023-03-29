@@ -25,7 +25,7 @@ def main():
         #preprocessor=OutlierPreprocessor(),
         preprocessor=NoPreprocessor()
     )
-
+     
     # x, y, z = LeicaLoader().load_points(r"C:\Users\ACU005\CSIRO\ASTRI P11 Heliostats - HelioCon\HeliostatMetrology\new-scans\scans\surface-d.txt")
     # x, y, z = OutlierPreprocessor().preprocess_points(x, y, z)
     # terms = CircularParaboloid().terms
