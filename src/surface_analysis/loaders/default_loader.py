@@ -9,16 +9,16 @@ class DefaultLoader(Loader):
         """
         Load a point cloud x, y, z as Nx1 arrays
         """
-        points = self.tab_delim_points(file_path)
+        points = self.whitespace_delim_points(file_path)
         return (
             points["x"].to_numpy().reshape(-1, 1),
             points["y"].to_numpy().reshape(-1, 1),
             points["z"].to_numpy().reshape(-1, 1),
         )
 
-    def tab_delim_points(self, file_path: str) -> pd.DataFrame:
+    def whitespace_delim_points(self, file_path: str) -> pd.DataFrame:
         return pd.read_csv(
             file_path,
-            delimiter="\t",
+            delim_whitespace=True,
             names=["x", "y", "z"],
         )

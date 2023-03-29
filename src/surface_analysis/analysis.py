@@ -3,11 +3,14 @@ from typing import Any
 
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 
 from surface_analysis.loaders.loader import Loader
 from surface_analysis.loaders.default_loader import DefaultLoader
 from surface_analysis.preprocessors.preprocessor import Preprocessor
 from surface_analysis.preprocessors.basic_preprocessor import BasicPreprocessor
+from surface_analysis.preprocessors.basic_preprocessor import BasicPreprocessor
+
 from surface_analysis.linear_functions.linear_function import LinearFunction
 
 from surface_analysis.linear_functions.circular_paraboloid import CircularParaboloid
@@ -23,6 +26,7 @@ from surface_analysis.exporters.exporter import export_points_resampled_stl
 from surface_analysis.exporters.exporter import export_function_stl
 from surface_analysis.plotter import Plotter
 from surface_analysis.comparitors.comparitor import AngularDifferenceComparitor
+from surface_analysis.comparitors.comparitor import DifferenceComparitor
 from surface_analysis.aggregators.aggregator import Aggregator
 from surface_analysis.aggregators.aggregator import WeightedRMSAggregator
 from surface_analysis.aggregators.aggregator import WeightedMeanAggregator
@@ -31,10 +35,10 @@ from surface_analysis.aggregators.aggregator import WeightedModeAggregator
 
 MANIFEST_FILE = "designfocallengths.txt"
 SCANS_DIR = "scans"
-WIDTH = 1.85
-HEIGHT = 2.44
-# WIDTH = 2.25
-# HEIGHT = 2.25
+#WIDTH = 1.85
+#HEIGHT = 2.44
+WIDTH = 2.25
+HEIGHT = 2.25
 
 
 def analyse_scans(
@@ -54,7 +58,7 @@ def analyse_scans(
         scan_output_dir = os.path.join(output_path, scan_name)
         os.makedirs(scan_output_dir, exist_ok=True)
 
-        surface = load_measured_surface(scan_path, loader, preprocessor)
+        surface = load_measured_points(scan_path, loader, preprocessor)
 
         analysis_result = analyse_scan(
             surface,
@@ -73,6 +77,8 @@ def analyse_scans(
     output_table = pd.concat(analysis_results)
     output_table_path = os.path.join(output_path, f"outputs.pkl")
     output_table.to_pickle(output_table_path)
+    output_table_csv_path = os.path.join(output_path, f"outputs.csv")
+    output_table.to_csv(output_table_csv_path)
 
 
 def load_design_focal_lengths(input_path: str) -> dict[str, float]:
@@ -81,14 +87,14 @@ def load_design_focal_lengths(input_path: str) -> dict[str, float]:
     focal_lengths = {}
     with open(manifest_path, "r") as manifest_file:
         for line in manifest_file.readlines():
-            parts = line.split("\t")
+            parts = line.split()
             scan_name = parts[0]
             design_focal_length = float(parts[1])
             focal_lengths[scan_name] = design_focal_length
     return focal_lengths
 
 
-def load_measured_surface(
+def load_measured_points(
     scan_path: str,
     loader: Loader = DefaultLoader,
     preprocessor: Preprocessor = BasicPreprocessor,
@@ -97,7 +103,6 @@ def load_measured_surface(
     x, y, z = preprocessor.preprocess_points(raw_x, raw_y, raw_z)
     x_c, y_c, z_c, area, n = points_to_normals(x, y, z)
     return MeasuredSurface(x, y, z, x_c, y_c, z_c, n, area)
-
 
 def analyse_scan(
     surface: MeasuredSurface,
@@ -115,30 +120,51 @@ def analyse_scan(
 
     # export_raw_surface(surface, scan_name, scan_output_dir, width, height)
 
-    poly1 = ANUPolynomial()
+    poly1 = CircularParaboloid()
     fitter1 = LinearLeastSquaresFitter(poly1.terms)
     coeffs1 = fitter1.fit(surface.x, surface.y, surface.z)
+    offsets=poly1.get_offsets(coeffs1)
     f_n = poly1.assemble_normal_function(coeffs1)
     normals = f_n(surface.x_c, surface.y_c)
     comparitor = AngularDifferenceComparitor()
-    diffs = comparitor.compare(normals, surface.n)
-    # aggregator = WeightedRMSAggregator(surface.area)
-    aggregator = WeightedModeAggregator(surface.area)
-    print(aggregator.aggregate(diffs))
-    exit()
+    slope_diffs = comparitor.compare(normals, surface.n)    
 
-    # analyse_polynomial(
-    #     results,
-    #     "circular_paraboloid_sum_squared_z_diff",
-    #     surface,
-    #     poly1,
-    #     coeffs1,
-    #     scan_output_dir,
-    #     scan_name,
-    #     width,
-    #     height,
-    # )
+    f_n = poly1.assemble_function(coeffs1)
+    points_bestfit=f_n(surface.x, surface.y)
+    comparitor = DifferenceComparitor()
+    z_diffs = comparitor.compare(surface.z, points_bestfit)
 
+    RMS_aggregator = WeightedRMSAggregator(surface.area)
+    Mode_aggregator = WeightedModeAggregator(surface.area)
+    #print(aggregator.aggregate(diffs))
+    results["WeightedRMS"] = RMS_aggregator.aggregate(slope_diffs)
+    results["WeightedMode"] = Mode_aggregator.aggregate(slope_diffs)
+    
+    #exit()
+
+    analyse_polynomial(
+        results,
+        "circular_paraboloid_slope_error",
+        surface,
+        poly1,
+        coeffs1,
+        scan_output_dir,
+        scan_name,
+        width,
+        height,
+    )
+
+    export_plots(
+        results,
+        surface,
+        slope_diffs,
+        z_diffs,
+        scan_output_dir,
+        scan_name,
+        width,
+        height,
+    )
+    
 
     # poly2 = ANUPolynomial()
     # fitter2 = LinearLeastSquaresFitter(poly2.terms)
@@ -256,3 +282,19 @@ def analyse_polynomial(
     #     height,
     #     os.path.join(output_dir, f"{file_name}_{method_name}.stl")
     # )
+
+def export_plots(
+    results: dict[str, Any],
+    surface: MeasuredSurface,
+    slope_diffs: np.ndarray,
+    z_diffs: np.ndarray,
+    output_dir: str,
+    file_name: str,
+    width: float,
+    height: float,
+):
+    plotter=Plotter()
+    plotter.fit_verification_plots(surface.x,surface.y,surface.z,output_dir,'raw')
+    plotter.fit_verification_plots(surface.x,surface.y,z_diffs,output_dir,'z_diffs')
+    plotter.fit_verification_plots(surface.x_c,surface.y_c,slope_diffs,output_dir,'slope_diffs')
+    plt.close('all')

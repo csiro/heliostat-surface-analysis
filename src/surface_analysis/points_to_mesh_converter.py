@@ -1,5 +1,7 @@
 import numpy as np
 import pandas as pd
+import alphashape
+
 from stl.mesh import Mesh
 from scipy.spatial import Delaunay
 
@@ -7,10 +9,10 @@ from surface_analysis.vector_math import area_of_triangles, area_of_triangles_xy
 
 
 DEFAULT_MAX_EDGE_LENGTH = 0.2
-
+DEFAULT_ALPHA=10.0
 
 def points_to_tris(
-    x: np.ndarray, y: np.ndarray, max_edge_length: float = DEFAULT_MAX_EDGE_LENGTH
+    x: np.ndarray, y: np.ndarray, max_edge_length: float = DEFAULT_MAX_EDGE_LENGTH, alpha: float = DEFAULT_ALPHA
 ) -> Delaunay:
     """
     Apply Delaunay triangulation to the point cloud only using x and y values.
@@ -19,6 +21,7 @@ def points_to_tris(
     xy = np.hstack([x, y])
     tris = Delaunay(xy)
     tris.simplices = filter_short_tris(tris, max_edge_length)
+    tris.simplices = filter_boundary_tris(tris, alpha, allowable_vertices_on_boundary=2)
     return tris
 
 
@@ -37,6 +40,20 @@ def filter_short_tris(tris: Delaunay, max_edge_length: float) -> np.array:
             small_tris.append(tri)
 
     return np.array(small_tris)
+
+def filter_boundary_tris(tris: Delaunay, alpha: float, allowable_vertices_on_boundary: int) -> np.array:
+    boundary_tris = []
+    alpha_shape = alphashape.alphashape(tris.points, alpha)
+    boundary=np.column_stack(alpha_shape.exterior.coords.xy)
+    for tri in tris.simplices:
+        p0 = tris.points[tri[0]]
+        p1 = tris.points[tri[1]]
+        p2= tris.points[tri[1]]
+        count= (sum((p0 in boundary,p1 in boundary,p2 in boundary)))
+        if count<=allowable_vertices_on_boundary:
+            boundary_tris.append(tri)
+
+    return np.array(boundary_tris)
 
 
 def points_and_tris_to_mesh(

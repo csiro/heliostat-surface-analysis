@@ -24,10 +24,14 @@ class Plotter:
         x: np.ndarray,
         y: np.ndarray,
         z: np.ndarray,
-    ):
+        output_dir: str=None
+    ) -> None:
         fig = plt.figure()
         self.add_points_subplot(fig, 111, x, y, z)
-        plt.show()
+        if output_dir is not None:
+            plt.savefig(os.path.join(output_dir, "points"))
+        else:
+            plt.show()
 
     def plot_points_pair(
         self,
@@ -46,10 +50,14 @@ class Plotter:
         x: np.ndarray,
         y: np.ndarray,
         z: np.ndarray,
+        output_dir: str=None,
     ) -> None:
         fig = plt.figure()
         self.add_points_as_surface_subplot(fig, 111, x, y, z)
-        plt.show()
+        if output_dir is not None:
+            plt.savefig(os.path.join(output_dir, "surface"))
+        else:
+            plt.show()
 
     def plot_points_as_surface_pair(
         self,
