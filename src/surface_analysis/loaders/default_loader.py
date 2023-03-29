@@ -9,7 +9,7 @@ class DefaultLoader(Loader):
         """
         Load a point cloud x, y, z as Nx1 arrays
         """
-        points = self.tab_delim_points(file_path)
+        points = self.whitespace_delim_points(file_path)
         return (
             points["x"].to_numpy().reshape(-1, 1),
             points["y"].to_numpy().reshape(-1, 1),
