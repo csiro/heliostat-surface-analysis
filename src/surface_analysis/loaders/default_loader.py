@@ -16,7 +16,7 @@ class DefaultLoader(Loader):
             points["z"].to_numpy().reshape(-1, 1),
         )
 
-    def tab_delim_points(self, file_path: str) -> pd.DataFrame:
+    def whitespace_delim_points(self, file_path: str) -> pd.DataFrame:
         return pd.read_csv(
             file_path,
             delim_whitespace=True,
