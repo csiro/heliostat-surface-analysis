@@ -47,6 +47,7 @@ def export_function_stl(
 
     write_stl(file_name, vertexes)
 
+
 def export_points_resampled_stl(
     x: np.ndarray,
     y: np.ndarray,
@@ -88,12 +89,12 @@ def write_stl(file_name: str, vertexes: np.ndarray) -> None:
                 v2 = vertexes[x + 1, y + 1, :]
                 v3 = vertexes[x, y + 1, :]
 
-                writeTri(file, v0, v1, v3)
-                writeTri(file, v1, v2, v3)
+                write_tri(file, v0, v1, v3)
+                write_tri(file, v1, v2, v3)
         file.write("endsolid mirror\n")
 
 
-def writeTri(file, v0, v1, v2):
+def write_tri(file, v0, v1, v2):
     s0 = v1 - v0
     s1 = v2 - v0
     n = np.cross(s0, s1)

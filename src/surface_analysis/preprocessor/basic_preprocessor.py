@@ -1,7 +1,7 @@
 import numpy as np
 from sklearn.decomposition import PCA
 
-from surface_analysis.preprocessors.preprocessor import Preprocessor
+from surface_analysis.preprocessor.preprocessor import Preprocessor
 
 
 class BasicPreprocessor(Preprocessor):

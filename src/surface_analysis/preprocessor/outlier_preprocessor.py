@@ -2,7 +2,7 @@ from collections import defaultdict
 from email.policy import default
 import numpy as np
 
-from surface_analysis.preprocessors.basic_preprocessor import BasicPreprocessor
+from surface_analysis.preprocessor.basic_preprocessor import BasicPreprocessor
 from surface_analysis.points_to_mesh_converter import points_to_tris, points_and_tris_to_mesh
 from surface_analysis.vector_math import normalise_vectors
 

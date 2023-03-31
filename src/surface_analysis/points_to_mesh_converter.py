@@ -1,7 +1,6 @@
 import numpy as np
 import pandas as pd
 import alphashape
-
 from stl.mesh import Mesh
 from scipy.spatial import Delaunay
 
@@ -9,10 +8,14 @@ from surface_analysis.vector_math import area_of_triangles, area_of_triangles_xy
 
 
 DEFAULT_MAX_EDGE_LENGTH = 0.2
-DEFAULT_ALPHA=10.0
+DEFAULT_ALPHA = 10.0
+
 
 def points_to_tris(
-    x: np.ndarray, y: np.ndarray, max_edge_length: float = DEFAULT_MAX_EDGE_LENGTH, alpha: float = DEFAULT_ALPHA
+    x: np.ndarray,
+    y: np.ndarray,
+    max_edge_length: float = DEFAULT_MAX_EDGE_LENGTH,
+    alpha: float = DEFAULT_ALPHA,
 ) -> Delaunay:
     """
     Apply Delaunay triangulation to the point cloud only using x and y values.
@@ -21,7 +24,7 @@ def points_to_tris(
     xy = np.hstack([x, y])
     tris = Delaunay(xy)
     tris.simplices = filter_short_tris(tris, max_edge_length)
-    tris.simplices = filter_boundary_tris(tris, alpha, allowable_vertices_on_boundary=2)
+    tris.simplices = filter_boundary_tris(tris, alpha, max_vertices_on_boundary=2)
     return tris
 
 
@@ -41,16 +44,17 @@ def filter_short_tris(tris: Delaunay, max_edge_length: float) -> np.array:
 
     return np.array(small_tris)
 
-def filter_boundary_tris(tris: Delaunay, alpha: float, allowable_vertices_on_boundary: int) -> np.array:
+
+def filter_boundary_tris(tris: Delaunay, alpha: float, max_vertices_on_boundary: int) -> np.array:
     boundary_tris = []
     alpha_shape = alphashape.alphashape(tris.points, alpha)
-    boundary=np.column_stack(alpha_shape.exterior.coords.xy)
+    boundary = np.column_stack(alpha_shape.exterior.coords.xy)
     for tri in tris.simplices:
         p0 = tris.points[tri[0]]
         p1 = tris.points[tri[1]]
-        p2= tris.points[tri[1]]
-        count= (sum((p0 in boundary,p1 in boundary,p2 in boundary)))
-        if count<=allowable_vertices_on_boundary:
+        p2 = tris.points[tri[2]]
+        count = sum((p0 in boundary, p1 in boundary, p2 in boundary))
+        if count <= max_vertices_on_boundary:
             boundary_tris.append(tri)
 
     return np.array(boundary_tris)
@@ -90,39 +94,6 @@ def points_to_normals(
         facets["area"].to_numpy().reshape(-1, 1),
         facets[["nx", "ny", "nz"]].to_numpy(),
     )
-
-
-def points_to_tris_old(
-    points: pd.DataFrame,
-    max_edge_length: float = DEFAULT_MAX_EDGE_LENGTH,
-) -> Delaunay:
-    """
-    Apply Delaunay triangulation to the point cloud only using x and y values.
-    Filter out erroneous large triangles along the edges.
-    """
-    xy_points = points[["x", "y"]].to_numpy()
-    tris = Delaunay(xy_points)
-    tris.simplices = filter_short_tris(tris, max_edge_length)
-    return tris
-
-
-def points_and_tris_to_mesh_old(points: pd.DataFrame, tris: Delaunay) -> Mesh:
-    """
-    Create a Mesh object from the Delaunay triangulation.
-    Delauney stores each triangle's points by index but Mesh stores them by the whole vector.
-    """
-    xyz_points = points[["x", "y", "z"]].to_numpy()
-
-    mesh = Mesh(np.zeros(tris.simplices.shape[0], dtype=Mesh.dtype))
-    for i in range(tris.simplices.shape[0]):
-        tri = tris.simplices[i]
-        for j in range(tris.simplices.shape[1]):
-            point_index = tri[j]
-            point_vector = xyz_points[point_index, :]
-            mesh.vectors[i][j] = point_vector
-
-    mesh.update_normals()
-    return mesh
 
 
 def mesh_to_facets(mesh: Mesh) -> pd.DataFrame:

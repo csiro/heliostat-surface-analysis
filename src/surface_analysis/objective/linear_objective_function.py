@@ -3,9 +3,9 @@ from abc import ABC, abstractmethod
 
 import numpy as np
 
-from surface_analysis.linear_functions.linear_function import LinearFunction
-from surface_analysis.comparitors.comparitor import Comparitor, DifferenceComparitor, AngularDifferenceComparitor
-from surface_analysis.aggregators.aggregator import Aggregator, SquaredSumAggregator, WeightedRMSAggregator
+from surface_analysis.linear_function.linear_function import LinearFunction
+from surface_analysis.comparitor.comparitor import Comparitor, DifferenceComparitor, AngularDifferenceComparitor
+from surface_analysis.aggregator.aggregator import Aggregator, SquaredSumAggregator, WeightedRMSAggregator
 
 
 class LinearObjectiveFunction(ABC):

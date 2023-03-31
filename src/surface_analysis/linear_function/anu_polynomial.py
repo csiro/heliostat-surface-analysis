@@ -1,11 +1,10 @@
 import numpy as np
 
-from surface_analysis.linear_functions.linear_function import LinearFunction
+from surface_analysis.linear_function.linear_function import LinearFunction
 
 
 class ANUPolynomial(LinearFunction):
     def __init__(self):
-        self.name = "anu_polynomial"
         self.formula = "z = ax^2*y^2 + bx^2*y + cx^2 + dxy^2 + exy + fx + gy^2 + hy + i"
         self.terms = [
             lambda x, y: x**2 * y**2,

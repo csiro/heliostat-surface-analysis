@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 
-from surface_analysis.loaders.loader import Loader
+from surface_analysis.loader.loader import Loader
 
 
 class DefaultLoader(Loader):

@@ -1,38 +1,88 @@
-from surface_analysis.analysis import analyse_scans
-from surface_analysis.loaders.leica_loader import LeicaLoader
-from surface_analysis.loaders.default_loader import DefaultLoader
-from surface_analysis.loaders.scaling_loader import ScalingLoader
-from surface_analysis.preprocessors.outlier_preprocessor import OutlierPreprocessor
-from surface_analysis.preprocessors.no_preprocessor import NoPreprocessor
+import argparse
 import os
-# from functools import partial
-# from surface_analysis.fitters.fitter import linear_least_squares_fit
-# from surface_analysis.fitters.fitter import non_linear_fit
-# from surface_analysis.linear_functions.circular_paraboloid import CircularParaboloid
+
+import toml
+
+from surface_analysis.config import Config
+from surface_analysis.analysis_manager import AnalysisManager
+
+
+MANIFEST_FILE = "designfocallengths.txt"
 
 
 def main():
-    analyse_scans(
-        input_path = "C:/main/2023_facet_point_clouds",
-        # input_path=r"C:\Users\ACU005\CSIRO\ASTRI P11 Heliostats - HelioCon\HeliostatMetrology\new-scans",
-        # input_path=r"C:\Users\ACU005\CSIRO\ASTRI P11 Heliostats - HelioCon\HeliostatMetrology\old-scans\newcastle-field-2",
-        # input_path=r"C:\Users\ACU005\CSIRO\ASTRI P11 Heliostats - HelioCon\HeliostatMetrology\test-scans",
-        output_path= os.path.join("C:/main/2023_facet_point_clouds","outputs"),
-        #output_path="outputs",
-        #loader=LeicaLoader(),
-        loader=DefaultLoader(),
-        # loader=ScalingLoader(),
-        #preprocessor=OutlierPreprocessor(),
-        preprocessor=NoPreprocessor()
+    args = parse_args()
+    config = load_config(args.config)
+    design_focal_lengths = load_design_focal_lengths(args.dir)
+    scan_files = list_scans(args.dir)
+
+    validate_scans(design_focal_lengths, scan_files)
+
+    analysis_manager = AnalysisManager()
+    analysis_manager.analyse_scans(
+        config,
+        args.dir,
+        design_focal_lengths,
+        scan_files,
     )
-     
-    # x, y, z = LeicaLoader().load_points(r"C:\Users\ACU005\CSIRO\ASTRI P11 Heliostats - HelioCon\HeliostatMetrology\new-scans\scans\surface-d.txt")
-    # x, y, z = OutlierPreprocessor().preprocess_points(x, y, z)
-    # terms = CircularParaboloid().terms
-    # a = partial(linear_least_squares_fit, x=x, y=y, z=z)
-    # b = partial(linear_least_squares_fit, terms=terms)
-    # print(a(terms=terms))
-    # print(b(x, y, z))
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        prog="poetry run python src/main.py",
+        description="Analyse point cloud measurements of surfaces"
+    )
+    parser.add_argument("config", type=str, help="Config file")
+    parser.add_argument("dir", type=str, help="Path to scans directory for processing")
+    return parser.parse_args()
+
+
+def load_config(file_path: str) -> Config:
+    config_dict = toml.load(file_path)
+    return Config(**config_dict)
+
+
+def load_design_focal_lengths(scans_dir: str) -> dict[str, float]:
+    manifest_path = os.path.join(scans_dir, MANIFEST_FILE)
+
+    focal_lengths = {}
+    with open(manifest_path, "r") as manifest_file:
+        for line in manifest_file.readlines():
+            parts = line.split()
+            scan_name = parts[0]
+            design_focal_length = float(parts[1])
+            focal_lengths[scan_name] = design_focal_length
+
+    return focal_lengths
+
+
+def list_scans(scans_dir: str) -> list[str]:
+    entries = os.listdir(scans_dir)
+
+    files = []
+    for entry in entries:
+        path = os.path.join(scans_dir, entry)
+        if os.path.isfile(path):
+            files.append(entry)
+
+    if MANIFEST_FILE not in files:
+        print(f"ERROR: No {MANIFEST_FILE} found in {scans_dir}")
+        exit()
+    else:
+        files.remove(MANIFEST_FILE)
+
+    return files
+
+
+def validate_scans(
+    design_focal_lengths: dict[str, float],
+    scan_files: list[str],
+) -> None:
+    for scan_file in scan_files:
+        scan_name = scan_file.split(".")[0]
+        if scan_name not in design_focal_lengths:
+            print(f"ERROR: Scan {scan_name} not in {MANIFEST_FILE}")
+            exit()
 
 
 if __name__ == "__main__":

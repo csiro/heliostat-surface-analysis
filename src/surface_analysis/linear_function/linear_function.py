@@ -1,17 +1,17 @@
-from dataclasses import dataclass
 from typing import Callable
 from abc import ABC, abstractmethod
 
 import numpy as np
 
 
-@dataclass
 class LinearFunction(ABC):
-    name: str
     formula: str
     terms: list[Callable[[np.ndarray, np.ndarray], np.ndarray]]
     df_dx_terms: list[Callable[[np.ndarray, np.ndarray], np.ndarray]]
     df_dy_terms: list[Callable[[np.ndarray, np.ndarray], np.ndarray]]
+
+    def __str__(self) -> str:
+        return type(self).__name__
 
     def assemble_function(
         self,
@@ -51,7 +51,6 @@ class LinearFunction(ABC):
         term matrix: [F1(X, Y), F2(X, Y)]
         results: Z = [F1(X, Y) F2(X, Y)][C]
         """
-
         def assembled_function(x: np.ndarray, y: np.ndarray) -> np.ndarray:
             evaluated_terms = [term(x, y) for term in terms]
             F = np.hstack(evaluated_terms)
