@@ -5,32 +5,24 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
-from surface_analysis.loaders.loader import Loader
-from surface_analysis.loaders.default_loader import DefaultLoader
-from surface_analysis.preprocessors.preprocessor import Preprocessor
-from surface_analysis.preprocessors.basic_preprocessor import BasicPreprocessor
-from surface_analysis.preprocessors.basic_preprocessor import BasicPreprocessor
-
-from surface_analysis.linear_functions.linear_function import LinearFunction
-
-from surface_analysis.linear_functions.circular_paraboloid import CircularParaboloid
-from surface_analysis.linear_functions.anu_polynomial import ANUPolynomial
-
-from surface_analysis.fitters.fitter import LinearLeastSquaresFitter
-from surface_analysis.fitters.fitter import NonLinearFitter
-from surface_analysis.objectives.linear_objective_function import SlopeErrorObjectiveFunction
+from surface_analysis.loader.loader import Loader
+from surface_analysis.loader.default_loader import DefaultLoader
+from surface_analysis.preprocessor.preprocessor import Preprocessor
+from surface_analysis.preprocessor.basic_preprocessor import BasicPreprocessor
+from surface_analysis.preprocessor.basic_preprocessor import BasicPreprocessor
+from surface_analysis.linear_function.linear_function import LinearFunction
+from surface_analysis.linear_function.circular_paraboloid import CircularParaboloid
+from surface_analysis.fitter.fitter import LinearLeastSquaresFitter
+from surface_analysis.objective.linear_objective_function import SlopeErrorObjectiveFunction
 from surface_analysis.measured_surface import MeasuredSurface
 from surface_analysis.points_to_mesh_converter import points_to_normals
-from surface_analysis.exporters.exporter import export_points_delaunay_stl
-from surface_analysis.exporters.exporter import export_points_resampled_stl
-from surface_analysis.exporters.exporter import export_function_stl
+from surface_analysis.exporter.exporter import export_points_delaunay_stl
+from surface_analysis.exporter.exporter import export_points_resampled_stl
 from surface_analysis.plotter import Plotter
-from surface_analysis.comparitors.comparitor import AngularDifferenceComparitor
-from surface_analysis.comparitors.comparitor import DifferenceComparitor
-from surface_analysis.aggregators.aggregator import Aggregator
-from surface_analysis.aggregators.aggregator import WeightedRMSAggregator
-from surface_analysis.aggregators.aggregator import WeightedMeanAggregator
-from surface_analysis.aggregators.aggregator import WeightedModeAggregator
+from surface_analysis.comparitor.comparitor import AngularDifferenceComparitor
+from surface_analysis.comparitor.comparitor import DifferenceComparitor
+from surface_analysis.aggregator.aggregator import WeightedRMSAggregator
+from surface_analysis.aggregator.aggregator import WeightedModeAggregator
 
 
 MANIFEST_FILE = "designfocallengths.txt"
@@ -136,11 +128,8 @@ def analyse_scan(
 
     RMS_aggregator = WeightedRMSAggregator(surface.area)
     Mode_aggregator = WeightedModeAggregator(surface.area)
-    #print(aggregator.aggregate(diffs))
     results["WeightedRMS"] = RMS_aggregator.aggregate(slope_diffs)
     results["WeightedMode"] = Mode_aggregator.aggregate(slope_diffs)
-    
-    #exit()
 
     analyse_polynomial(
         results,

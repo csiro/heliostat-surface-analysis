@@ -1,11 +1,10 @@
 import numpy as np
 
-from surface_analysis.linear_functions.linear_function import LinearFunction
+from surface_analysis.linear_function.linear_function import LinearFunction
 
 
 class CircularParaboloid(LinearFunction):
     def __init__(self):
-        self.name = "circular_paraboloid"
         self.formula = "z = a(x^2 + y^2) + bx + cy + d"
         self.terms = [
             lambda x, y: x**2 + y**2,

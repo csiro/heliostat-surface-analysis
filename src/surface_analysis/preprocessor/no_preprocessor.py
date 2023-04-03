@@ -1,6 +1,6 @@
 import numpy as np
 
-from surface_analysis.preprocessors.preprocessor import Preprocessor
+from surface_analysis.preprocessor.preprocessor import Preprocessor
 
 
 class NoPreprocessor(Preprocessor):

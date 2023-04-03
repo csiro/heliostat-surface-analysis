@@ -1,6 +1,6 @@
 import numpy as np
 
-from surface_analysis.loaders.default_loader import DefaultLoader
+from surface_analysis.loader.default_loader import DefaultLoader
 
 
 class ScalingLoader(DefaultLoader):
