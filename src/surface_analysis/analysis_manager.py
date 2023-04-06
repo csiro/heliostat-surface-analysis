@@ -48,6 +48,7 @@ class AnalysisManager:
 
         table = pd.DataFrame.from_records(analysis_results)
         table.to_csv(os.path.join(scans_dir, OUTPUT_DIR, "output.csv"))
+        self.create_report(table, scans_dir)
 
     def analyse_scan(
         self,
@@ -62,7 +63,6 @@ class AnalysisManager:
     ) -> pd.DataFrame:
         scan_path = os.path.join(scans_dir, scan_file)
         surface = self.load_measured_points(scan_path, loader, preprocessor)
-
         return analyser.analyse(
             surface,
             scan_name,
@@ -80,3 +80,12 @@ class AnalysisManager:
         x, y, z = preprocessor.preprocess_points(raw_x, raw_y, raw_z)
         x_c, y_c, z_c, area, n = points_to_normals(x, y, z)
         return MeasuredSurface(x, y, z, x_c, y_c, z_c, n, area)
+
+    def create_report(
+        self,
+        table: pd.DataFrame,
+        scans_dir: str,
+    ) -> None:
+        with open(os.path.join(scans_dir, OUTPUT_DIR, "summary.txt"), "w") as file:
+            for index, row in table.iterrows():
+                file.write(f"Mirror {row['name']}, RMS error {round(row['circular_paraboloid_slope_diffs_rms'] * 1000, 3)} mrad\n")

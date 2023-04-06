@@ -39,7 +39,3 @@ class ANUPolynomial(LinearFunction):
             lambda x, y: 0 * x + 1,
             lambda x, y: 0 * x,
         ]
-
-    def get_offsets(self, coeffs: np.ndarray) -> tuple[float, float, float]:
-        # Can't get offsets for this complex of a polynomial
-        return 0, 0, 0

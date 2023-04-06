@@ -308,6 +308,22 @@ files = [
 click = "*"
 
 [[package]]
+name = "cmcrameri"
+version = "1.5"
+description = "Perceptually uniform colormaps by Fabio Crameri"
+category = "main"
+optional = false
+python-versions = ">=3.6"
+files = [
+    {file = "cmcrameri-1.5-py3-none-any.whl", hash = "sha256:c8af03345cd5d8d9f0f0f55d3cd29434fb279553ad44581c7dc9c74747f9a733"},
+]
+
+[package.dependencies]
+matplotlib = "*"
+numpy = "*"
+packaging = "*"
+
+[[package]]
 name = "colorama"
 version = "0.4.6"
 description = "Cross-platform colored terminal text."
@@ -2411,4 +2427,4 @@ testing = ["flake8 (<5)", "func-timeout", "jaraco.functools", "jaraco.itertools"
 [metadata]
 lock-version = "2.0"
 python-versions = "~3.9"
-content-hash = "f5e2bd073b3ec9b8d650a0e00b2b0c743a5f47433616121f436b53741800e1bd"
+content-hash = "26d56e4bcb82789d5e6b23bcbd2eab0051321b825f9415721c8689668054c68e"

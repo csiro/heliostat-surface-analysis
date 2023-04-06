@@ -1,5 +1,5 @@
 from typing import Callable
-from abc import ABC, abstractmethod
+from abc import ABC
 
 import numpy as np
 
@@ -58,11 +58,10 @@ class LinearFunction(ABC):
 
         return assembled_function
 
-    @abstractmethod
-    def get_offsets(self, coeffs: np.ndarray) -> tuple[float, float, float]:
-        """
-        For the given coefficients, calculate the x offset that would
-        remove the plain "bx", "cy" and "e" terms.
-        These summarise the x, y and z offset.
-        """
-        pass
+    # def get_offsets(self, coeffs: np.ndarray) -> tuple[float, float, float]:
+    #     """
+    #     For the given coefficients, calculate the x offset that would
+    #     remove the plain "bx", "cy" and "e" terms.
+    #     These summarise the x, y and z offset.
+    #     """
+    #     pass

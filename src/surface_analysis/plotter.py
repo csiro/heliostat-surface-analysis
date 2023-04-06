@@ -1,15 +1,13 @@
 import os
-from typing import Callable
 
 import numpy as np
 import matplotlib.pyplot as plt
-import matplotlib.cm as cm
 from matplotlib.colors import Normalize
 from matplotlib.figure import Figure
+from matplotlib.cm import ScalarMappable
+from cmcrameri import cm
 
 from surface_analysis.points_to_mesh_converter import points_to_tris
-from surface_analysis.points_to_mesh_converter import points_and_tris_to_mesh
-from surface_analysis.points_to_mesh_converter import mesh_to_facets
 
 
 class Plotter:
@@ -44,11 +42,13 @@ class Plotter:
         x: np.ndarray,
         y: np.ndarray,
         z: np.ndarray,
+        z_c: np.ndarray,
         output_dir: str,
         title: str,
+        zero: bool = False,
     ) -> None:
         fig = plt.figure()
-        self.add_points_as_surface_subplot(fig, 111, x, y, z)
+        self.add_points_as_surface_subplot(fig, 111, x, y, z, z_c, zero=zero)
         plt.savefig(os.path.join(output_dir, f"{title}_surface"), dpi=1200)
 
     def plot_points_as_surface_pair(
@@ -90,10 +90,10 @@ class Plotter:
         z: np.ndarray,
         output_dir: str,
         title: str,
+        zero: bool = False,
     ) -> None:
         fig = plt.figure()
-        self.add_points_2d_subplot(fig, 111, x, y, z)
-
+        self.add_points_2d_subplot(fig, 111, x, y, z, zero)
         plt.savefig(os.path.join(output_dir, f"{title}_points_2d"), dpi=1200)
 
     def plot_points_with_indexes(
@@ -126,15 +126,14 @@ class Plotter:
         x: np.ndarray,
         y: np.ndarray,
         z: np.ndarray,
+        z_c: np.ndarray,
+        zero: bool = False,
     ) -> None:
         tris = points_to_tris(x, y)
-        mesh = points_and_tris_to_mesh(x, y, z, tris)
-        facets = mesh_to_facets(mesh)
 
         ax = fig.add_subplot(subplot_number, projection="3d")
         ax.set_xlabel("\nX (m)")
         ax.set_ylabel("\nY (m)")
-        ax.set_zlabel("\nZ (m)")
         p3dc = ax.plot_trisurf(
             x.reshape((-1,)),
             y.reshape((-1,)),
@@ -143,10 +142,19 @@ class Plotter:
         )
 
         # Set up colours
-        norm = Normalize()
-        cmap = cm.get_cmap("plasma")
-        colors = cmap(norm(facets["z"]))
+        if zero:
+            max_value = max(max(z_c), abs(min(z_c)))
+            norm = Normalize(-max_value, max_value)
+            colors = cm.vik(norm(z_c))
+            m = ScalarMappable(cmap=cm.vik, norm=norm)
+        else:
+            norm = Normalize()
+            colors = cm.batlow(norm(z_c))
+            m = ScalarMappable(cmap=cm.batlow, norm=norm)
+
         p3dc.set_fc(colors)
+        m.set_array([])
+        plt.colorbar(m, pad=0.1)
 
         ax.set_box_aspect((1,1,0.5))
 
@@ -157,19 +165,25 @@ class Plotter:
         x: np.ndarray,
         y: np.ndarray,
         z: np.ndarray,
+        zero: bool = False,
     ) -> None:
         tris = points_to_tris(x, y)
-        mesh = points_and_tris_to_mesh(x, y, z, tris)
-        facets = mesh_to_facets(mesh)    
+        # mesh = points_and_tris_to_mesh(x, y, z, tris)
+        # facets = mesh_to_facets(mesh)
 
         ax = fig.add_subplot(subplot_number)
         x = np.ravel(x)
         y = np.ravel(y)
         z = np.ravel(z)
 
-        tpc = ax.tripcolor(x, y, tris.simplices, facecolors=facets["z"], edgecolors='k', cmap='jet')
-        fig.colorbar(tpc)
+        if zero:
+            max_value = max(max(z), abs(min(z)))
+            norm = Normalize(-max_value, max_value)
+            tpc = ax.tripcolor(x, y, tris.simplices, facecolors=z, edgecolors='k', cmap=cm.vik, norm=norm)
+        else:
+            tpc = ax.tripcolor(x, y, tris.simplices, facecolors=z, edgecolors='k', cmap=cm.batlow)
 
+        fig.colorbar(tpc)
 
     def add_points_with_text_subplot(
         self,
