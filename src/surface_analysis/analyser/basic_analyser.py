@@ -26,9 +26,9 @@ class BasicAnalyser:
         results["design_focal_length"] = design_focal_length
 
         plotter = Plotter()
-        plotter.plot_points(surface.x, surface.y, surface.z, output_dir, "raw")
-        plotter.plot_points_as_surface(surface.x, surface.y, surface.z, surface.z_c, output_dir, "raw")
-        plotter.plot_points_2d(surface.x, surface.y, surface.z_c, output_dir, "raw")
+        plotter.plot_points(surface.x, surface.y, surface.z, output_dir, "raw", "m", "m", "m")
+        plotter.plot_points_as_surface(surface.x, surface.y, surface.z, surface.z_c, output_dir, "raw", "m", "m", "m")
+        plotter.plot_points_2d(surface.x, surface.y, surface.z_c, output_dir, "raw", "m", "m", "m")
 
         poly = CircularParaboloid()
         fitter = LinearLeastSquaresFitter()
@@ -43,17 +43,17 @@ class BasicAnalyser:
         diff_comparitor = DifferenceComparitor()
         z_diffs = diff_comparitor.compare(z, surface.z)
         z_c_diffs = diff_comparitor.compare(z_c, surface.z_c)
-        plotter.plot_points(surface.x, surface.y, z_diffs, output_dir, "circular_paraboloid_z_diffs")
-        plotter.plot_points_as_surface(surface.x, surface.y, z_diffs, z_c_diffs, output_dir, "circular_paraboloid_z_diffs2", True)
-        plotter.plot_points_2d(surface.x, surface.y, z_c_diffs, output_dir, "circular_paraboloid_z_diffs", True)
+        plotter.plot_points(surface.x, surface.y, z_diffs, output_dir, "circular_paraboloid_z_diffs", "m", "m", "m")
+        plotter.plot_points_as_surface(surface.x, surface.y, z_diffs, z_c_diffs, output_dir, "circular_paraboloid_z_diffs2", "m", "m", "m", zero=True)
+        plotter.plot_points_2d(surface.x, surface.y, z_c_diffs, output_dir, "circular_paraboloid_z_diffs", "m", "m", "m", zero=True)
 
         f_n = poly.assemble_normal_function(coeffs)
         n = f_n(surface.x_c, surface.y_c)
 
         angle_comparitor = AngularDifferenceComparitor()
         slope_diffs = angle_comparitor.compare(n, surface.n)
-        plotter.plot_points(surface.x_c, surface.y_c, slope_diffs, output_dir, "circular_paraboloid_slope_diffs")
-        plotter.plot_points_2d(surface.x, surface.y, slope_diffs, output_dir, "circular_paraboloid_slope_diffs")
+        plotter.plot_points(surface.x_c, surface.y_c, slope_diffs, output_dir, "circular_paraboloid_slope_diffs", "m", "m", "rad")
+        plotter.plot_points_2d(surface.x, surface.y, slope_diffs, output_dir, "circular_paraboloid_slope_diffs", "m", "m", "rad")
 
         aggregator = WeightedRMSAggregator(surface.area)
         slope_rms = aggregator.aggregate(slope_diffs)
@@ -69,8 +69,8 @@ class BasicAnalyser:
         x_slope_diffs = meas_dz_dx.reshape(-1, 1) - ref_df_dx
         y_slope_diffs = meas_dz_dy.reshape(-1, 1) - ref_df_dy
 
-        plotter.plot_points_2d(surface.x, surface.y, x_slope_diffs, output_dir, "circular_paraboloid_x_slope_diffs", True)
-        plotter.plot_points_2d(surface.x, surface.y, y_slope_diffs, output_dir, "circular_paraboloid_y_slope_diffs", True)
+        plotter.plot_points_2d(surface.x, surface.y, x_slope_diffs, output_dir, "circular_paraboloid_x_slope_diffs", "m", "m", "gradient", True)
+        plotter.plot_points_2d(surface.x, surface.y, y_slope_diffs, output_dir, "circular_paraboloid_y_slope_diffs", "m", "m", "gradient", True)
 
         design_a_parameter = 1 / (4 * design_focal_length)
         paraboloid = FixedParaboloid()
@@ -83,7 +83,7 @@ class BasicAnalyser:
         f_n = poly.assemble_normal_function(np.insert(plane_coeffs, 0, design_a_parameter, axis=0))
         n = f_n(surface.x_c, surface.y_c)
         slope_diffs = angle_comparitor.compare(n, surface.n)
-        plotter.plot_points_2d(surface.x, surface.y, slope_diffs, output_dir, "fixed_paraboloid_slope_diffs")
+        plotter.plot_points_2d(surface.x, surface.y, slope_diffs, output_dir, "fixed_paraboloid_slope_diffs", "m", "m", "rad")
         slope_rms = aggregator.aggregate(slope_diffs)
 
         results["fixed_paraboloid_slope_diffs_rms"] = slope_rms

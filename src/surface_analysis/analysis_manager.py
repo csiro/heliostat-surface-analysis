@@ -45,6 +45,7 @@ class AnalysisManager:
                 preprocessor,
             )
             analysis_results.append(analysis_result)
+            print(f"Completed analysis for {scan_name}")
 
         table = pd.DataFrame.from_records(analysis_results)
         table.to_csv(os.path.join(scans_dir, OUTPUT_DIR, "output.csv"))
