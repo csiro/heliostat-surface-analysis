@@ -1,0 +1,15 @@
+[loader]
+name = "scaling"
+
+[preprocessor]
+name = "known_size"
+
+[preprocessor.params]
+width = 300
+height = 300
+
+[analyzer]
+name = "supplied_reference"
+
+[analyzer.params]
+surface = "flat"

@@ -1,6 +1,6 @@
 from typing import Optional
 
-from surface_analysis.config import PreprocessorOption
+from surface_analysis.config.config import PreprocessorOption
 from surface_analysis.preprocessor.no_preprocessor import NoPreprocessor
 from surface_analysis.preprocessor.basic_preprocessor import BasicPreprocessor
 from surface_analysis.preprocessor.outlier_preprocessor import OutlierPreprocessor
