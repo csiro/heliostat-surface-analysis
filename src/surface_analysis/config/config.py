@@ -8,4 +8,4 @@ from surface_analysis.config.analyzer_option import AnalyzerOption
 class Config(BaseModel):
     loader: LoaderOption
     preprocessor: PreprocessorOption
-    analysis: AnalyzerOption
+    analyzer: AnalyzerOption

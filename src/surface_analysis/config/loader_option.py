@@ -6,6 +6,7 @@ from pydantic import BaseModel
 
 class LoaderOptionName(Enum):
     default = "default"
+    csv_loader = "csv_loader"
     scaling = "scaling"
     leica = "leica"
 

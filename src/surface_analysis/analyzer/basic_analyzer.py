@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 
-from surface_analysis.analyser.analyser import Analyser
+from surface_analysis.analyzer.analyzer import Analyzer
 from surface_analysis.measured_surface import MeasuredSurface
 from surface_analysis.linear_function.circular_paraboloid import CircularParaboloid
 from surface_analysis.linear_function.plane import Plane
@@ -14,8 +14,8 @@ from surface_analysis.comparitor.comparitor import AngularDifferenceComparitor
 from surface_analysis.aggregator.aggregator import WeightedRMSAggregator
 
 
-class BasicAnalyser(Analyser):
-    def analyse(
+class BasicAnalyzer(Analyzer):
+    def analyze(
         self,
         surface: MeasuredSurface,
         scan_name: str,

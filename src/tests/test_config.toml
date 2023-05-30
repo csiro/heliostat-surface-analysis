@@ -1,12 +1,8 @@
 [loader]
-name = "scaling"
+name = "csv_loader"
 
 [preprocessor]
-name = "known_size"
-
-[preprocessor.params]
-width = 300
-height = 300
+name = "basic"
 
 [analyzer]
 name = "supplied_reference"

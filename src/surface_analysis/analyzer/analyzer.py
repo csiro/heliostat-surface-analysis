@@ -1,19 +1,15 @@
 from abc import ABC, abstractmethod
 
+import numpy as np
 import pandas as pd
 
-from surface_analysis.measured_surface import MeasuredSurface
 
-
-class Analyser(ABC):
+class Analyzer(ABC):
     @abstractmethod
-    def analyse(
+    def analyze(
         self,
-        surface: MeasuredSurface,
-        scan_name: str,
-        output_dir: str,
-        width: float,
-        height: float,
-        design_focal_length: float,
+        x: np.ndarray,
+        y: np.ndarray,
+        z: np.ndarray,
     ) -> pd.DataFrame:
         pass
