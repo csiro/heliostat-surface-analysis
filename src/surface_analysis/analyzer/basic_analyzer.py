@@ -1,5 +1,6 @@
+from typing import Any
+
 import numpy as np
-import pandas as pd
 
 from surface_analysis.analyzer.analyzer import Analyzer
 from surface_analysis.measured_surface import MeasuredSurface
@@ -21,7 +22,7 @@ class BasicAnalyzer(Analyzer):
         scan_name: str,
         output_dir: str,
         design_focal_length: float,
-    ) -> pd.DataFrame:
+    ) -> dict[str, Any]:
         results = {}
         results["name"] = scan_name
         results["design_focal_length"] = design_focal_length

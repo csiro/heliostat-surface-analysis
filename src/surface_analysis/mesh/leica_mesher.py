@@ -28,7 +28,7 @@ def points_to_tris(
     return tris
 
 
-def filter_short_tris(tris: Delaunay, max_edge_length: float) -> np.array:
+def filter_short_tris(tris: Delaunay, max_edge_length: float) -> np.ndarray:
     small_tris = []
     for tri in tris.simplices:
         p0 = tris.points[tri[0]]
@@ -45,7 +45,7 @@ def filter_short_tris(tris: Delaunay, max_edge_length: float) -> np.array:
     return np.array(small_tris)
 
 
-def filter_boundary_tris(tris: Delaunay, alpha: float, max_vertices_on_boundary: int) -> np.array:
+def filter_boundary_tris(tris: Delaunay, alpha: float, max_vertices_on_boundary: int) -> np.ndarray:
     boundary_tris = []
     alpha_shape = alphashape.alphashape(tris.points, alpha)
     boundary = np.column_stack(alpha_shape.exterior.coords.xy)

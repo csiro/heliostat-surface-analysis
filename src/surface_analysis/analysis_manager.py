@@ -30,6 +30,7 @@ class AnalysisManager:
                 preprocessor,
                 analyzer,
             )
+            print(scan_file, analysis_result)
             analysis_results.append(analysis_result)
 
     def analyze_scan(
@@ -39,16 +40,7 @@ class AnalysisManager:
         preprocessor: Preprocessor,
         analyzer: Analyzer,
     ) -> pd.DataFrame:
-        
-        ###
-        print("Loading")
-        print(scan_path)
-        print(type(loader))
-        print(type(preprocessor))
-        print(type(analyzer))
-        ###
-
         raw_x, raw_y, raw_z = loader.load_points(scan_path)
         x, y, z = preprocessor.preprocess_points(raw_x, raw_y, raw_z)
-        exit()
-        return analyzer.analyze(x, y, z)
+        analysis = analyzer.analyze(x, y, z)
+        return analysis

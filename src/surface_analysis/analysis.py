@@ -15,7 +15,7 @@ from surface_analysis.linear_function.circular_paraboloid import CircularParabol
 from surface_analysis.fitter.fitter import LinearLeastSquaresFitter
 from surface_analysis.objective.linear_objective_function import SlopeErrorObjectiveFunction
 from surface_analysis.measured_surface import MeasuredSurface
-from surface_analysis.points_to_mesh_converter import points_to_normals
+from surface_analysis.mesh.points_to_mesh_converter import points_to_normals
 from surface_analysis.exporter.exporter import export_points_delaunay_stl
 from surface_analysis.exporter.exporter import export_points_resampled_stl
 from surface_analysis.plotter import Plotter

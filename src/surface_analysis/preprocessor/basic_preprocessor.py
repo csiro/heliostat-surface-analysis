@@ -82,7 +82,7 @@ class BasicPreprocessor(Preprocessor):
         rotated_points = rot @ points
 
         return (
-            rotated_points[:,0],
-            raw_y,
-            raw_z
+            rotated_points[0,:].reshape(-1, 1),
+            rotated_points[1,:].reshape(-1, 1),
+            rotated_points[2,:].reshape(-1, 1),
         )

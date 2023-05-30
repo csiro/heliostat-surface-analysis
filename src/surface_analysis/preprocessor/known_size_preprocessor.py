@@ -9,7 +9,7 @@ from surface_analysis.preprocessor.basic_preprocessor import BasicPreprocessor
 class KnownSizePreprocessor(BasicPreprocessor):
     def __init__(
         self,
-        params: Optional[dict[str, Union[str, float]]]
+        params: Optional[dict[str, Union[str, float]]],
     ):
         params = cast(dict[str, Union[str, float]], params)
         width = float(params["width"])
