@@ -1,0 +1,1 @@
+poetry run python src/surface_analysis/main.py examples/flat_mirror/config.toml examples/flat_mirror/scans examples/flat_mirror
