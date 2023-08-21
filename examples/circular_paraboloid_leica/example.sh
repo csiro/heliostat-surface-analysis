@@ -1,0 +1,1 @@
+poetry run python src/surface_analysis/main.py examples/circular_paraboloid_leica/config.toml examples/circular_paraboloid_leica/scans examples/circular_paraboloid_leica

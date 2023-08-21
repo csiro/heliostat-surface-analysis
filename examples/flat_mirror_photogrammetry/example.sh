@@ -1,0 +1,1 @@
+poetry run python src/surface_analysis/main.py examples/flat_mirror_photogrammetry/config.toml examples/flat_mirror_photogrammetry/scans examples/flat_mirror_photogrammetry

@@ -9,3 +9,4 @@ name = "supplied_reference"
 
 [analyzer.params]
 surface = "flat"
+max_edge_length = 0.05

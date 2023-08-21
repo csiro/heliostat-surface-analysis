@@ -8,7 +8,6 @@ from surface_analysis.analyzer.analyzer import Analyzer
 from surface_analysis.comparitor.comparitor import AngularDifferenceComparitor
 from surface_analysis.fitter.fitter import LinearLeastSquaresFitter
 from surface_analysis.mesh.default_mesher import DefaultMesher
-from surface_analysis.plotter import Plotter
 from surface_analysis.aggregator.aggregator import MeanAggregator
 from surface_analysis.aggregator.aggregator import RMSAggregator
 
@@ -21,8 +20,11 @@ class SuppliedReferenceAnalyzer(Analyzer):
         params = cast(dict[str, Union[str, float]], params)
         if params["surface"] == "flat":
             self.reference = Plane()
+        elif params["surface"] == "circular_paraboloid":
+            self.reference = CircularParaboloid()
         else:
             self.reference = CircularParaboloid()
+        self.max_edge_length = float(params["max_edge_length"])
 
     def analyze(
         self,
@@ -30,7 +32,7 @@ class SuppliedReferenceAnalyzer(Analyzer):
         y: np.ndarray,
         z: np.ndarray,
     ) -> dict[str, Any]:
-        mesher = DefaultMesher()
+        mesher = DefaultMesher(self.max_edge_length)
         x_c, y_c, z_c, area, n = mesher.points_to_facets(x, y, z)
 
         fitter = LinearLeastSquaresFitter()

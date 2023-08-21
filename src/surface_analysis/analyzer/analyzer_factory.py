@@ -7,7 +7,7 @@ class AnalyzerFactory:
     @classmethod
     def get_analyser(cls, option: AnalyzerOption):
         if option.name == AnalyzerOptionName.basic:
-            return BasicAnalyzer()
+            return BasicAnalyzer(option.params)
         elif option.name == AnalyzerOptionName.supplied_reference:
             return SuppliedReferenceAnalyzer(option.params)
         else:

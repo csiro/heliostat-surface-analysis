@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import Union, Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class AnalyzerOptionName(Enum):

@@ -31,7 +31,6 @@ def parse_args() -> argparse.Namespace:
 
 def load_config(file_path: str) -> Config:
     config_dict = toml.load(file_path)
-    print(config_dict)
     return Config(**config_dict)
 
 

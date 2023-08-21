@@ -7,10 +7,10 @@ from surface_analysis.vector_math import area_of_triangles, area_of_triangles_xy
 from surface_analysis.mesh.mesher import Mesher
 
 
-DEFAULT_MAX_EDGE_LENGTH = 0.05
-
-
 class DefaultMesher(Mesher):
+    def __init__(self, max_edge_length: float):
+        self.max_edge_length = max_edge_length
+
     def points_to_facets(
         self,
         x: np.ndarray,
@@ -33,7 +33,6 @@ class DefaultMesher(Mesher):
         self,
         x: np.ndarray,
         y: np.ndarray,
-        max_edge_length: float = DEFAULT_MAX_EDGE_LENGTH,
     ) -> Delaunay:
         """
         Apply Delaunay triangulation to the point cloud only using x and y values.
@@ -41,7 +40,7 @@ class DefaultMesher(Mesher):
         """
         xy = np.hstack([x, y])
         tris = Delaunay(xy)
-        tris.simplices = self.filter_short_tris(tris, max_edge_length)
+        tris.simplices = self.filter_short_tris(tris, self.max_edge_length)
         return tris
 
     def filter_short_tris(

@@ -1,0 +1,12 @@
+[loader]
+name = "scaling"
+
+[preprocessor]
+name = "outlier"
+
+[analyzer]
+name = "supplied_reference"
+
+[analyzer.params]
+surface = "circular_paraboloid"
+max_edge_length = 0.2
