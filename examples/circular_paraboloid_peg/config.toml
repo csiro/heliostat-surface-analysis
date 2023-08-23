@@ -10,3 +10,10 @@ name = "supplied_reference"
 [analyzer.params]
 surface = "circular_paraboloid"
 max_edge_length = 0.2
+
+[analyzer.params.focal_lengths]
+PEG-FA27-BC02-M031.txt = 5
+PEG-FA27-BC02-M038.txt = 5
+PEG-FA27-BC02-M043.txt = 5
+PEG-FA27-BC02-M050.txt = 5
+PEG-FA27-BC02-M057.txt = 5
