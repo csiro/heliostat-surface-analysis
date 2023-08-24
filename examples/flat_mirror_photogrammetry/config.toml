@@ -5,7 +5,7 @@ name = "csv_loader"
 name = "basic"
 
 [analyzer]
-name = "supplied_reference"
+name = "fit_curve"
 
 [analyzer.params]
 surface = "flat"

@@ -1,7 +1,7 @@
 from surface_analysis.config.analyzer_option import AnalyzerOption
 from surface_analysis.config.analyzer_option import AnalyzerOptionName
 from surface_analysis.analyzer.basic_analyzer import BasicAnalyzer
-from surface_analysis.analyzer.supplied_reference_analyzer import SuppliedReferenceAnalyzer
+from surface_analysis.analyzer.fit_curve_analyzer import FitCurveAnalyzer
 
 class AnalyzerFactory:
     @classmethod
@@ -9,6 +9,6 @@ class AnalyzerFactory:
         if option.name == AnalyzerOptionName.basic:
             return BasicAnalyzer(option.params)
         elif option.name == AnalyzerOptionName.supplied_reference:
-            return SuppliedReferenceAnalyzer(option.params)
+            return FitCurveAnalyzer(option.params)
         else:
             return BasicAnalyzer()
