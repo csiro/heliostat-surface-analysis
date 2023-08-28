@@ -3,8 +3,8 @@ from typing import Callable
 import numpy as np
 from scipy import interpolate
 
-from surface_analysis.points_to_mesh_converter import points_to_tris
-from surface_analysis.points_to_mesh_converter import points_and_tris_to_mesh
+from surface_analysis.mesh.points_to_mesh_converter import points_to_tris
+from surface_analysis.mesh.points_to_mesh_converter import points_and_tris_to_mesh
 
 
 GRID_SIZE = 0.015

@@ -7,7 +7,7 @@ from matplotlib.figure import Figure
 from matplotlib.cm import ScalarMappable
 from cmcrameri import cm
 
-from surface_analysis.points_to_mesh_converter import points_to_tris
+from surface_analysis.mesh.leica_mesher import points_to_tris
 
 
 class Plotter:

@@ -1,0 +1,12 @@
+[loader]
+name = "csv_loader"
+
+[preprocessor]
+name = "basic"
+
+[analyzer]
+name = "fit_curve"
+
+[analyzer.params]
+surface = "flat"
+max_edge_length = 0.05
