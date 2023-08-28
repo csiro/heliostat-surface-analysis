@@ -2,6 +2,7 @@ import numpy as np
 
 from surface_analysis.linear_function.linear_function import LinearFunction
 
+import typing
 
 class CircularParaboloid(LinearFunction):
     def __init__(self):
@@ -25,7 +26,7 @@ class CircularParaboloid(LinearFunction):
             lambda x, y: 0 * x,
         ]
 
-    def get_offsets(self, coeffs: np.ndarray) -> tuple[float, float, float]:
+    def get_offsets(self, coeffs: np.ndarray) -> typing.Tuple[float, float, float]:
         x_offset = coeffs[1, 0] / (2 * coeffs[0, 0])
         y_offset = coeffs[2, 0] / (2 * coeffs[0, 0])
         z_offset = -1 * (coeffs[1, 0]**2 + coeffs[2, 0]**2) / (4 * coeffs[0, 0]) + coeffs[3, 0]

@@ -3,12 +3,13 @@ from abc import ABC
 
 import numpy as np
 
+import typing
 
 class LinearFunction(ABC):
     formula: str
-    terms: list[Callable[[np.ndarray, np.ndarray], np.ndarray]]
-    df_dx_terms: list[Callable[[np.ndarray, np.ndarray], np.ndarray]]
-    df_dy_terms: list[Callable[[np.ndarray, np.ndarray], np.ndarray]]
+    terms: typing.List[Callable[[np.ndarray, np.ndarray], np.ndarray]]
+    df_dx_terms: typing.List[Callable[[np.ndarray, np.ndarray], np.ndarray]]
+    df_dy_terms: typing.List[Callable[[np.ndarray, np.ndarray], np.ndarray]]
 
     def __str__(self) -> str:
         return type(self).__name__
@@ -41,7 +42,7 @@ class LinearFunction(ABC):
 
     def assemble_terms_and_coeffs(
         self,
-        terms: list[Callable[[np.ndarray, np.ndarray], np.ndarray]],
+        terms: typing.List[Callable[[np.ndarray, np.ndarray], np.ndarray]],
         coeffs: np.ndarray,
     ) -> Callable[[np.ndarray, np.ndarray], np.ndarray]:
         """
@@ -58,7 +59,7 @@ class LinearFunction(ABC):
 
         return assembled_function
 
-    # def get_offsets(self, coeffs: np.ndarray) -> tuple[float, float, float]:
+    # def get_offsets(self, coeffs: np.ndarray) -> typing.Tuple[float, float, float]:
     #     """
     #     For the given coefficients, calculate the x offset that would
     #     remove the plain "bx", "cy" and "e" terms.

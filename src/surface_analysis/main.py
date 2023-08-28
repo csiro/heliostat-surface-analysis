@@ -6,6 +6,7 @@ import toml
 from surface_analysis.config import Config
 from surface_analysis.analysis_manager import AnalysisManager
 
+import typing
 
 MANIFEST_FILE = "designfocallengths.txt"
 
@@ -42,7 +43,7 @@ def load_config(file_path: str) -> Config:
     return Config(**config_dict)
 
 
-def load_design_focal_lengths(scans_dir: str) -> dict[str, float]:
+def load_design_focal_lengths(scans_dir: str) -> typing.Dict[str, float]:
     manifest_path = os.path.join(scans_dir, MANIFEST_FILE)
 
     focal_lengths = {}
@@ -56,7 +57,7 @@ def load_design_focal_lengths(scans_dir: str) -> dict[str, float]:
     return focal_lengths
 
 
-def list_scans(scans_dir: str) -> list[str]:
+def list_scans(scans_dir: str) -> typing.List[str]:
     entries = os.listdir(scans_dir)
 
     files = []
@@ -75,8 +76,8 @@ def list_scans(scans_dir: str) -> list[str]:
 
 
 def validate_scans(
-    design_focal_lengths: dict[str, float],
-    scan_files: list[str],
+    design_focal_lengths: typing.Dict[str, float],
+    scan_files: typing.List[str],
 ) -> None:
     for scan_file in scan_files:
         scan_name = scan_file.split(".")[0]

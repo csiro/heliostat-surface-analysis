@@ -1,5 +1,6 @@
 import numpy as np
 from sklearn.decomposition import PCA
+import typing
 
 from surface_analysis.preprocessor.preprocessor import Preprocessor
 
@@ -10,7 +11,7 @@ class BasicPreprocessor(Preprocessor):
         raw_x: np.ndarray,
         raw_y: np.ndarray,
         raw_z: np.ndarray,
-    ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    ) -> typing.Tuple[np.ndarray, np.ndarray, np.ndarray]:
         centred_x, centred_y, centred_z = self.centre_points_centroid(raw_x, raw_y, raw_z)
         return self.rotate_points_PCA(centred_x, centred_y, centred_z)
 
@@ -19,7 +20,7 @@ class BasicPreprocessor(Preprocessor):
         raw_x: np.ndarray,
         raw_y: np.ndarray,
         raw_z: np.ndarray,
-    ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    ) -> typing.Tuple[np.ndarray, np.ndarray, np.ndarray]:
                
         x = raw_x - raw_x.mean()
         y = raw_y - raw_y.mean()
@@ -32,7 +33,7 @@ class BasicPreprocessor(Preprocessor):
         raw_x: np.ndarray,
         raw_y: np.ndarray,
         raw_z: np.ndarray,
-    ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    ) -> typing.Tuple[np.ndarray, np.ndarray, np.ndarray]:
         positions = np.hstack([raw_x, raw_y, raw_z])
 
         pca = PCA(n_components=3)

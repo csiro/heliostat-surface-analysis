@@ -6,6 +6,7 @@ import nlopt
 
 from surface_analysis.objective.linear_objective_function import LinearObjectiveFunction
 
+import typing
 
 class Fitter(ABC):
     @abstractmethod
@@ -16,7 +17,7 @@ class Fitter(ABC):
 class LinearLeastSquaresFitter(Fitter):
     def fit(
         self,
-        terms: list[Callable[[np.ndarray, np.ndarray], np.ndarray]],
+        terms: typing.List[Callable[[np.ndarray, np.ndarray], np.ndarray]],
         x: np.ndarray,
         y: np.ndarray,
         z: np.ndarray,
@@ -32,9 +33,9 @@ class NonLinearFitter(Fitter):
         self,
         dimensions: int,
         obj: LinearObjectiveFunction,
-        lower_bound: list[float],
-        upper_bound: list[float],
-        initial_guess: list[float],
+        lower_bound: typing.List[float],
+        upper_bound: typing.List[float],
+        initial_guess: typing.List[float],
     ):
         self.dimensions = dimensions
         self.obj = obj

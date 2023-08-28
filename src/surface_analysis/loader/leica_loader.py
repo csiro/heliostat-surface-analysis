@@ -3,9 +3,10 @@ import numpy as np
 
 from surface_analysis.loader.loader import Loader
 
+import typing
 
 class LeicaLoader(Loader):
-    def load_points(self, file_path: str) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    def load_points(self, file_path: str) -> typing.Tuple[np.ndarray, np.ndarray, np.ndarray]:
         """
         Load a leica point cloud and just return the x,y,z
         """

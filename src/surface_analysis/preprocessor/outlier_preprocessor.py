@@ -1,6 +1,7 @@
 from collections import defaultdict
 from email.policy import default
 import numpy as np
+import typing
 
 from surface_analysis.preprocessor.basic_preprocessor import BasicPreprocessor
 from surface_analysis.points_to_mesh_converter import points_to_tris, points_and_tris_to_mesh
@@ -16,7 +17,7 @@ class OutlierPreprocessor(BasicPreprocessor):
         raw_x: np.ndarray,
         raw_y: np.ndarray,
         raw_z: np.ndarray,
-    ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    ) -> typing.Tuple[np.ndarray, np.ndarray, np.ndarray]:
         centred_x, centred_y, centred_z = self.centre_points_centroid(raw_x, raw_y, raw_z)
         rotated_x, rotated_y, rotated_z = self.rotate_points_PCA(centred_x, centred_y, centred_z)
         trimmed_x, trimmed_y, trimmed_z = self.remove_outliers(rotated_x, rotated_y, rotated_z)
@@ -28,7 +29,7 @@ class OutlierPreprocessor(BasicPreprocessor):
         x: np.ndarray,
         y: np.ndarray,
         z: np.ndarray,
-    ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    ) -> typing.Tuple[np.ndarray, np.ndarray, np.ndarray]:
         tris = points_to_tris(x, y)
         mesh = points_and_tris_to_mesh(x, y, z, tris)
 

@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+import typing
 
 import numpy as np
 
@@ -10,5 +11,5 @@ class Preprocessor(ABC):
         raw_x: np.ndarray,
         raw_y: np.ndarray,
         raw_z: np.ndarray,
-    ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    ) -> typing.Tuple[np.ndarray, np.ndarray, np.ndarray]:
         pass

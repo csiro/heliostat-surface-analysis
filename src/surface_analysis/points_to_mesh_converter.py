@@ -6,6 +6,7 @@ from scipy.spatial import Delaunay
 
 from surface_analysis.vector_math import area_of_triangles, area_of_triangles_xy
 
+import typing
 
 DEFAULT_MAX_EDGE_LENGTH = 0.2
 DEFAULT_ALPHA = 10.0
@@ -83,7 +84,7 @@ def points_and_tris_to_mesh(
 
 def points_to_normals(
     x: np.ndarray, y: np.ndarray, z: np.ndarray
-) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+) -> typing.Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     tris = points_to_tris(x, y)
     mesh = points_and_tris_to_mesh(x, y, z, tris)
     facets = mesh_to_facets(mesh)

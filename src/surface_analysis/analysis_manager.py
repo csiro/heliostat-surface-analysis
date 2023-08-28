@@ -2,6 +2,8 @@ import os
 
 import pandas as pd
 
+import typing
+
 from surface_analysis.config import Config
 from surface_analysis.loader.loader import Loader
 from surface_analysis.loader.loader_factory import LoaderFactory
@@ -21,8 +23,8 @@ class AnalysisManager:
         self,
         config: Config,
         scans_dir: str,
-        design_focal_lengths: dict[str, float],
-        scan_files: list[str],
+        design_focal_lengths: typing.Dict[str, float],
+        scan_files: typing.List[str],
     ) -> None:
         analyser = AnalyserFactory.get_analyser(config.analysis)
         loader = LoaderFactory.get_loader(config.loader)

@@ -1,5 +1,6 @@
 import os
 from typing import Any
+import typing
 
 import numpy as np
 import pandas as pd
@@ -73,7 +74,7 @@ def analyse_scans(
     output_table.to_csv(output_table_csv_path)
 
 
-def load_design_focal_lengths(input_path: str) -> dict[str, float]:
+def load_design_focal_lengths(input_path: str) -> typing.Dict[str, float]:
     manifest_path = os.path.join(input_path, MANIFEST_FILE)
 
     focal_lengths = {}
@@ -244,7 +245,7 @@ def export_raw_surface(
 
 
 def analyse_polynomial(
-    results: dict[str, Any],
+    results: typing.Dict[str, Any],
     method_name: str,
     surface: MeasuredSurface,
     poly: LinearFunction,
@@ -273,7 +274,7 @@ def analyse_polynomial(
     # )
 
 def export_plots(
-    results: dict[str, Any],
+    results: typing.Dict[str, Any],
     surface: MeasuredSurface,
     slope_diffs: np.ndarray,
     z_diffs: np.ndarray,
