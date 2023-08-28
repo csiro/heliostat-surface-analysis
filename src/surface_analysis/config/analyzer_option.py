@@ -1,14 +1,15 @@
 from enum import Enum
 from typing import Union, Optional
+import typing
 
 from pydantic import BaseModel, Field
 
 
 class AnalyzerOptionName(Enum):
     basic = "basic"
-    supplied_reference = "supplied_reference"
+    fit_curve = "fit_curve"
 
 
 class AnalyzerOption(BaseModel):
     name: AnalyzerOptionName
-    params: Optional[dict[str, Union[str, float]]]
+    params: Optional[typing.Dict[str, Union[str, float]]]

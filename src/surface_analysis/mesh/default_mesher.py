@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 from stl.mesh import Mesh
 from scipy.spatial import Delaunay
+import typing
 
 from surface_analysis.vector_math import area_of_triangles, area_of_triangles_xy
 from surface_analysis.mesh.mesher import Mesher
@@ -16,7 +17,7 @@ class DefaultMesher(Mesher):
         x: np.ndarray,
         y: np.ndarray,
         z: np.ndarray,
-    ) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    ) -> typing.Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
         tris = self.points_to_tris(x, y)
 
         mesh = self.points_and_tris_to_mesh(x, y, z, tris)

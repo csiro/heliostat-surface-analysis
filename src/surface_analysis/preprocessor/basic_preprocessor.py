@@ -54,7 +54,7 @@ class BasicPreprocessor(Preprocessor):
         raw_x: np.ndarray,
         raw_y: np.ndarray,
         raw_z: np.ndarray,
-    ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    ) -> typing.Tuple[np.ndarray, np.ndarray, np.ndarray]:
         points = np.hstack((raw_x, raw_y, raw_z)).T
 
         best_theta = 0

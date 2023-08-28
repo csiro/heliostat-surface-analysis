@@ -1,8 +1,12 @@
 [loader]
 name = "scaling"
 
+[loader.params]
+
 [preprocessor]
 name = "outlier"
+
+[preprocessor.params]
 
 [analyzer]
 name = "known_focal"

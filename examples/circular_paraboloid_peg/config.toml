@@ -1,12 +1,17 @@
 [loader]
 name = "scaling"
 
+[loader.params]
+
 [preprocessor]
 name = "outlier"
+
+[preprocessor.params]
 
 [analyzer]
 name = "fit_curve"
 
 [analyzer.params]
+curve = "circular_paraboloid"
 surface = "circular_paraboloid"
 max_edge_length = 0.2

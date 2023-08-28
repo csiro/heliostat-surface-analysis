@@ -8,7 +8,7 @@ class AnalyzerFactory:
     def get_analyser(cls, option: AnalyzerOption):
         if option.name == AnalyzerOptionName.basic:
             return BasicAnalyzer(option.params)
-        elif option.name == AnalyzerOptionName.supplied_reference:
+        elif option.name == AnalyzerOptionName.fit_curve:
             return FitCurveAnalyzer(option.params)
         else:
             return BasicAnalyzer()

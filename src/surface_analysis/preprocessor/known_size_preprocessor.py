@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-from typing import Union, Optional, cast
+from typing import Union, Optional, cast, Dict, Tuple
 
 from surface_analysis.preprocessor.basic_preprocessor import BasicPreprocessor
 
@@ -9,7 +9,7 @@ from surface_analysis.preprocessor.basic_preprocessor import BasicPreprocessor
 class KnownSizePreprocessor(BasicPreprocessor):
     def __init__(
         self,
-        params: Optional[dict[str, Union[str, float]]],
+        params: Optional[Dict[str, Union[str, float]]],
     ):
         params = cast(dict[str, Union[str, float]], params)
         width = float(params["width"])
@@ -22,7 +22,7 @@ class KnownSizePreprocessor(BasicPreprocessor):
         raw_x: np.ndarray,
         raw_y: np.ndarray,
         raw_z: np.ndarray,
-    ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
         x, y, z = super().preprocess_points(raw_x, raw_y, raw_z)
         return self.rotate_xy_plane(x, y, z)
 
@@ -31,7 +31,7 @@ class KnownSizePreprocessor(BasicPreprocessor):
         raw_x: np.ndarray,
         raw_y: np.ndarray,
         raw_z: np.ndarray,
-    ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
         points = np.hstack((raw_x, raw_y, raw_z)).T
 
         best_theta = 0

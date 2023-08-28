@@ -1,4 +1,4 @@
-from typing import Union, Optional, cast, Any
+from typing import Union, Optional, cast, Any, Dict
 
 import numpy as np
 
@@ -16,9 +16,9 @@ from surface_analysis.aggregator.aggregator import RMSAggregator
 class FitCurveAnalyzer(Analyzer):
     def __init__(
         self,
-        params: Optional[dict[str, Union[str, float]]]
+        params: Optional[Dict[str, Union[str, float]]]
     ):
-        params = cast(dict[str, Union[str, float]], params)
+        params = cast(Dict[str, Union[str, float]], params)
 
         if "curve" not in params:
             raise ValueError("FitCurveAnalyzer requires the 'curve' parameter to be set")
@@ -42,7 +42,7 @@ class FitCurveAnalyzer(Analyzer):
         y: np.ndarray,
         z: np.ndarray,
         scan_name: str = "",
-    ) -> dict[str, Any]:
+    ) -> Dict[str, Any]:
         mesher = DefaultMesher(self.max_edge_length)
         x_c, y_c, _, _, n = mesher.points_to_facets(x, y, z)
 

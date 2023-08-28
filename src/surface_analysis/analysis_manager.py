@@ -43,6 +43,6 @@ class AnalysisManager:
         analyzer: Analyzer,
     ) -> pd.DataFrame:
         raw_x, raw_y, raw_z = loader.load_points(scan_path)
-        x, y, z = preprocessor.preprocess_points(raw_x, raw_y, raw_z)
+        x, y, z = preprocessor.preprocess_points(raw_x, raw_y, raw_z)       
         analysis = analyzer.analyze(x, y, z)
         return analysis

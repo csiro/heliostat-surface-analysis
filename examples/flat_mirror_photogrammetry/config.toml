@@ -1,8 +1,13 @@
 [loader]
 name = "csv_loader"
 
+[loader.params]
+
 [preprocessor]
 name = "basic"
+
+[preprocessor.params]
+
 
 [analyzer]
 name = "fit_curve"

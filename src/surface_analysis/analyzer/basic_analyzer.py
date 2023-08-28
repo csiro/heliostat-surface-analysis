@@ -29,7 +29,7 @@ class BasicAnalyzer(Analyzer):
         x: np.ndarray,
         y: np.ndarray,
         z: np.ndarray,
-    ) -> pd.DataFrame:
+    ) -> pd.DataFrame:  	
         results = {}
         results["name"] = self.scan_name
         results["design_focal_length"] = self.design_focal_length
