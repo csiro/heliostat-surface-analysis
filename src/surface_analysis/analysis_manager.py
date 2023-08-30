@@ -18,10 +18,11 @@ class AnalysisManager:
         self,
         config: Config,
         scans_dir: str,
-    ) -> None:
+        output_dir: str,
+    ) -> list:
         loader = LoaderFactory.get_loader(config.loader)
         preprocessor = PreprocessorFactory.get_preprocessor(config.preprocessor)
-        analyzer = AnalyzerFactory.get_analyser(config.analyzer)
+        analyzer = AnalyzerFactory.get_analyser(config.analyzer,output_dir)
 
         analysis_results = []
         for scan_file in os.listdir(scans_dir):
@@ -34,6 +35,7 @@ class AnalysisManager:
             )
             print(scan_file, analysis_result)
             analysis_results.append(analysis_result)
+        return analysis_results
 
     def analyze_scan(
         self,

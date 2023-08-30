@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 
 import numpy as np
+from stl.mesh import Mesh
 import typing
 
 class Mesher(ABC):
@@ -10,5 +11,5 @@ class Mesher(ABC):
         x: np.ndarray,
         y: np.ndarray,
         z: np.ndarray,
-    ) -> typing.Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    ) -> typing.Tuple[Mesh, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
         pass

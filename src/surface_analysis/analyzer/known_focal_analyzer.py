@@ -14,7 +14,8 @@ from surface_analysis.aggregator.aggregator import WeightedRMSAggregator
 class KnownFocalAnalyzer(Analyzer):
     def __init__(
         self,
-        params: Optional[Dict[str, Union[str, float]]]
+        params: Optional[Dict[str, Union[str, float]]],
+        output_dir: str
     ):
         params = cast(Dict[str, Union[str, float]], params)
 
@@ -25,6 +26,8 @@ class KnownFocalAnalyzer(Analyzer):
 
         self.max_edge_length = float(params["max_edge_length"])
         self.focal_lengths = self.load_design_focal_lengths(str(params["focal_length_file"]))
+        
+        self.output_dir = output_dir
 
     def analyze(
         self,
@@ -39,7 +42,7 @@ class KnownFocalAnalyzer(Analyzer):
             raise ValueError(f"Scan name {scan_name} not found in focal_length_file")
 
         mesher = DefaultMesher(self.max_edge_length)
-        x_c, y_c, _, area, n = mesher.points_to_facets(x, y, z)
+        mesh, x_c, y_c, _, area, n = mesher.points_to_facets(x, y, z)
 
         a_parameter = 1 / (4 * self.focal_lengths[scan_name])
         poly = CircularParaboloid()

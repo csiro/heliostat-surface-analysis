@@ -11,7 +11,7 @@ class KnownSizePreprocessor(BasicPreprocessor):
         self,
         params: Optional[Dict[str, Union[str, float]]],
     ):
-        params = cast(dict[str, Union[str, float]], params)
+        params = cast(Dict[str, Union[str, float]], params)
         width = float(params["width"])
         height = float(params["height"])
         self.width = width
@@ -59,18 +59,19 @@ class KnownSizePreprocessor(BasicPreprocessor):
         )
         rotated_points = rot @ points
 
-        ###
-        fig, ax = plt.subplots()
-        ax.scatter(rotated_points[0,:], rotated_points[1,:])
-        ax.set_xlabel("x")
-        ax.set_ylabel("y")
-
-        # square_x = [-max_x, max_x, max_x, -max_x, -max_x]
-        # square_y = [-max_y, -max_y, max_y, max_y, -max_y]
-
-        # ax.plot(square_x, square_y)
-
-        plt.show()
-        ###
+        if 0:
+            ###
+            fig, ax = plt.subplots()
+            ax.scatter(rotated_points[0,:], rotated_points[1,:])
+            ax.set_xlabel("x")
+            ax.set_ylabel("y")
+    
+            # square_x = [-max_x, max_x, max_x, -max_x, -max_x]
+            # square_y = [-max_y, -max_y, max_y, max_y, -max_y]
+    
+            # ax.plot(square_x, square_y)
+    
+            plt.show()
+            ###
 
         return raw_x, raw_y, raw_z

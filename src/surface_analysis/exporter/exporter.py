@@ -3,18 +3,7 @@ from typing import Callable
 import numpy as np
 from scipy import interpolate
 
-from surface_analysis.mesh.points_to_mesh_converter import points_to_tris
-from surface_analysis.mesh.points_to_mesh_converter import points_and_tris_to_mesh
-
-
 GRID_SIZE = 0.015
-
-
-def export_points_delaunay_stl(x, y, z, file_name):
-    tris = points_to_tris(x, y)
-    mesh = points_and_tris_to_mesh(x, y, z, tris)
-    mesh.save(file_name)
-
 
 def export_function_stl(
     x: np.ndarray,

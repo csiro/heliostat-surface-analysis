@@ -17,12 +17,13 @@ class DefaultMesher(Mesher):
         x: np.ndarray,
         y: np.ndarray,
         z: np.ndarray,
-    ) -> typing.Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    ) -> typing.Tuple[Mesh, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
         tris = self.points_to_tris(x, y)
 
         mesh = self.points_and_tris_to_mesh(x, y, z, tris)
         facets = self.mesh_to_facets(mesh)
         return (
+			mesh,
             facets["x"].to_numpy().reshape(-1, 1),
             facets["y"].to_numpy().reshape(-1, 1),
             facets["z"].to_numpy().reshape(-1, 1),

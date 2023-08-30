@@ -6,12 +6,12 @@ from surface_analysis.analyzer.known_focal_analyzer import KnownFocalAnalyzer
 
 class AnalyzerFactory:
     @classmethod
-    def get_analyser(cls, option: AnalyzerOption):
+    def get_analyser(cls, option: AnalyzerOption, output_dir):
         if option.name == AnalyzerOptionName.basic:
-            return BasicAnalyzer(option.params)
+            return BasicAnalyzer(option.params,output_dir)
         elif option.name == AnalyzerOptionName.fit_surface:
-            return FitSurfaceAnalyzer(option.params)
+            return FitSurfaceAnalyzer(option.params,output_dir)
         elif option.name == AnalyzerOptionName.known_focal:
-            return KnownFocalAnalyzer(option.params)           
+            return KnownFocalAnalyzer(option.params,output_dir)           
         else:
             raise RuntimeError("analyzer not recognised")

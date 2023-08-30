@@ -18,10 +18,10 @@ from surface_analysis.aggregator.aggregator import WeightedRMSAggregator
 
 
 class BasicAnalyzer(Analyzer):
-    def __init__(self, params):
+    def __init__(self, params, output_dir):
         #   scan_names, design_focal_lengths, output_dir):
         self.design_focal_lengths = params["design_focal_lengths"]
-        self.output_dir = params["output_dir"]
+        self.output_dir = output_dir
 
     def analyze(
         self,

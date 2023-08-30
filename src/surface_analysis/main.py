@@ -16,6 +16,7 @@ def main():
     analysis_manager.analyze_scans(
         config,
         args.input_dir,
+        args.output_dir
     )
 
 
