@@ -9,9 +9,8 @@ name = "outlier"
 [preprocessor.params]
 
 [analyzer]
-name = "fit_curve"
+name = "fit_surface"
 
 [analyzer.params]
-curve = "circular_paraboloid"
 surface = "circular_paraboloid"
 max_edge_length = 0.2

@@ -1,4 +1,4 @@
-from typing import Union, Optional, cast, Any
+from typing import Union, Optional, cast, Any, Dict
 
 import numpy as np
 
@@ -14,9 +14,9 @@ from surface_analysis.aggregator.aggregator import WeightedRMSAggregator
 class KnownFocalAnalyzer(Analyzer):
     def __init__(
         self,
-        params: Optional[dict[str, Union[str, float]]]
+        params: Optional[Dict[str, Union[str, float]]]
     ):
-        params = cast(dict[str, Union[str, float]], params)
+        params = cast(Dict[str, Union[str, float]], params)
 
         if "focal_length_file" not in params:
             raise ValueError("KnownFocalAnalyzer requires the 'focal_length_file' parameter to be set")
@@ -32,14 +32,16 @@ class KnownFocalAnalyzer(Analyzer):
         y: np.ndarray,
         z: np.ndarray,
         scan_name: str = "",
-    ) -> dict[str, Any]:
+    ) -> Dict[str, Any]:
         if scan_name == "":
+            raise ValueError(f"Scan name not provided")
+        elif scan_name not in self.focal_lengths.keys():
             raise ValueError(f"Scan name {scan_name} not found in focal_length_file")
 
         mesher = DefaultMesher(self.max_edge_length)
         x_c, y_c, _, area, n = mesher.points_to_facets(x, y, z)
 
-        a_parameter = 1 / (4 * self.focal_lengths["scan_name"])
+        a_parameter = 1 / (4 * self.focal_lengths[scan_name])
         poly = CircularParaboloid()
         p = poly.assemble_function(np.array([a_parameter, 0, 0, 0]))
         p_z = p(x, y)
@@ -61,7 +63,7 @@ class KnownFocalAnalyzer(Analyzer):
 
         return results
 
-    def load_design_focal_lengths(self, focal_length_filename: str) -> dict[str, float]:
+    def load_design_focal_lengths(self, focal_length_filename: str) -> Dict[str, float]:
         focal_lengths = {}
         with open(focal_length_filename, "r") as focal_length_file:
             for line in focal_length_file.readlines():

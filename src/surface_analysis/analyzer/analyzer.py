@@ -11,5 +11,6 @@ class Analyzer(ABC):
         x: np.ndarray,
         y: np.ndarray,
         z: np.ndarray,
+        scan_name: str
     ) -> pd.DataFrame:
         pass

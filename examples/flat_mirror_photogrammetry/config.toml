@@ -10,7 +10,7 @@ name = "basic"
 
 
 [analyzer]
-name = "fit_curve"
+name = "fit_surface"
 
 [analyzer.params]
 surface = "flat"

@@ -20,19 +20,19 @@ from surface_analysis.aggregator.aggregator import WeightedRMSAggregator
 class BasicAnalyzer(Analyzer):
     def __init__(self, params):
         #   scan_names, design_focal_lengths, output_dir):
-        self.scan_names = scan_names
-        self.focal_lengths = focal_lengths
-        self.output_dir = output_dir
+        self.design_focal_lengths = params["design_focal_lengths"]
+        self.output_dir = params["output_dir"]
 
     def analyze(
         self,
         x: np.ndarray,
         y: np.ndarray,
         z: np.ndarray,
+        scan_name: str,
     ) -> pd.DataFrame:  	
         results = {}
-        results["name"] = self.scan_name
-        results["design_focal_length"] = self.design_focal_length
+        results["name"] = scan_name
+        results["design_focal_length"] = self.design_focal_lengths[scan_name]
 
         mesher = DefaultMesher(self.max_edge_length)
         x_c, y_c, z_c, area, n = mesher.points_to_facets(x, y, z)

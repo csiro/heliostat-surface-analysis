@@ -42,7 +42,8 @@ class AnalysisManager:
         preprocessor: Preprocessor,
         analyzer: Analyzer,
     ) -> pd.DataFrame:
+        scan_name = os.path.splitext(os.path.basename(scan_path))[0]
         raw_x, raw_y, raw_z = loader.load_points(scan_path)
         x, y, z = preprocessor.preprocess_points(raw_x, raw_y, raw_z)       
-        analysis = analyzer.analyze(x, y, z)
+        analysis = analyzer.analyze(x, y, z, scan_name)
         return analysis

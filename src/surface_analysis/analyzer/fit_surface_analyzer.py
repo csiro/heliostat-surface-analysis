@@ -13,26 +13,26 @@ from surface_analysis.aggregator.aggregator import MeanAggregator
 from surface_analysis.aggregator.aggregator import RMSAggregator
 
 
-class FitCurveAnalyzer(Analyzer):
+class FitSurfaceAnalyzer(Analyzer):
     def __init__(
         self,
         params: Optional[Dict[str, Union[str, float]]]
     ):
         params = cast(Dict[str, Union[str, float]], params)
 
-        if "curve" not in params:
-            raise ValueError("FitCurveAnalyzer requires the 'curve' parameter to be set")
+        if "surface" not in params:
+            raise ValueError("FitSurfaceAnalyzer requires the 'surface' parameter to be set")
         if "max_edge_length" not in params:
-            raise ValueError("FitCurveAnalyzer requires the 'max_edge_length' parameter to be set")
+            raise ValueError("FitSurfaceAnalyzer requires the 'max_edge_length' parameter to be set")
 
-        if params["curve"] == "flat":
+        if params["surface"] == "flat":
             self.reference = Plane()
-        elif params["curve"] == "circular_paraboloid":
+        elif params["surface"] == "circular_paraboloid":
             self.reference = CircularParaboloid()
-        elif params["curve"] == "anu_polynomial":
+        elif params["surface"] == "anu_polynomial":
             self.reference = ANUPolynomial()
         else:
-            raise ValueError(f"{params['curve']} is not a valid curve")
+            raise ValueError(f"{params['surface']} is not a valid surface")
 
         self.max_edge_length = float(params["max_edge_length"])
 
@@ -61,5 +61,6 @@ class FitCurveAnalyzer(Analyzer):
         results = {} 
         results["slope_diffs_mean"] = slope_mean
         results["slope_diffs_rms"] = slope_rms
+        results["coeffs"] = coeffs 
 
         return results

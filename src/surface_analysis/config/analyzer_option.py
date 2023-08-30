@@ -7,7 +7,8 @@ from pydantic import BaseModel, Field
 
 class AnalyzerOptionName(Enum):
     basic = "basic"
-    fit_curve = "fit_curve"
+    fit_surface = "fit_surface"
+    known_focal = "known_focal"
 
 
 class AnalyzerOption(BaseModel):

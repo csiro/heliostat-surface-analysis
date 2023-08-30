@@ -1,1 +1,1 @@
-poetry run python src/surface_analysis/main.py examples/cyprus/config.toml examples/cyprus/scans examples/cyprus
+python3 src/surface_analysis/main.py examples/cyprus/config.toml examples/cyprus/scans examples/cyprus
