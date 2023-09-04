@@ -11,6 +11,7 @@ from surface_analysis.analyzer.analyzer import Analyzer
 from surface_analysis.analyzer.analyzer_factory import AnalyzerFactory
 from surface_analysis.preprocessor.preprocessor import Preprocessor
 from surface_analysis.preprocessor.preprocessor_factory import PreprocessorFactory
+from surface_analysis.plotting.plotting import plot_points_3d
 
 
 class AnalysisManager:
@@ -19,6 +20,7 @@ class AnalysisManager:
         config: Config,
         scans_dir: str,
         output_dir: str,
+        plot_points: bool
     ) -> list:
         loader = LoaderFactory.get_loader(config.loader)
         preprocessor = PreprocessorFactory.get_preprocessor(config.preprocessor)
@@ -32,6 +34,7 @@ class AnalysisManager:
                 loader,
                 preprocessor,
                 analyzer,
+                plot_points
             )
             print(scan_file, analysis_result)
             analysis_results.append(analysis_result)
@@ -43,9 +46,12 @@ class AnalysisManager:
         loader: Loader,
         preprocessor: Preprocessor,
         analyzer: Analyzer,
+        plot_points: bool
     ) -> pd.DataFrame:
         scan_name = os.path.splitext(os.path.basename(scan_path))[0]
         raw_x, raw_y, raw_z = loader.load_points(scan_path)
-        x, y, z = preprocessor.preprocess_points(raw_x, raw_y, raw_z)       
+        x, y, z = preprocessor.preprocess_points(raw_x, raw_y, raw_z)
+        if plot_points:
+            plot_points_3d(raw_x,raw_y,raw_z,x,y,z,title=scan_name)
         analysis = analyzer.analyze(x, y, z, scan_name)
         return analysis

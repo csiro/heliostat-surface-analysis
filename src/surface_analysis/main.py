@@ -16,7 +16,8 @@ def main():
     analysis_manager.analyze_scans(
         config,
         args.input_dir,
-        args.output_dir
+        args.output_dir,
+        args.plot
     )
 
 
@@ -28,6 +29,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("config", type=str, help="Config file")
     parser.add_argument("input_dir", type=str, help="Path to scans directory for processing")
     parser.add_argument("output_dir", type=str, help="Path to output analysis results")
+    parser.add_argument("--plot", action='store_true')
     return parser.parse_args()
 
 
