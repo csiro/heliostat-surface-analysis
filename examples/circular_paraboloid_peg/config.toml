@@ -4,7 +4,7 @@ name = "scaling"
 [loader.params]
 
 [preprocessor]
-name = "basic" # "known_size", "outlier" 
+name = "basic" # basic, known_size, outlier 
 
 [preprocessor.params]
 width = 1.85

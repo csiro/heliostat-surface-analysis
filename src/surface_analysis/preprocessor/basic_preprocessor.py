@@ -13,8 +13,7 @@ class BasicPreprocessor(Preprocessor):
         raw_z: np.ndarray,
     ) -> typing.Tuple[np.ndarray, np.ndarray, np.ndarray]:
         centred_x, centred_y, centred_z = self.centre_points_centroid(raw_x, raw_y, raw_z)
-        rotated_x, rotated_y, rotated_z = self.rotate_points_PCA(centred_x, centred_y, centred_z)
-        return self.rotate_xy_plane(rotated_x, rotated_y, rotated_z)
+        return self.rotate_points_PCA(centred_x, centred_y, centred_z)
 
     def centre_points_centroid(
         self,
@@ -29,6 +28,7 @@ class BasicPreprocessor(Preprocessor):
         
         return x, y, z
 
+    # FIXME: this results in rotation about the z axis that we don't want as this is already correct in original data
     def rotate_points_PCA(
         self,
         raw_x: np.ndarray,
@@ -47,43 +47,4 @@ class BasicPreprocessor(Preprocessor):
             new_positions[:, 0].reshape(-1, 1),
             new_positions[:, 1].reshape(-1, 1),
             new_positions[:, 2].reshape(-1, 1),
-        )
-
-    def rotate_xy_plane(
-        self,
-        raw_x: np.ndarray,
-        raw_y: np.ndarray,
-        raw_z: np.ndarray,
-    ) -> typing.Tuple[np.ndarray, np.ndarray, np.ndarray]:
-        points = np.hstack((raw_x, raw_y, raw_z)).T
-
-        best_theta = 0
-        best_area = 999
-        steps = 200
-        for theta in np.arange(0, np.pi, np.pi / steps):
-            rot = np.array(
-                [[np.cos(theta), -np.sin(theta), 0],
-                [np.sin(theta), np.cos(theta), 0],
-                [0, 0, 1]]
-            )
-            rotated_points = rot @ points
-
-            max_x = np.max(np.absolute(rotated_points[0,:]))
-            max_y = np.max(np.absolute(rotated_points[1,:]))
-
-            if max_x * max_y < best_area:
-                best_area = max_x * max_y
-                best_theta = theta
-
-        rot = np.array(
-            [[np.cos(best_theta), -np.sin(best_theta), 0],
-            [np.sin(best_theta), np.cos(best_theta), 0],
-            [0, 0, 1]]
-        )
-        rotated_points = rot @ points
-
-        return (
-            rotated_points[0,:].reshape(-1, 1),
-            rotated_points[1,:].reshape(-1, 1),
-            rotated_points[2,:].reshape(-1, 1),
         )

@@ -1,4 +1,4 @@
-from typing import Callable
+from typing import Callable,Tuple
 from abc import ABC, abstractmethod
 
 import numpy as np
@@ -79,3 +79,40 @@ class SlopeErrorObjectiveFunction(LinearObjectiveFunction):
             AngularDifferenceComparitor(),
             WeightedRMSAggregator(self.area),
         )
+
+# NOTE: this isn't a linear function but using the existing class structure as it does what we need
+class XYPlaneOrientationObjectiveFunction(LinearObjectiveFunction):
+    def __init__(self,
+                x: np.ndarray,
+                y: np.ndarray,
+                z: np.ndarray,
+                width: float,
+                height: float
+                ) -> None:
+        self.x = x
+        self.y = y
+        self.z = z
+        self.width = width
+        self.height = height
+        
+    def rotate_points(self,theta : float) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+        points = np.hstack((self.x, self.y, self.z)).T
+        rot = np.array(
+                [[np.cos(theta), -np.sin(theta), 0],
+                [np.sin(theta), np.cos(theta), 0],
+                [0, 0, 1]],
+			    dtype=np.float64
+            )
+        rotated_points = rot @ points
+
+        #raise RuntimeError()
+        return rotated_points[0,:].reshape(-1, 1),rotated_points[1,:].reshape(-1, 1),rotated_points[2,:].reshape(-1, 1)
+        
+    def evaluate(self, coeffs: np.ndarray, grad) -> float:
+        theta = coeffs[0]
+        x,y,z = self.rotate_points(theta)
+        dx = np.max(x) - np.min(x)
+        dy = np.max(y) - np.min(y)
+        f = abs(self.width-dx) + abs(self.height-dy)
+        return f
+
