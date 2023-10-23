@@ -1,6 +1,11 @@
 import argparse
-
 import toml
+
+# add the 'src' directory to the path so that surface_analysis can be imported (only required when running git repo code directly and outside of poetry)
+import os,sys
+src_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+print(src_dir)
+sys.path.insert(0,src_dir)
 
 from surface_analysis.config.config import Config
 from surface_analysis.analysis_manager import AnalysisManager
