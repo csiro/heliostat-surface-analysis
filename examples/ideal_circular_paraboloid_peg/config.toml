@@ -1,0 +1,21 @@
+[loader]
+name = "scaling"
+
+[loader.params]
+
+[preprocessor]
+name = "basic" # basic, known_size, outlier 
+
+[preprocessor.params]
+width = 1.85
+height = 2.44
+
+[analyzer]
+name = "fit_surface"
+
+[analyzer.params]
+surface = "circular_paraboloid"
+max_edge_length = 0.2
+write_STLs = true
+width = 1.85
+height = 2.44
