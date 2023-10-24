@@ -2,6 +2,7 @@
 name = "scaling"
 
 [loader.params]
+units = "mm"
 
 [preprocessor]
 name = "outlier"

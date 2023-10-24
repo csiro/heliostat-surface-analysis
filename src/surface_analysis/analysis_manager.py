@@ -27,7 +27,7 @@ class AnalysisManager:
         analyzer = AnalyzerFactory.get_analyser(config.analyzer,output_dir)
 
         analysis_results = []
-        for scan_file in os.listdir(scans_dir):
+        for scan_file in sorted(os.listdir(scans_dir)):
             scan_path = os.path.join(scans_dir, scan_file)
             analysis_result = self.analyze_scan(
                 scan_path,

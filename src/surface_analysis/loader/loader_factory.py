@@ -16,6 +16,6 @@ class LoaderFactory:
         elif option.name == LoaderOptionName.leica:
             return LeicaLoader()
         elif option.name == LoaderOptionName.scaling:
-            return ScalingLoader()
+            return ScalingLoader(option.params)
         else:
             return DefaultLoader()
