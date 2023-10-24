@@ -9,7 +9,7 @@ from surface_analysis.preprocessor.outlier_preprocessor import OutlierPreprocess
 class PreprocessorFactory:
     @classmethod
     def get_preprocessor(cls, option: PreprocessorOption):
-        if option.name == PreprocessorOptionName.no:
+        if option.name == PreprocessorOptionName.none:
             return NoPreprocessor()
         elif option.name == PreprocessorOptionName.known_size:
             return KnownSizePreprocessor(option.params)

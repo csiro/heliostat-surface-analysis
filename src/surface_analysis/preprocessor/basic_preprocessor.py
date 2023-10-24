@@ -1,8 +1,52 @@
 import numpy as np
-from sklearn.decomposition import PCA
 import typing
 
 from surface_analysis.preprocessor.preprocessor import Preprocessor
+from surface_analysis.fitter.fitter import NonLinearFitter
+from surface_analysis.objective.linear_objective_function import LinearObjectiveFunction
+
+# NOTE: this isn't a linear function but using the existing class structure as it does what we need
+class XYPlaneOrientationObjectiveFunction(LinearObjectiveFunction):
+    def __init__(self,
+                x: np.ndarray,
+                y: np.ndarray,
+                z: np.ndarray
+                ) -> None:
+        self.x = x
+        self.y = y
+        self.z = z
+        
+    def rotate_points(
+            self,
+            theta_x: float,
+            theta_y: float            
+        ) -> typing.Tuple[np.ndarray, np.ndarray, np.ndarray]:
+        points = np.hstack((self.x, self.y, self.z)).T
+        # FIXME: put matrix creation in a separate module
+        Mx = np.array(
+                [[1,             0,              0],
+                 [0, np.cos(theta_x), -np.sin(theta_x)],
+                 [0, np.sin(theta_x),  np.cos(theta_x)]],
+                dtype=np.float64
+            )
+        My = np.array(
+                [[ np.cos(theta_y), 0, np.sin(theta_y)],
+                 [               0, 1,               0],
+                 [-np.sin(theta_y), 0, np.cos(theta_y)]],
+                dtype=np.float64
+            )
+        M = Mx @ My
+        rotated_points = M @ points
+
+        #raise RuntimeError()
+        return rotated_points[0,:].reshape(-1, 1),rotated_points[1,:].reshape(-1, 1),rotated_points[2,:].reshape(-1, 1)
+        
+    def evaluate(self, coeffs: np.ndarray, grad) -> float:
+        theta_x = coeffs[0]
+        theta_y = coeffs[1]
+        x,y,z = self.rotate_points(theta_x,theta_y)
+        f = abs(z).sum()
+        return f
 
 
 class BasicPreprocessor(Preprocessor):
@@ -12,8 +56,10 @@ class BasicPreprocessor(Preprocessor):
         raw_y: np.ndarray,
         raw_z: np.ndarray,
     ) -> typing.Tuple[np.ndarray, np.ndarray, np.ndarray]:
-        centred_x, centred_y, centred_z = self.centre_points_centroid(raw_x, raw_y, raw_z)
-        return self.rotate_points_PCA(centred_x, centred_y, centred_z)
+        x,y,z = self.centre_points_centroid(raw_x, raw_y, raw_z)
+        x,y,z = self.rotate_points_xy_plane(x, y, z)
+        #x,y,z = self.centre_points_basin(x, y, z)
+        return x,y,z
 
     def centre_points_centroid(
         self,
@@ -27,50 +73,40 @@ class BasicPreprocessor(Preprocessor):
         z = raw_z - raw_z.mean()
         
         return x, y, z
-
-    # FIXME: this results in rotation about the z axis that we don't want as this is already correct in original data
-    def rotate_points_PCA(
+       
+    def rotate_points_xy_plane(
         self,
         raw_x: np.ndarray,
         raw_y: np.ndarray,
         raw_z: np.ndarray,
     ) -> typing.Tuple[np.ndarray, np.ndarray, np.ndarray]:
-        positions = np.hstack([raw_x, raw_y, raw_z])
-
-        pca = PCA(n_components=3)
-        pca.fit(positions)
-
-        rotation = np.array(pca.components_).T
-        new_positions = rotation.dot(positions.T).T
+        func_class = XYPlaneOrientationObjectiveFunction(raw_x,raw_y,raw_z)
+        fitter = NonLinearFitter(2,func_class,[-np.pi/2,-np.pi/2],[np.pi/2,np.pi/2],[0.,0.])
+        params = fitter.fit()
+        x,y,z = func_class.rotate_points(params[0][0],params[1][0])
         
-        if 0:
-            # reverse the z rotation that was applied in the above transformation
-            # FIXME: doesn't always work
-            r11, r12, r13 = rotation[0]
-            r21, r22, r23 = rotation[1]
-            r31, r32, r33 = rotation[2]
-            theta1 = np.arctan(-r23 / r33)
-            theta2 = np.arctan(r13 * np.cos(theta1) / r33)
-            theta3 = np.arctan2(-r12 , r11)
-            print("theta1 = ",(theta1*180/np.pi))
-            print("theta2 = ",(theta2*180/np.pi))
-            print("theta3 = ",(theta3*180/np.pi))
-            zrot = np.array(
-                    [[np.cos(-theta3), -np.sin(-theta3), 0],
-                    [np.sin(-theta3), np.cos(-theta3), 0],
-                    [0, 0, 1]],
-                    dtype=np.float64
-                )
-            corrected_positions = zrot.dot(new_positions.T).T
-            
-            return (
-                corrected_positions[:, 0].reshape(-1, 1),
-                corrected_positions[:, 1].reshape(-1, 1),
-                corrected_positions[:, 2].reshape(-1, 1),
-            )
-        else:
-            return (
-                new_positions[:, 0].reshape(-1, 1),
-                new_positions[:, 1].reshape(-1, 1),
-                new_positions[:, 2].reshape(-1, 1),
-            )
+        # detect if upside-down via z sign of point nearest to origin
+        l = np.sqrt(x**2+y**2+z**2)
+        i = l.argmin()
+        isUpsideDown = (z[i]>0)
+        
+        # ensure +ve z is upwards     
+        if isUpsideDown:
+            x,y,z = func_class.rotate_points(params[0][0]+np.pi,params[1][0])
+        
+        return x,y,z
+       
+    def centre_points_basin(
+        self,
+        raw_x: np.ndarray,
+        raw_y: np.ndarray,
+        raw_z: np.ndarray,
+    ) -> typing.Tuple[np.ndarray, np.ndarray, np.ndarray]:
+        
+        i = raw_z.argmin()
+                       
+        x = raw_x - raw_x[i]
+        y = raw_y - raw_y[i]
+        z = raw_z - raw_z[i]
+        
+        return x, y, z

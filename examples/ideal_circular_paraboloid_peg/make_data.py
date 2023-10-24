@@ -15,3 +15,9 @@ for item in os.listdir(rootDir):
 	for node in nodes:
 		ofile.write("%e\t%e\t%e\n"%(node[0],node[1],node[2]))
 	ofile.close()
+	if 1:
+		ofile = open("csvs/%s"%item.replace(".txt",".csv"),"w")
+		ofile.write("x,y,z\n")
+		for node in nodes:
+			ofile.write("%e,%e,%e\n"%(node[0]/1e3,node[1]/1e3,node[2]/1e3))
+		ofile.close()

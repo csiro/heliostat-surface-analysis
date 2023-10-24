@@ -16,11 +16,9 @@ class OutlierPreprocessor(BasicPreprocessor):
         raw_y: np.ndarray,
         raw_z: np.ndarray,
     ) -> typing.Tuple[np.ndarray, np.ndarray, np.ndarray]:
-        centred_x, centred_y, centred_z = self.centre_points_centroid(raw_x, raw_y, raw_z)
-        rotated_x, rotated_y, rotated_z = self.rotate_points_PCA(centred_x, centred_y, centred_z)
-        trimmed_x, trimmed_y, trimmed_z = self.remove_outliers(rotated_x, rotated_y, rotated_z)
-        centred_x, centred_y, centred_z = self.centre_points_centroid(trimmed_x, trimmed_y, trimmed_z)
-        return self.rotate_points_PCA(centred_x, centred_y, centred_z)
+        x, y, z = super().preprocess_points(raw_x, raw_y, raw_z)
+        trimmed_x, trimmed_y, trimmed_z = self.remove_outliers(x, y, z)
+        return super().preprocess_points(raw_x, raw_y, raw_z)
 
     def remove_outliers(
         self,
