@@ -8,10 +8,14 @@ name = "basic"
 
 [preprocessor.params]
 
-
 [analyzer]
 name = "fit_surface"
 
 [analyzer.params]
 surface = "flat"
 max_edge_length = 0.05
+
+[aggregator]
+name = "weighted_rms" # mean, rms, weighted_rms
+
+[aggregator.params]

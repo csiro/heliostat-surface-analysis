@@ -43,6 +43,8 @@ class DefaultMesher(Mesher):
         xy = np.hstack([x, y])
         tris = Delaunay(xy)
         tris.simplices = self.filter_short_tris(tris, self.max_edge_length)
+        if len(tris.simplices)==0:
+            raise RuntimeError("no simplices after filtering Delaunay triangulation")
         return tris
 
     def filter_short_tris(
@@ -74,7 +76,7 @@ class DefaultMesher(Mesher):
     ) -> Mesh:
         """
         Create a Mesh object from the Delaunay triangulation.
-        Delauney stores each triangle's points by index but Mesh stores them by the whole vector.
+        Delaunay stores each triangle's points by index but Mesh stores them by the whole vector.
         """
         xyz = np.hstack([x, y, z])
 

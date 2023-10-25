@@ -61,27 +61,17 @@ class FitSurfaceAnalyzer(Analyzer):
         scan_name: str = "",
     ) -> Dict[str, Any]:
         mesher = DefaultMesher(self.max_edge_length)
-        mesh, x_c, y_c, _, _, n = mesher.points_to_facets(x, y, z)
+        mesh, x_c, y_c, _, areas, normals = mesher.points_to_facets(x, y, z)
         if self.write_STLs:
             mesh.save(os.path.join(self.output_dir,f"{scan_name}_raw_delaunay.stl"))
             if self.width!=None and self.height!=None:
-             export_points_resampled_stl(x,y,z,self.width,self.height,os.path.join(self.output_dir,f"{scan_name}_raw_resampled.stl"))
+                export_points_resampled_stl(x,y,z,self.width,self.height,os.path.join(self.output_dir,f"{scan_name}_raw_resampled.stl"))
 
         fitter = LinearLeastSquaresFitter()
         coeffs = fitter.fit(self.reference.terms, x, y, z)
         f_n = self.reference.assemble_normal_function(coeffs)
         
         angle_comparitor = AngularDifferenceComparitor()
-        slope_diffs = angle_comparitor.compare(n, f_n(x_c, y_c))
+        slope_diffs = angle_comparitor.compare(normals, f_n(x_c, y_c))
 
-        mean_aggregator = MeanAggregator()
-        rms_aggregator = RMSAggregator()
-        slope_mean = mean_aggregator.aggregate(slope_diffs)
-        slope_rms = rms_aggregator.aggregate(slope_diffs)
-
-        results = {} 
-        results["slope_diffs_mean"] = slope_mean
-        results["slope_diffs_rms"] = slope_rms
-        results["coeffs"] = coeffs
-
-        return results
+        return slope_diffs, areas, coeffs

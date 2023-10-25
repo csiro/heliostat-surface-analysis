@@ -1,7 +1,7 @@
 import os
 from random import uniform
 
-f = 29e3
+f = 29
 h = 2.44
 w = 1.85
 ns = [50,100,200,400]

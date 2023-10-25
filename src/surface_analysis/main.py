@@ -14,6 +14,7 @@ import typing
 
 def main():
     args = parse_args()
+    validate_args(args)
     config = load_config(args.config)
     validate_config(config)
 
@@ -44,6 +45,13 @@ def load_config(file_path: str) -> Config:
 
 def validate_config(config: Config) -> None:
     return
+   
+def validate_args(args: argparse.Namespace) -> None:
+    if not os.path.isdir(args.input_dir):
+        raise RuntimeError("input_dir: %s doesn't exist"%args.input_dir)
+    if not os.path.isdir(args.output_dir):
+        print("creating output_dir: %s as it doesn't exist"%args.output_dir)
+        os.makedirs(args.output_dir)
 
 if __name__ == "__main__":
     main()

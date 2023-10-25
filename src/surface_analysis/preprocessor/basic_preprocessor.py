@@ -58,7 +58,7 @@ class BasicPreprocessor(Preprocessor):
     ) -> typing.Tuple[np.ndarray, np.ndarray, np.ndarray]:
         x,y,z = self.centre_points_centroid(raw_x, raw_y, raw_z)
         x,y,z = self.rotate_points_xy_plane(x, y, z)
-        #x,y,z = self.centre_points_basin(x, y, z)
+        x,y,z = self.centre_points_basin(x, y, z)
         return x,y,z
 
     def centre_points_centroid(

@@ -1,3 +1,5 @@
+import os
+
 from typing import Union, Optional, cast, Any, Dict
 
 import numpy as np
@@ -9,7 +11,27 @@ from surface_analysis.comparitor.comparitor import AngularDifferenceComparitor
 from surface_analysis.fitter.fitter import LinearLeastSquaresFitter
 from surface_analysis.mesh.default_mesher import DefaultMesher
 from surface_analysis.aggregator.aggregator import WeightedRMSAggregator
+from surface_analysis.exporter.exporter import export_points_resampled_stl
 
+class FocalLength:
+    def __init__(self):
+        pass
+    def get(self,scan_name):
+        pass
+    
+class FixedFocalLength(FocalLength):
+    def __init__(self,f):
+        self.f = f
+    def get(self,scan_name):
+        return self.f
+    
+class PerScanFocalLength(FocalLength):
+    def __init__(self,focal_lengths):
+        self.focal_lengths = focal_lengths
+    def get(self,scan_name):
+        if scan_name not in self.focal_lengths.keys():
+            raise ValueError(f"Scan name {scan_name} not found in focal_length_file")
+        return self.focal_lengths[scan_name]
 
 class KnownFocalAnalyzer(Analyzer):
     def __init__(
@@ -19,13 +41,28 @@ class KnownFocalAnalyzer(Analyzer):
     ):
         params = cast(Dict[str, Union[str, float]], params)
 
-        if "focal_length_file" not in params:
-            raise ValueError("KnownFocalAnalyzer requires the 'focal_length_file' parameter to be set")
         if "max_edge_length" not in params:
             raise ValueError("KnownFocalAnalyzer requires the 'max_edge_length' parameter to be set")
-
         self.max_edge_length = float(params["max_edge_length"])
-        self.focal_lengths = self.load_design_focal_lengths(str(params["focal_length_file"]))
+        
+        if "focal_length" in params:
+            self.focal_length_model = FixedFocalLength(float(params["focal_length"]))
+        elif "focal_length_file" in params:
+            self.focal_length_model = PerScanFocalLength(self.load_design_focal_lengths(str(params["focal_length_file"])))
+        else:
+            raise ValueError("KnownFocalAnalyzer requires the 'focal_length_file' or 'focal_length' parameter to be set")
+        
+        if "write_STLs" in params:        
+            self.write_STLs = params["write_STLs"]
+        else:
+            self.write_STLs = False
+            
+        if "width" not in params or "height" not in params:
+            self.width = None
+            self.height = None
+        else:
+            self.width = float(params["width"])
+            self.height = float(params["height"])
         
         self.output_dir = output_dir
 
@@ -38,13 +75,17 @@ class KnownFocalAnalyzer(Analyzer):
     ) -> Dict[str, Any]:
         if scan_name == "":
             raise ValueError(f"Scan name not provided")
-        elif scan_name not in self.focal_lengths.keys():
-            raise ValueError(f"Scan name {scan_name} not found in focal_length_file")
-
+        
+        focal_length = self.focal_length_model.get(scan_name)
+        
         mesher = DefaultMesher(self.max_edge_length)
-        mesh, x_c, y_c, _, area, n = mesher.points_to_facets(x, y, z)
+        mesh, x_c, y_c, _, areas, normals = mesher.points_to_facets(x, y, z)
+        if self.write_STLs:
+            mesh.save(os.path.join(self.output_dir,f"{scan_name}_raw_delaunay.stl"))
+            if self.width!=None and self.height!=None:
+                export_points_resampled_stl(x,y,z,self.width,self.height,os.path.join(self.output_dir,f"{scan_name}_raw_resampled.stl"))
 
-        a_parameter = 1 / (4 * self.focal_lengths[scan_name])
+        a_parameter = 1 / (4 * focal_length)
         poly = CircularParaboloid()
         p = poly.assemble_function(np.array([a_parameter, 0, 0, 0]))
         p_z = p(x, y)
@@ -56,15 +97,9 @@ class KnownFocalAnalyzer(Analyzer):
         f_n = poly.assemble_normal_function(np.insert(plane_coeffs, 0, a_parameter, axis=0))
 
         angle_comparitor = AngularDifferenceComparitor()
-        aggregator = WeightedRMSAggregator(area)
+        slope_diffs = angle_comparitor.compare(normals, f_n(x_c, y_c))
 
-        slope_diffs = angle_comparitor.compare(n, f_n(x_c, y_c))
-        slope_rms = aggregator.aggregate(slope_diffs)
-
-        results = {} 
-        results["slope_diffs_weighted_rms"] = slope_rms
-
-        return results
+        return slope_diffs, areas, plane_coeffs
 
     def load_design_focal_lengths(self, focal_length_filename: str) -> Dict[str, float]:
         focal_lengths = {}

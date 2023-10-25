@@ -1,7 +1,6 @@
 from surface_analysis.config.preprocessor_option import PreprocessorOption
 from surface_analysis.config.preprocessor_option import PreprocessorOptionName
 from surface_analysis.preprocessor.no_preprocessor import NoPreprocessor
-from surface_analysis.preprocessor.known_size_preprocessor import KnownSizePreprocessor
 from surface_analysis.preprocessor.basic_preprocessor import BasicPreprocessor
 from surface_analysis.preprocessor.outlier_preprocessor import OutlierPreprocessor
 
@@ -11,8 +10,6 @@ class PreprocessorFactory:
     def get_preprocessor(cls, option: PreprocessorOption):
         if option.name == PreprocessorOptionName.none:
             return NoPreprocessor()
-        elif option.name == PreprocessorOptionName.known_size:
-            return KnownSizePreprocessor(option.params)
         elif option.name == PreprocessorOptionName.basic:
             return BasicPreprocessor()
         elif option.name == PreprocessorOptionName.outlier:
