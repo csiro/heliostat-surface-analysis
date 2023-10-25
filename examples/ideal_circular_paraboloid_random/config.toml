@@ -5,12 +5,12 @@ name = "default"
 # units = "mm"
 
 [preprocessor]
-name = "basic" # none, basic, outlier 
+name = "none" # none, basic, outlier 
 
 [preprocessor.params]
 
 [analyzer]
-name = "known_focal" # "fit_surface"
+name = "known_focal" # fit_surface, known_focal
 
 [analyzer.params]
 surface = "circular_paraboloid"

@@ -1,10 +1,10 @@
 import os
 from random import uniform
 
-f = 29
+f = 29.
 h = 2.44
 w = 1.85
-ns = [50,100,200,400]
+ns = [50,100,200,400,800]
 alphabet = "abcdefghij"
 
 for l,n in zip(alphabet,ns):
