@@ -1,23 +1,24 @@
+from typing import Tuple, Union, Optional, cast, Any, Dict
+
 import numpy as np
 import pandas as pd
 from stl.mesh import Mesh
 from scipy.spatial import Delaunay
-import typing
 
 from surface_analysis.vector_math import area_of_triangles, area_of_triangles_xy
-from surface_analysis.mesh.mesher import Mesher
+from surface_analysis.mesher.mesher import Mesher
 
 
-class DefaultMesher(Mesher):
-    def __init__(self, max_edge_length: float):
-        self.max_edge_length = max_edge_length
+class DelaunayMesher(Mesher):
+    def __init__(self, params: Optional[Dict[str, Union[str, float]]],):
+        self.max_edge_length = params["max_edge_length"]
 
     def points_to_facets(
         self,
         x: np.ndarray,
         y: np.ndarray,
         z: np.ndarray,
-    ) -> typing.Tuple[Mesh, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    ) -> Tuple[Mesh, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
         tris = self.points_to_tris(x, y)
 
         mesh = self.points_and_tris_to_mesh(x, y, z, tris)

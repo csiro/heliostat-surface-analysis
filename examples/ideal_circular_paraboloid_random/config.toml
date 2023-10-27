@@ -9,15 +9,19 @@ name = "none" # none, basic, outlier
 
 [preprocessor.params]
 
+[mesher]
+name = "Delaunay"
+
+[mesher.params]
+max_edge_length = 9.9e9
+
 [analyzer]
-name = "known_focal" # fit_surface, known_focal
+name = "fit_surface" # fit_surface, known_focal
 
 [analyzer.params]
+mesher = "Delaunay"
 surface = "circular_paraboloid"
-max_edge_length = 9.9e9
 write_STLs = true
-width = 1.85
-height = 2.44
 focal_length = 29.0
 
 [aggregator]

@@ -9,7 +9,7 @@ from surface_analysis.linear_function.circular_paraboloid import CircularParabol
 from surface_analysis.analyzer.analyzer import Analyzer
 from surface_analysis.comparitor.comparitor import AngularDifferenceComparitor
 from surface_analysis.fitter.fitter import LinearLeastSquaresFitter
-from surface_analysis.mesh.default_mesher import DefaultMesher
+from surface_analysis.mesher.mesher import Mesher
 from surface_analysis.aggregator.aggregator import WeightedRMSAggregator
 from surface_analysis.exporter.exporter import export_points_resampled_stl
 
@@ -37,13 +37,10 @@ class KnownFocalAnalyzer(Analyzer):
     def __init__(
         self,
         params: Optional[Dict[str, Union[str, float]]],
+        mesher: Mesher,
         output_dir: str
     ):
         params = cast(Dict[str, Union[str, float]], params)
-
-        if "max_edge_length" not in params:
-            raise ValueError("KnownFocalAnalyzer requires the 'max_edge_length' parameter to be set")
-        self.max_edge_length = float(params["max_edge_length"])
         
         if "focal_length" in params:
             self.focal_length_model = FixedFocalLength(float(params["focal_length"]))
@@ -56,14 +53,8 @@ class KnownFocalAnalyzer(Analyzer):
             self.write_STLs = params["write_STLs"]
         else:
             self.write_STLs = False
-            
-        if "width" not in params or "height" not in params:
-            self.width = None
-            self.height = None
-        else:
-            self.width = float(params["width"])
-            self.height = float(params["height"])
         
+        self.mesher = mesher
         self.output_dir = output_dir
 
     def analyze(
@@ -78,12 +69,9 @@ class KnownFocalAnalyzer(Analyzer):
         
         focal_length = self.focal_length_model.get(scan_name)
         
-        mesher = DefaultMesher(self.max_edge_length)
-        mesh, x_c, y_c, _, areas, normals = mesher.points_to_facets(x, y, z)
+        mesh, x_c, y_c, _, areas, normals = self.mesher.points_to_facets(x, y, z)
         if self.write_STLs:
-            mesh.save(os.path.join(self.output_dir,f"{scan_name}_raw_delaunay.stl"))
-            if self.width!=None and self.height!=None:
-                export_points_resampled_stl(x,y,z,self.width,self.height,os.path.join(self.output_dir,f"{scan_name}_raw_resampled.stl"))
+            mesh.save(os.path.join(self.output_dir,f"{scan_name}.stl"))
 
         a_parameter = 1 / (4 * focal_length)
         poly = CircularParaboloid()
@@ -98,9 +86,9 @@ class KnownFocalAnalyzer(Analyzer):
         ideal_normals = f_n(x_c, y_c)
 
         angle_comparitor = AngularDifferenceComparitor()
-        slope_diffs = angle_comparitor.compare(normals, ideal_normals)
+        slope_errors = angle_comparitor.compare(normals, ideal_normals)
 
-        return areas, normals, plane_coeffs, ideal_normals, slope_diffs
+        return areas, normals, plane_coeffs, ideal_normals, slope_errors
 
     def load_design_focal_lengths(self, focal_length_filename: str) -> Dict[str, float]:
         focal_lengths = {}

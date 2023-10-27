@@ -9,6 +9,7 @@ from surface_analysis.loader.loader import Loader
 from surface_analysis.loader.loader_factory import LoaderFactory
 from surface_analysis.preprocessor.preprocessor import Preprocessor
 from surface_analysis.preprocessor.preprocessor_factory import PreprocessorFactory
+from surface_analysis.mesher.mesher_factory import MesherFactory
 from surface_analysis.analyzer.analyzer import Analyzer
 from surface_analysis.analyzer.analyzer_factory import AnalyzerFactory
 from surface_analysis.aggregator.aggregator import Aggregator
@@ -26,7 +27,8 @@ class AnalysisManager:
     ) -> list:
         loader = LoaderFactory.get_loader(config.loader)
         preprocessor = PreprocessorFactory.get_preprocessor(config.preprocessor)
-        analyzer = AnalyzerFactory.get_analyser(config.analyzer,output_dir)
+        mesher = MesherFactory.get_mesher(config.mesher)
+        analyzer = AnalyzerFactory.get_analyser(config.analyzer,mesher,output_dir)
         aggregator = AggregatorFactory.get_aggregator(config.aggregator)
 
         analysis_results = []
@@ -58,8 +60,9 @@ class AnalysisManager:
         x, y, z = preprocessor.preprocess_points(raw_x, raw_y, raw_z)
         if plot_points:
             plot_points_3d(raw_x,raw_y,raw_z,x,y,z,title=scan_name)
-        areas, normals, coeffs, ideal_normals, slope_diffs = analyzer.analyze(x, y, z, scan_name)
-        aggregate = aggregator.aggregate(slope_diffs,areas)
+        
+        areas, normals, coeffs, ideal_normals, slope_errors = analyzer.analyze(x, y, z, scan_name)
+        aggregate = aggregator.aggregate(slope_errors,areas)
         
         result = {}
         result["aggregate"] = aggregate

@@ -18,4 +18,4 @@ class LoaderFactory:
         elif option.name == LoaderOptionName.scaling:
             return ScalingLoader(option.params)
         else:
-            return DefaultLoader()
+            raise RuntimeError("loader: %s not recognised"%option.name)
