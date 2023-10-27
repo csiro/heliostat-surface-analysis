@@ -95,11 +95,12 @@ class KnownFocalAnalyzer(Analyzer):
         plane = Plane()
         plane_coeffs = fitter.fit(plane.terms, x, y, z - p_z.reshape(-1, 1))
         f_n = poly.assemble_normal_function(np.insert(plane_coeffs, 0, a_parameter, axis=0))
+        ideal_normals = f_n(x_c, y_c)
 
         angle_comparitor = AngularDifferenceComparitor()
-        slope_diffs = angle_comparitor.compare(normals, f_n(x_c, y_c))
+        slope_diffs = angle_comparitor.compare(normals, ideal_normals)
 
-        return slope_diffs, areas, plane_coeffs
+        return areas, normals, plane_coeffs, ideal_normals, slope_diffs
 
     def load_design_focal_lengths(self, focal_length_filename: str) -> Dict[str, float]:
         focal_lengths = {}

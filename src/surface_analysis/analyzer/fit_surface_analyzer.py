@@ -70,8 +70,9 @@ class FitSurfaceAnalyzer(Analyzer):
         fitter = LinearLeastSquaresFitter()
         coeffs = fitter.fit(self.reference.terms, x, y, z)
         f_n = self.reference.assemble_normal_function(coeffs)
+        ideal_normals = f_n(x_c, y_c)
         
         angle_comparitor = AngularDifferenceComparitor()
-        slope_diffs = angle_comparitor.compare(normals, f_n(x_c, y_c))
+        slope_diffs = angle_comparitor.compare(normals, ideal_normals)
 
-        return slope_diffs, areas, coeffs
+        return areas, normals, coeffs, ideal_normals, slope_diffs

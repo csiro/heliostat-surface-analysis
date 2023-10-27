@@ -21,6 +21,6 @@ height = 2.44
 focal_length = 29.0
 
 [aggregator]
-name = "weighted_rms" # mean, rms, weighted_rms
+name = "mode" # mean, rms, weighted_rms
 
 [aggregator.params]

@@ -34,9 +34,8 @@ class RMSAggregator(Aggregator):
 class ModeAggregator(Aggregator):
     def aggregate(self, values: np.ndarray, weights: np.ndarray) -> float:
         mini = 0
-        maxi = 0.01
-        increment = 2e-4
-        bins = round((maxi - mini) / increment)
+        maxi = values.max()*1.001
+        bins = 100
 
         counts, bin_edges = np.histogram(
             values,

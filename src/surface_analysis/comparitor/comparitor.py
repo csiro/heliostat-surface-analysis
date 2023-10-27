@@ -31,6 +31,8 @@ class AngularDifferenceComparitor(Comparitor):
     ) -> np.ndarray:
         ideal_unit_normals = normalise_vectors(ideal)
         measured_unit_normals = normalise_vectors(measured)
+        
+        # FIXME: need to check this method as some angles are very large (e.g. between 10 and 80 degrees)
 
         measured_dot_ideal = np.sum(
             measured_unit_normals * ideal_unit_normals,

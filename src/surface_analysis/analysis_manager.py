@@ -58,11 +58,11 @@ class AnalysisManager:
         x, y, z = preprocessor.preprocess_points(raw_x, raw_y, raw_z)
         if plot_points:
             plot_points_3d(raw_x,raw_y,raw_z,x,y,z,title=scan_name)
-        slope_diffs, areas, coeffs = analyzer.analyze(x, y, z, scan_name)
-        slope_error = aggregator.aggregate(slope_diffs,areas)
+        areas, normals, coeffs, ideal_normals, slope_diffs = analyzer.analyze(x, y, z, scan_name)
+        aggregate = aggregator.aggregate(slope_diffs,areas)
         
         result = {}
-        result["sigma"] = slope_error
+        result["aggregate"] = aggregate
         result["coeffs"] = coeffs
         result["samples"] = len(areas)
         
