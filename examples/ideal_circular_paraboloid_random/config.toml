@@ -10,16 +10,19 @@ name = "none" # none, basic, outlier
 [preprocessor.params]
 
 [mesher]
-name = "Delaunay"
+name = "B-spline"	# Delaunay
 
 [mesher.params]
-max_edge_length = 9.9e9
+# max_edge_length = 9.9e9
+polynomial_degree = 3
+# smoothing_factor = 0
+dx = 0.01
+dy = 0.01
 
 [analyzer]
 name = "fit_surface" # fit_surface, known_focal
 
 [analyzer.params]
-mesher = "Delaunay"
 surface = "circular_paraboloid"
 write_STLs = true
 focal_length = 29.0
