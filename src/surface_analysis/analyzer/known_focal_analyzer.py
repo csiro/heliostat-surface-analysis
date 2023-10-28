@@ -69,9 +69,10 @@ class KnownFocalAnalyzer(Analyzer):
         
         focal_length = self.focal_length_model.get(scan_name)
         
-        mesh, x_c, y_c, _, areas, normals = self.mesher.points_to_facets(x, y, z)
+        mesh = self.create_mesh(x, y, z)
         if self.write_STLs:
             mesh.save(os.path.join(self.output_dir,f"{scan_name}.stl"))
+        x_c, y_c, _, areas, normals = Mesher.get_facets(mesh)
 
         a_parameter = 1 / (4 * focal_length)
         poly = CircularParaboloid()

@@ -51,9 +51,10 @@ class FitSurfaceAnalyzer(Analyzer):
         z: np.ndarray,
         scan_name: str = "",
     ) -> Dict[str, Any]:
-        mesh, x_c, y_c, _, areas, normals = self.mesher.points_to_facets(x, y, z)
+        mesh = self.mesher.create_mesh(x, y, z)
         if self.write_STLs:
             mesh.save(os.path.join(self.output_dir,f"{scan_name}.stl"))
+        x_c, y_c, _, areas, normals = Mesher.get_facets(mesh)
         
         fitter = LinearLeastSquaresFitter()
         coeffs = fitter.fit(self.reference.terms, x, y, z)

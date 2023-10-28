@@ -1,11 +1,9 @@
 from typing import Tuple, Union, Optional, cast, Any, Dict
 
 import numpy as np
-import pandas as pd
 from stl.mesh import Mesh
 from scipy.spatial import Delaunay
 
-from surface_analysis.vector_math import area_of_triangles, area_of_triangles_xy
 from surface_analysis.mesher.mesher import Mesher
 
 
@@ -13,24 +11,14 @@ class DelaunayMesher(Mesher):
     def __init__(self, params: Optional[Dict[str, Union[str, float]]],):
         self.max_edge_length = params["max_edge_length"]
 
-    def points_to_facets(
+    def create_mesh(
         self,
         x: np.ndarray,
         y: np.ndarray,
         z: np.ndarray,
     ) -> Tuple[Mesh, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
         tris = self.points_to_tris(x, y)
-
-        mesh = self.points_and_tris_to_mesh(x, y, z, tris)
-        facets = self.mesh_to_facets(mesh)
-        return (
-			mesh,
-            facets["x"].to_numpy().reshape(-1, 1),
-            facets["y"].to_numpy().reshape(-1, 1),
-            facets["z"].to_numpy().reshape(-1, 1),
-            facets["area"].to_numpy().reshape(-1, 1),
-            facets[["nx", "ny", "nz"]].to_numpy(),
-        )
+        return self.points_and_tris_to_mesh(x, y, z, tris)
 
     def points_to_tris(
         self,
@@ -91,28 +79,3 @@ class DelaunayMesher(Mesher):
 
         mesh.update_normals()
         return mesh
-
-    def mesh_to_facets(self, mesh: Mesh) -> pd.DataFrame:
-        """
-        Make a dataframe for each tri in the Mesh.
-        Store its centroid and unit normal too.
-        """
-        facets = pd.DataFrame(
-            data=mesh.points,
-            dtype=float,
-            columns=["x1", "y1", "z1", "x2", "y2", "z2", "x3", "y3", "z3"],
-        )
-        facets["x"] = facets[["x1", "x2", "x3"]].mean(axis=1)
-        facets["y"] = facets[["y1", "y2", "y3"]].mean(axis=1)
-        facets["z"] = facets[["z1", "z2", "z3"]].mean(axis=1)
-
-        p1 = facets[["x1", "y1", "z1"]].to_numpy()
-        p2 = facets[["x2", "y2", "z2"]].to_numpy()
-        p3 = facets[["x3", "y3", "z3"]].to_numpy()
-        areas = pd.DataFrame(area_of_triangles(p1, p2, p3), columns=["area"])
-        areas_xy = pd.DataFrame(area_of_triangles_xy(p1, p2, p3), columns=["area_xy"])
-
-        unit_normals = mesh.normals / np.linalg.norm(mesh.normals)
-        normals = pd.DataFrame(unit_normals, columns=["nx", "ny", "nz"])
-
-        return pd.concat([facets, normals, areas, areas_xy], axis=1)

@@ -10,10 +10,11 @@ name = "none" # none, basic, outlier
 [preprocessor.params]
 
 [mesher]
-name = "B-spline"	# Delaunay
+name = "B-spline"	# Delaunay, B-spline
 
 [mesher.params]
-# max_edge_length = 9.9e9
+max_edge_length = 0.1
+#
 polynomial_degree = 3
 # smoothing_factor = 0
 dx = 0.01
