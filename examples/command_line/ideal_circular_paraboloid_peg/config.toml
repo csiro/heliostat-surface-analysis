@@ -5,28 +5,21 @@ name = "scaling"
 units = "mm"
 
 [preprocessor]
-name = "basic" # basic, known_size, outlier 
+name = "basic" # none, basic 
 
 [preprocessor.params]
 width = 1.85
 height = 2.44
 
-[mesher]
-name = "Delaunay"	# Delaunay, B-spline
-
-[mesher.params]
-max_edge_length = 0.2
-polynomial_degree = 3
-# smoothing_factor = 0
-dx = 0.01
-dy = 0.01
-
-[analyzer]
+[analyser]
 name = "fit_surface"
 
-[analyzer.params]
+[analyser.params]
 surface = "circular_paraboloid"
+max_edge_length = 0.2
 write_STLs = true
+width = 1.85
+height = 2.44
 
 [aggregator]
 name = "weighted_rms" # mean, rms, weighted_rms

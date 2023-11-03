@@ -5,12 +5,12 @@ import typing
 from pydantic import BaseModel, Field
 
 
-class AnalyzerOptionName(Enum):
+class AnalyserOptionName(Enum):
     basic = "basic"
     fit_surface = "fit_surface"
-    known_focal = "known_focal"
+    fixed_focal_length = "fixed_focal_length"
 
 
-class AnalyzerOption(BaseModel):
-    name: AnalyzerOptionName
+class AnalyserOption(BaseModel):
+    name: AnalyserOptionName
     params: Optional[typing.Dict[str, Union[str, float]]]

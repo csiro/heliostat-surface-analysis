@@ -8,10 +8,10 @@ name = "basic"
 
 [preprocessor.params]
 
-[analyzer]
+[analyser]
 name = "fit_surface"
 
-[analyzer.params]
+[analyser.params]
 surface = "flat"
 max_edge_length = 0.05
 

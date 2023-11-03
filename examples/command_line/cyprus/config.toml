@@ -9,9 +9,9 @@ name = "outlier"
 
 [preprocessor.params]
 
-[analyzer]
-name = "known_focal"
+[analyser]
+name = "fixed_focal_length"
 
-[analyzer.params]
+[analyser.params]
 max_edge_length = 0.2
 focal_length_file = "examples/cyprus/focal_lengths.txt"

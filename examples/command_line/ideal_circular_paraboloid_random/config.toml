@@ -20,15 +20,15 @@ polynomial_degree = 3
 dx = 0.01
 dy = 0.01
 
-[analyzer]
-name = "fit_surface" # fit_surface, known_focal
+[analyser]
+name = "fit_surface" # fit_surface, fixed_focal_length
 
-[analyzer.params]
+[analyser.params]
 surface = "circular_paraboloid"
 write_STLs = true
 focal_length = 29.0
 
 [aggregator]
-name = "mode" # mean, rms, weighted_rms
+name = "weighted_rms" # mean, rms, weighted_rms
 
 [aggregator.params]

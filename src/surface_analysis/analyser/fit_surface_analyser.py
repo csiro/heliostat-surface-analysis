@@ -2,11 +2,12 @@ from typing import Union, Optional, cast, Any, Dict
 
 import os
 import numpy as np
+from stl.mesh import Mesh
 
 from surface_analysis.linear_function.plane import Plane
 from surface_analysis.linear_function.circular_paraboloid import CircularParaboloid
 from surface_analysis.linear_function.anu_polynomial import ANUPolynomial
-from surface_analysis.analyzer.analyzer import Analyzer
+from surface_analysis.analyser.analyser import Analyser
 from surface_analysis.comparitor.comparitor import AngularDifferenceComparitor
 from surface_analysis.fitter.fitter import LinearLeastSquaresFitter
 from surface_analysis.mesher.mesher import Mesher
@@ -15,17 +16,15 @@ from surface_analysis.aggregator.aggregator import RMSAggregator
 from surface_analysis.exporter.exporter import export_points_resampled_stl
 
 
-class FitSurfaceAnalyzer(Analyzer):
+class FitSurfaceAnalyser(Analyser):
     def __init__(
         self,
-        params: Optional[Dict[str, Union[str, float]]],
-        mesher: Mesher,
-        output_dir: str
+        params: Optional[Dict[str, Union[str, float]]]
     ):
         params = cast(Dict[str, Union[str, float]], params)
 
         if "surface" not in params:
-            raise ValueError("FitSurfaceAnalyzer requires the 'surface' parameter to be set")
+            raise ValueError("FitSurfaceAnalyser requires the 'surface' parameter to be set")
 
         if params["surface"] == "flat":
             self.reference = Plane()
@@ -35,25 +34,15 @@ class FitSurfaceAnalyzer(Analyzer):
             self.reference = ANUPolynomial()
         else:
             raise ValueError(f"{params['surface']} is not a valid surface")
-        
-        if "write_STLs" in params:        
-            self.write_STLs = params["write_STLs"]
-        else:
-            self.write_STLs = False
-        
-        self.mesher = mesher
-        self.output_dir = output_dir
 
-    def analyze(
+    def analyse(
         self,
         x: np.ndarray,
         y: np.ndarray,
         z: np.ndarray,
-        scan_name: str = "",
+        mesh: Mesh,
+        scan_name: str = ""
     ) -> Dict[str, Any]:
-        mesh = self.mesher.create_mesh(x, y, z)
-        if self.write_STLs:
-            mesh.save(os.path.join(self.output_dir,f"{scan_name}.stl"))
         x_c, y_c, _, areas, normals = Mesher.get_facets(mesh)
         
         fitter = LinearLeastSquaresFitter()

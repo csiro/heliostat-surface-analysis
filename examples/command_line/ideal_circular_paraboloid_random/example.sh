@@ -1,0 +1,1 @@
+python3 src/surface_analysis/main.py examples/command_line/ideal_circular_paraboloid_random/config.toml examples/command_line/ideal_circular_paraboloid_random/scans examples/command_line/ideal_circular_paraboloid_random/output --plot --stl

@@ -1,1 +1,0 @@
-python3 src/surface_analysis/main.py examples/circular_paraboloid_peg/config.toml examples/circular_paraboloid_peg/scans examples/circular_paraboloid_peg/output --plot

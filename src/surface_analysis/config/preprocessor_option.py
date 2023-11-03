@@ -8,7 +8,7 @@ from pydantic import BaseModel
 class PreprocessorOptionName(Enum):
     none = "none"
     basic = "basic"
-    known_size = "known_size"
+    fixed_focal_length = "fixed_focal_length"
     outlier = "outlier"
 
 

@@ -3,10 +3,11 @@ import os
 from typing import Union, Optional, cast, Any, Dict
 
 import numpy as np
+from stl.mesh import Mesh
 
 from surface_analysis.linear_function.plane import Plane
 from surface_analysis.linear_function.circular_paraboloid import CircularParaboloid
-from surface_analysis.analyzer.analyzer import Analyzer
+from surface_analysis.analyser.analyser import Analyser
 from surface_analysis.comparitor.comparitor import AngularDifferenceComparitor
 from surface_analysis.fitter.fitter import LinearLeastSquaresFitter
 from surface_analysis.mesher.mesher import Mesher
@@ -33,12 +34,10 @@ class PerScanFocalLength(FocalLength):
             raise ValueError(f"Scan name {scan_name} not found in focal_length_file")
         return self.focal_lengths[scan_name]
 
-class KnownFocalAnalyzer(Analyzer):
+class FixedFocalLengthAnalyser(Analyser):
     def __init__(
         self,
-        params: Optional[Dict[str, Union[str, float]]],
-        mesher: Mesher,
-        output_dir: str
+        params: Optional[Dict[str, Union[str, float]]]
     ):
         params = cast(Dict[str, Union[str, float]], params)
         
@@ -47,21 +46,14 @@ class KnownFocalAnalyzer(Analyzer):
         elif "focal_length_file" in params:
             self.focal_length_model = PerScanFocalLength(self.load_design_focal_lengths(str(params["focal_length_file"])))
         else:
-            raise ValueError("KnownFocalAnalyzer requires the 'focal_length_file' or 'focal_length' parameter to be set")
-        
-        if "write_STLs" in params:        
-            self.write_STLs = params["write_STLs"]
-        else:
-            self.write_STLs = False
-        
-        self.mesher = mesher
-        self.output_dir = output_dir
+            raise ValueError("FixedFocalLengthAnalyser requires the 'focal_length_file' or 'focal_length' parameter to be set")
 
-    def analyze(
+    def analyse(
         self,
         x: np.ndarray,
         y: np.ndarray,
         z: np.ndarray,
+        mesh: Mesh,
         scan_name: str = "",
     ) -> Dict[str, Any]:
         if scan_name == "":
@@ -69,9 +61,6 @@ class KnownFocalAnalyzer(Analyzer):
         
         focal_length = self.focal_length_model.get(scan_name)
         
-        mesh = self.create_mesh(x, y, z)
-        if self.write_STLs:
-            mesh.save(os.path.join(self.output_dir,f"{scan_name}.stl"))
         x_c, y_c, _, areas, normals = Mesher.get_facets(mesh)
 
         a_parameter = 1 / (4 * focal_length)
