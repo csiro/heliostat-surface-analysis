@@ -10,7 +10,7 @@ name = "none" # none, basic, outlier
 [preprocessor.params]
 
 [mesher]
-name = "B-spline"	# Delaunay, B-spline
+name = "Delaunay"	# Delaunay, B-spline
 
 [mesher.params]
 max_aspect_ratio = 10

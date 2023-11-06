@@ -8,18 +8,18 @@ units = "mm"
 name = "basic" # none, basic 
 
 [preprocessor.params]
-width = 1.85
-height = 2.44
+
+[mesher]
+name = "Delaunay"	# Delaunay, B-spline
+
+[mesher.params]
+max_aspect_ratio = 10
 
 [analyser]
 name = "fit_surface"
 
 [analyser.params]
 surface = "circular_paraboloid"
-max_edge_length = 0.2
-write_STLs = true
-width = 1.85
-height = 2.44
 
 [aggregator]
 name = "weighted_rms" # mean, rms, weighted_rms

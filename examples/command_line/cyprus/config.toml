@@ -9,6 +9,12 @@ name = "outlier"
 
 [preprocessor.params]
 
+[mesher]
+name = "Delaunay"	# Delaunay, B-spline
+
+[mesher.params]
+max_aspect_ratio = 10
+
 [analyser]
 name = "fixed_focal_length"
 

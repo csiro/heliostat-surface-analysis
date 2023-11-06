@@ -8,12 +8,17 @@ name = "basic"
 
 [preprocessor.params]
 
+[mesher]
+name = "Delaunay"	# Delaunay, B-spline
+
+[mesher.params]
+max_aspect_ratio = 10
+
 [analyser]
 name = "fit_surface"
 
 [analyser.params]
 surface = "flat"
-max_edge_length = 0.05
 
 [aggregator]
 name = "weighted_rms" # mean, rms, weighted_rms
