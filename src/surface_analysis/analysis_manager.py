@@ -15,7 +15,7 @@ from surface_analysis.analyser.analyser import Analyser
 from surface_analysis.analyser.analyser_factory import AnalyserFactory
 from surface_analysis.aggregator.aggregator import Aggregator
 from surface_analysis.aggregator.aggregator_factory import AggregatorFactory
-from surface_analysis.plotting.plotting import plot_points_3d
+from surface_analysis.plotting.plotting import plot_points_3d, plot_2d_surface
 
 
 class AnalysisManager:
@@ -24,7 +24,7 @@ class AnalysisManager:
         config: Config,
         scans_dir: str,
         output_dir: str,
-        plot_points: bool,
+        plot: bool,
         write_stls: bool
     ) -> list:
         loader = LoaderFactory.get_loader(config.loader)
@@ -44,7 +44,7 @@ class AnalysisManager:
                 analyser,
                 aggregator,
                 output_dir,
-                plot_points,
+                plot,
                 write_stls,
             )
             print(analysis_result)
@@ -60,18 +60,20 @@ class AnalysisManager:
         analyser: Analyser,
         aggregator: Aggregator,
         output_dir: str,
-        plot_points: bool,
+        plot: bool,
         write_stls: bool,
     ) -> pd.DataFrame:
         scan_name = os.path.splitext(os.path.basename(scan_path))[0]
         raw_x, raw_y, raw_z = loader.load_points(scan_path)
         x, y, z = preprocessor.preprocess_points(raw_x, raw_y, raw_z)
-        if plot_points:
+        if plot:
             plot_points_3d(raw_x,raw_y,raw_z,x,y,z,title=scan_name)
         mesh = mesher.create_mesh(x, y, z)
         if write_stls:
             mesh.save(os.path.join(output_dir,f"{scan_name}.stl"))
         areas, normals, coeffs, ideal_normals, slope_errors = analyser.analyse(x, y, z, mesh, scan_name)
+        if plot:
+            plot_2d_surface(mesh,slope_errors,label="slope error (rad)",fig=None)
         aggregate = aggregator.aggregate(slope_errors,areas)
         
         result = {}
