@@ -9,8 +9,8 @@ from surface_analysis.mesher.mesher import Mesher
 
 class DelaunayMesher(Mesher):
     def __init__(self, params: Optional[Dict[str, Union[str, float]]],):
-        self.max_edge_length = params["max_edge_length"]
-
+        self.max_aspect_ratio = params["max_aspect_ratio"]
+        
     def create_mesh(
         self,
         x: np.ndarray,
@@ -31,27 +31,28 @@ class DelaunayMesher(Mesher):
         """
         xy = np.hstack([x, y])
         tris = Delaunay(xy)
-        tris.simplices = self.filter_short_tris(tris, self.max_edge_length)
+        tris.simplices = self.filter_triangles(tris)
         if len(tris.simplices)==0:
             raise RuntimeError("no simplices after filtering Delaunay triangulation")
         return tris
 
-    def filter_short_tris(
+    def filter_triangles(
         self,
         tris: Delaunay,
-        max_edge_length: float
     ) -> np.ndarray:
         small_tris = []
         for tri in tris.simplices:
             p0 = tris.points[tri[0]]
             p1 = tris.points[tri[1]]
             p2 = tris.points[tri[2]]
-            longest_side = max(
-                np.linalg.norm(p0 - p1),
-                np.linalg.norm(p1 - p2),
-                np.linalg.norm(p2 - p0),
-            )
-            if longest_side < max_edge_length:
+            # side lengths
+            a = np.linalg.norm(p0 - p1)
+            b = np.linalg.norm(p1 - p2)
+            c = np.linalg.norm(p2 - p0)
+            # aspect ratio (see https://stackoverflow.com/questions/10289752/aspect-ratio-of-a-triangle-of-a-meshed-surface)
+            s = (a + b + c) / 2.0
+            aspect_ratio = (a * b * c) / (8.0 * (s - a) * (s - b) * (s - c))
+            if aspect_ratio < self.max_aspect_ratio:
                 small_tris.append(tri)
 
         return np.array(small_tris)

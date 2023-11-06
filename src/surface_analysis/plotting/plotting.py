@@ -3,6 +3,18 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from stl.mesh import Mesh
 
+def set_plot_font_size(ax,size,includeLegend=False,includeColorbar=False):
+	items = [ax.title, ax.xaxis.label, ax.yaxis.label] + ax.get_xticklabels(which="both") + ax.get_yticklabels(which="both")
+	if includeLegend:
+		items += ax.legend().get_texts()
+	for item in items:
+		item.set_fontsize(size)
+	if includeColorbar:
+		im = ax.images
+		if len(im)>0:
+			cb = im[-1].colorbar 
+			cb.ax.tick_params(labelsize=size)
+
 def plot_points_3d(raw_x: np.ndarray,
 				   raw_y: np.ndarray,
 				   raw_z: np.ndarray,
@@ -22,7 +34,7 @@ def plot_points_3d(raw_x: np.ndarray,
 		ax.set_title(title)
 	plt.show()
 	
-def plot_2d_surface(mesh : Mesh, values : np.ndarray, label : str, ax : plt.Axes = None):
+def plot_2d_surface(mesh : Mesh, values : np.ndarray, label : str, ax : plt.Axes = None, fontsize : int = None, cbxy = (3.5,0.29)):
 	xs = []
 	ys = []
 	simplices = []
@@ -41,7 +53,15 @@ def plot_2d_surface(mesh : Mesh, values : np.ndarray, label : str, ax : plt.Axes
 	ax.set_xlabel("x (m)")
 	ax.set_ylabel("y (m)")
 	#
-	cbar = plt.colorbar(tpc, label=label)
+	if fontsize==None:
+		cbar = plt.colorbar(tpc,label=label)
+	else:
+		cbar = plt.colorbar(tpc)
+		cbar.ax.set_title(label=label,fontsize=fontsize,rotation=90,x=cbxy[0],y=cbxy[1])
+	#
+	if fontsize!=None:
+		cbar.ax.tick_params(labelsize=fontsize)
+		set_plot_font_size(ax,fontsize)
 	#
 	if ax==None:
 		plt.show()

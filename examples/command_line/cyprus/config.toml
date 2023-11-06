@@ -13,5 +13,5 @@ name = "outlier"
 name = "fixed_focal_length"
 
 [analyser.params]
-max_edge_length = 0.2
+max_aspect_ratio = 10
 focal_length_file = "examples/cyprus/focal_lengths.txt"
