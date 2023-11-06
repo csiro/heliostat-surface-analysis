@@ -3,7 +3,13 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from stl.mesh import Mesh
 
-def plot_points_3d(raw_x,raw_y,raw_z,x=np.ndarray(shape=(0,0)),y=np.ndarray(shape=(0,0)),z=np.ndarray(shape=(0,0)),title=None):
+def plot_points_3d(raw_x: np.ndarray,
+				   raw_y: np.ndarray,
+				   raw_z: np.ndarray,
+				   x: np.ndarray = np.ndarray(shape=(0,0)),
+				   y: np.ndarray = np.ndarray(shape=(0,0)),
+				   z: np.ndarray = np.ndarray(shape=(0,0)),
+				   title: str = None):
 	fig = plt.figure()
 	ax = fig.add_subplot(111,projection='3d')
 	ax.scatter(raw_x[:,0].tolist(),raw_y[:,0].tolist(),raw_z[:,0].tolist())
@@ -16,7 +22,7 @@ def plot_points_3d(raw_x,raw_y,raw_z,x=np.ndarray(shape=(0,0)),y=np.ndarray(shap
 		ax.set_title(title)
 	plt.show()
 	
-def plot_2d_surface(mesh : Mesh, values : np.ndarray, label : str, fig : plt.Figure):
+def plot_2d_surface(mesh : Mesh, values : np.ndarray, label : str, ax : plt.Axes = None):
 	xs = []
 	ys = []
 	simplices = []
@@ -28,14 +34,14 @@ def plot_2d_surface(mesh : Mesh, values : np.ndarray, label : str, fig : plt.Fig
 			simplex.append(j*3+i)
 		simplices.append(simplex)
 	#
-	if fig==None:
-		fig = plt.figure()
-	ax = fig.add_subplot(111)
+	if ax==None:
+		f,ax = plt.subplots()
 	tpc = ax.tripcolor(xs, ys, simplices, facecolors=np.ravel(values), edgecolors='k')
 	#
 	ax.set_xlabel("x (m)")
 	ax.set_ylabel("y (m)")
 	#
-	cbar = fig.colorbar(tpc, label=label)
+	cbar = plt.colorbar(tpc, label=label)
 	#
-	plt.show()
+	if ax==None:
+		plt.show()

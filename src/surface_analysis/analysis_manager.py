@@ -73,7 +73,7 @@ class AnalysisManager:
             mesh.save(os.path.join(output_dir,f"{scan_name}.stl"))
         areas, normals, coeffs, ideal_normals, slope_errors = analyser.analyse(x, y, z, mesh, scan_name)
         if plot:
-            plot_2d_surface(mesh,slope_errors,label="slope error (rad)",fig=None)
+            plot_2d_surface(mesh,slope_errors,label="slope error (rad)",ax=None)
         aggregate = aggregator.aggregate(slope_errors,areas)
         
         result = {}
