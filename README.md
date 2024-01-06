@@ -66,9 +66,9 @@ Please see the examples.
 
 ## Authors
 
-Mike Collins - mike.collins@csiro.au
-Daniel Potter - daniel.potter@csiro.au
-Calum Acutt (ex CSIRO)
+Mike Collins - mike.collins@csiro.au  
+Daniel Potter - daniel.potter@csiro.au  
+Calum Acutt (ex CSIRO)  
 
 ## Version History
 
