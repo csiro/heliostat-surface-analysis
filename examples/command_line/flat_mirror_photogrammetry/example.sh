@@ -1,1 +1,0 @@
-python3 src/surface_analysis/main.py examples/command_line/flat_mirror_photogrammetry/config.toml examples/command_line/flat_mirror_photogrammetry/scans examples/command_line/flat_mirror_photogrammetry --plot --stl

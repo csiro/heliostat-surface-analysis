@@ -1,0 +1,85 @@
+import os
+
+import pandas as pd
+
+import typing
+
+from heliostat_surface_analysis.config.config import Config
+from heliostat_surface_analysis.loader.loader import Loader
+from heliostat_surface_analysis.loader.loader_factory import LoaderFactory
+from heliostat_surface_analysis.preprocessor.preprocessor import Preprocessor
+from heliostat_surface_analysis.preprocessor.preprocessor_factory import PreprocessorFactory
+from heliostat_surface_analysis.mesher.mesher import Mesher
+from heliostat_surface_analysis.mesher.mesher_factory import MesherFactory
+from heliostat_surface_analysis.analyser.analyser import Analyser
+from heliostat_surface_analysis.analyser.analyser_factory import AnalyserFactory
+from heliostat_surface_analysis.aggregator.aggregator import Aggregator
+from heliostat_surface_analysis.aggregator.aggregator_factory import AggregatorFactory
+from heliostat_surface_analysis.plotting.plotting import plot_points_3d, plot_2d_surface
+
+
+class AnalysisManager:
+    @staticmethod
+    def analyse_scans(
+        config: Config,
+        scans_dir: str,
+        output_dir: str,
+        plot: bool,
+        write_stls: bool
+    ) -> list:
+        loader = LoaderFactory.get_loader(config.loader)
+        preprocessor = PreprocessorFactory.get_preprocessor(config.preprocessor)
+        mesher = MesherFactory.get_mesher(config.mesher)
+        analyser = AnalyserFactory.get_analyser(config.analyser)
+        aggregator = AggregatorFactory.get_aggregator(config.aggregator)
+
+        analysis_results = []
+        for scan_file in sorted(os.listdir(scans_dir)):
+            scan_path = os.path.join(scans_dir, scan_file)
+            analysis_result = AnalysisManager.analyse_scan(
+                scan_path,
+                loader,
+                preprocessor,
+                mesher,
+                analyser,
+                aggregator,
+                output_dir,
+                plot,
+                write_stls,
+            )
+            print(analysis_result)
+            analysis_results.append(analysis_result)
+        return analysis_results
+
+    @staticmethod
+    def analyse_scan(
+        scan_path: str,
+        loader: Loader,
+        preprocessor: Preprocessor,
+        mesher: Mesher,
+        analyser: Analyser,
+        aggregator: Aggregator,
+        output_dir: str,
+        plot: bool,
+        write_stls: bool,
+    ) -> pd.DataFrame:
+        scan_name = os.path.splitext(os.path.basename(scan_path))[0]
+        raw_x, raw_y, raw_z = loader.load_points(scan_path)
+        x, y, z = preprocessor.preprocess_points(raw_x, raw_y, raw_z)
+        if plot:
+            plot_points_3d(raw_x,raw_y,raw_z,x,y,z,title=scan_name)
+        mesh = mesher.create_mesh(x, y, z)
+        if write_stls:
+            mesh.save(os.path.join(output_dir,f"{scan_name}.stl"))
+        areas, normals, coeffs, ideal_normals, slope_errors = analyser.analyse(x, y, z, mesh, scan_name)
+        if plot:
+            plot_2d_surface(mesh,slope_errors,label="slope error (rad)",ax=None)
+        aggregate = aggregator.aggregate(slope_errors,areas)
+        
+        result = {}
+        result["name"] = scan_name
+        result["aggregate"] = aggregate
+        result["coeffs"] = coeffs
+        result["samples"] = len(areas)
+        
+        return result

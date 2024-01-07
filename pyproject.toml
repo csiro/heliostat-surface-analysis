@@ -5,7 +5,7 @@ description = ""
 authors = ["Mike Collins <mike.collins@csiro.au>","Daniel Potter <daniel.potter@csiro.au>","Calum Acutt"]
 
 packages = [
-    { include = "surface_analysis/**/*", from = "src" }
+    { include = "heliostat_surface_analysis", from = "src" }
 ]
 
 [tool.poetry.dependencies]
@@ -24,6 +24,9 @@ toml = "^0.10.2"
 [tool.poetry.group.dev.dependencies]
 jupyter = "^1.0.0"
 notebook = "^6.5.1"
+
+[tool.poetry.scripts]
+heliostat_surface_analysis = "heliostat_surface_analysis.run:main"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

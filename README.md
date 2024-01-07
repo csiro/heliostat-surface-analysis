@@ -1,8 +1,9 @@
 # heliostat-surface-analysis
 
-A Python package for analysing point cloud measurements of mirror surfaces such as heliostat facets.
+A Python package for analysing (e.g. slope error) point cloud measurements of mirror surfaces such as heliostat facets.
 
 ## Description
+
 
 
 ## Getting Started
@@ -44,7 +45,7 @@ git clone https://bitbucket.csiro.au/scm/helio/heliostat-surface-analysis.git
 ```
 
 The module can be loaded directly from the repository directory by including the top level directory path in the PYTHONPATH environment variable.
-Alternatively, heliostat-surface-analysis can be installed via pip:
+Alternatively, heliostat-surface-analysis can be installed via PyPI:
 
 ```
 cd heliostat-surface-analysis
@@ -57,13 +58,39 @@ cd heliostat-surface-analysis
 poetry install
 poetry shell
 ```
+When installing with PyPI, the `Scripts` directory of your Python distribution can be added to `PATH` for convenient access to the command-line tools supplied with heliostat-surface-analysis.  The location of the Python `Scripts` directory (e.g. `c:\users\username\appdata\roaming\python\python39\scripts\`) that was used for the package installation can be found via:
+
+```
+pip show -f heliostat-surface-analysis | more
+```
 
 ### Usage
 
-The parent module can be loaded via:
+heliostat-surface-analysis can be used either from the command-line or by loading the module into your own Python scripts or notebooks.
+The command-line tool `heliostat_surface_analysis` is installed to the Python scripts directory when installing with PyPI.
+The usage of this tool can be seen via:
 
 ```
-module load surface_analysis
+> heliostat_surface_analysis --help
+usage: heliostat_surface_analysis [-h] [--plot] [--stl] config input_dir output_dir
+
+Analyse point cloud measurements of surfaces
+
+positional arguments:
+  config      Config file
+  input_dir   Path to scans directory for processing
+  output_dir  Path to output analysis results
+
+optional arguments:
+  -h, --help  show this help message and exit
+  --plot
+  --stl
+```
+
+When using heliostat-surface-analysis from Python scripts or notebooks, the parent module can be loaded via:
+
+```
+import heliostat_surface_analysis
 ```
 
 ## Help
