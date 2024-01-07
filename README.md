@@ -12,7 +12,7 @@ A Python package for analysing point cloud measurements of mirror surfaces such 
 heliostat-surface-analysis requires Python version 3.8.10 or greater and has been successfuly used on Windows 10, Windows 11, macOS and Ubuntu 20.04.
 A number of third-party Python modules are utilised:
 
-| Module     | Minimum version  | 
+| Module     | Minimum version  |
 | :--------: | :--------------: |
 | numpy      | 1.23.3           |
 | scipy      | 1.10.1           |
@@ -49,6 +49,13 @@ Alternatively, heliostat-surface-analysis can be installed via pip:
 ```
 cd heliostat-surface-analysis
 pip install .
+```
+or used within a poetry virtual environment:
+
+```
+cd heliostat-surface-analysis
+poetry install
+poetry shell
 ```
 
 ### Usage
