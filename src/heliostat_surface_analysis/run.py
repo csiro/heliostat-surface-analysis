@@ -39,9 +39,23 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--stl", action='store_true')
     return parser.parse_args()
 
+def modify_file_paths(params,dir):
+    # any additional file path variables should be listed here
+    file_path_variables = ['focal_length_file']
+    for k,v in params.items():
+        if k in file_path_variables and isinstance(v,str):
+            # this test below ensures we don't modify paths to files that can already be found
+            if not os.path.exists(v):
+                params[k] = os.path.join(dir,v)
+        elif isinstance(v,dict):
+            modify_file_paths(v,dir)
 
 def load_config(file_path: str) -> Config:
     config_dict = toml.load(file_path)
+    # file path variables are allowed to be provided relative to the config.toml parent directory, and we modify these paths in config_dict here
+    dir = os.path.dirname(os.path.abspath(file_path))
+    for groupName,groupDict in config_dict.items():
+        modify_file_paths(groupDict,dir)
     return Config(**config_dict)
 
 def validate_config(config: Config) -> None:

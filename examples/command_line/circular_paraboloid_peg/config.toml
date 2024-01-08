@@ -24,7 +24,7 @@ name = "fixed_focal_length"
 
 [analyser.params]
 # surface = "circular_paraboloid"
-focal_length_file = "examples/command_line/circular_paraboloid_peg/design_focal_lengths.txt"
+focal_length_file = "design_focal_lengths.txt"
 
 [aggregator]
 name = "weighted_rms" # mean, rms, weighted_rms

@@ -20,4 +20,4 @@ name = "fixed_focal_length"
 
 [analyser.params]
 max_aspect_ratio = 10
-focal_length_file = "examples/cyprus/focal_lengths.txt"
+focal_length_file = "focal_lengths.txt"
