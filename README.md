@@ -1,9 +1,34 @@
 # heliostat-surface-analysis
 
-A Python package for analysing (e.g. slope error) point cloud measurements of mirror surfaces such as heliostat facets.
+A Python package for post-processing (e.g. slope error determination) point cloud measurements of mirror surfaces such as heliostat facets.
 
 ## Description
 
+The post-processing of mirror surfaces is broken into a sequence of stages:
+
+1. loading
+2. preprocessing
+3. meshing
+4. analysis
+5. aggregation
+
+The user provides a set of ASCII text files containing the x, y and z coordinates of the point cloud data obtained from surface metrology measurements (one file per mirror surface).
+The format of the files (e.g. delimiters, units) can be taken into consideration by the loader.
+A preprocessor can be applied to ensure the positioning of the points in the coordinate system is correct (i.e. basin of mirror at origin with normal in the the positive z direction).
+A 3D surface mesh is then generated from the points.
+Currently two meshers are available:
+
+1. Regular grid using B-spline interpolation
+2. Unstructured grid using Delaunay triangulation
+
+The B-spline method often needs to apply significant smoothing, such that the resultant meshed surface doesn't pass exactly through the original data points.
+For this reason the Delaunay method is preferred as the mesh vertices are constructured using the original data points.
+When using the Delaunay mesher it is important to filter out mesh facets with high aspect ratio, as the normal direction of these facets is highly sensitive to small errors in the data point coordinates.
+
+Once the mesh has been generated, the slope error distribution over the mirror surface can then determined using one of two analysers:
+
+1. Fit surface (planar, paraboloidal or deformed paraboloidal)
+2. Known focal length
 
 
 ## Getting Started
