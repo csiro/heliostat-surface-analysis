@@ -127,7 +127,7 @@ Please see the examples.
 
 Mike Collins - mike.collins@csiro.au  
 Daniel Potter - daniel.potter@csiro.au  
-Calum Acutt (ex CSIRO)  
+Calum Acutt (previously at CSIRO)  
 
 ## Version History
 
@@ -136,4 +136,5 @@ Calum Acutt (ex CSIRO)
 
 ## License
 
-heliostat-surface-analysis is currently intended for internal CSIRO use only.
+CSIRO Open Source Software Licence v1.0 (Based on MIT/BSD Open Source Licence).
+See the LICENSE file for full terms of the license.
