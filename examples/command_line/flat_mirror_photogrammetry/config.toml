@@ -1,5 +1,5 @@
 [loader]
-name = "csv_loader"
+name = "csv"
 
 [loader.params]
 

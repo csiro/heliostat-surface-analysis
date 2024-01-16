@@ -1,6 +1,7 @@
 import os
 
 import pandas as pd
+import progressbar
 
 import typing
 
@@ -34,7 +35,9 @@ class AnalysisManager:
         aggregator = AggregatorFactory.get_aggregator(config.aggregator)
 
         analysis_results = []
-        for scan_file in sorted(os.listdir(scans_dir)):
+        scan_files = sorted(os.listdir(scans_dir))
+        bar = progressbar.ProgressBar(maxval=len(scan_files)).start()
+        for i,scan_file in enumerate(scan_files):
             scan_path = os.path.join(scans_dir, scan_file)
             analysis_result = AnalysisManager.analyse_scan(
                 scan_path,
@@ -47,8 +50,9 @@ class AnalysisManager:
                 plot,
                 write_stls,
             )
-            print(analysis_result)
             analysis_results.append(analysis_result)
+            bar.update(i+1)
+        bar.finish()
         return analysis_results
 
     @staticmethod
@@ -75,11 +79,13 @@ class AnalysisManager:
         if plot:
             plot_2d_surface(mesh,slope_errors,label="slope error (rad)",ax=None)
         aggregate = aggregator.aggregate(slope_errors,areas)
-        
+
         result = {}
         result["name"] = scan_name
         result["aggregate"] = aggregate
-        result["coeffs"] = coeffs
+        for i,label in enumerate(analyser.get_coefficient_labels()):
+            result["coeff: %s"%label] = coeffs[i][0]
+        # result["surface coefficients"] = coeffs # .reshape(-1, 1)
         result["samples"] = len(areas)
-        
+
         return result

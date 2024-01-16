@@ -26,6 +26,10 @@ class CircularParaboloid(LinearFunction):
             lambda x, y: 0 * x,
         ]
 
+    @staticmethod
+    def get_coefficient_labels() -> list:
+        return ["a(x^2 + y^2)","bx","cy","d"]
+
     def get_offsets(self, coeffs: np.ndarray) -> typing.Tuple[float, float, float]:
         x_offset = coeffs[1, 0] / (2 * coeffs[0, 0])
         y_offset = coeffs[2, 0] / (2 * coeffs[0, 0])

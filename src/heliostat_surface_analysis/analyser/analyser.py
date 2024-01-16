@@ -17,3 +17,6 @@ class Analyser(ABC):
         scan_name: str
     ) -> pd.DataFrame:
         pass
+    @abstractmethod
+    def get_coefficient_labels(self) -> list:
+        pass

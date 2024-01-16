@@ -14,6 +14,10 @@ class LinearFunction(ABC):
     def __str__(self) -> str:
         return type(self).__name__
 
+    @staticmethod
+    def get_coefficient_labels() -> list:
+        pass
+
     def assemble_function(
         self,
         coeffs: np.ndarray,

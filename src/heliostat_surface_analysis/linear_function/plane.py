@@ -19,3 +19,6 @@ class Plane(LinearFunction):
             lambda x, y: 0 * x + 1,
             lambda x, y: 0 * x,
         ]
+    @staticmethod
+    def get_coefficient_labels() -> list:
+        return ["bx","cy","d"]

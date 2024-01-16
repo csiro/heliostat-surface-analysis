@@ -12,7 +12,7 @@ def set_plot_font_size(ax,size,includeLegend=False,includeColorbar=False):
 	if includeColorbar:
 		im = ax.images
 		if len(im)>0:
-			cb = im[-1].colorbar 
+			cb = im[-1].colorbar
 			cb.ax.tick_params(labelsize=size)
 
 def plot_points_3d(raw_x: np.ndarray,
@@ -24,16 +24,17 @@ def plot_points_3d(raw_x: np.ndarray,
 				   title: str = None):
 	fig = plt.figure()
 	ax = fig.add_subplot(111,projection='3d')
-	ax.scatter(raw_x[:,0].tolist(),raw_y[:,0].tolist(),raw_z[:,0].tolist())
+	ax.scatter(raw_x[:,0].tolist(),raw_y[:,0].tolist(),raw_z[:,0].tolist(),label="raw")
 	if x.size>0 and y.size>0 and z.size>0:
-		ax.scatter(x[:,0].tolist(),y[:,0].tolist(),z[:,0].tolist())
+		ax.scatter(x[:,0].tolist(),y[:,0].tolist(),z[:,0].tolist(),label="processed")
 	ax.set_xlabel("x (m)")
 	ax.set_ylabel("y (m)")
 	ax.set_zlabel("z (m)")
 	if title:
 		ax.set_title(title)
+	ax.legend(loc='best')
 	plt.show()
-	
+
 def plot_2d_surface(mesh : Mesh, values : np.ndarray, label : str, ax : plt.Axes = None, fontsize : int = None, cbxy = (3.5,0.29)):
 	xs = []
 	ys = []

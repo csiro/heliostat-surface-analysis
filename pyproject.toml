@@ -18,6 +18,7 @@ nlopt = "^2.7.1"
 pydantic = "^2.1.1"
 numpy-stl = "^2.13.1"
 toml = "^0.10.2"
+progressbar = "^2.5"
 
 [tool.poetry.dev-dependencies]
 

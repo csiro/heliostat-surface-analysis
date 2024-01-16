@@ -13,3 +13,7 @@ class FixedParaboloid(LinearFunction):
         self.df_dy_terms = [
             lambda x, y: 2 * y,
         ]
+
+    @staticmethod
+    def get_coefficient_labels() -> list:
+        return ["a(x^2 + y^2)"]

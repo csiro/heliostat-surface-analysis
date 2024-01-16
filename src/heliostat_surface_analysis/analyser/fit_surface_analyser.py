@@ -44,13 +44,16 @@ class FitSurfaceAnalyser(Analyser):
         scan_name: str = ""
     ) -> Dict[str, Any]:
         x_c, y_c, _, areas, normals = Mesher.get_facets(mesh)
-        
+
         fitter = LinearLeastSquaresFitter()
         coeffs = fitter.fit(self.reference.terms, x, y, z)
         f_n = self.reference.assemble_normal_function(coeffs)
         ideal_normals = f_n(x_c, y_c)
-        
+
         angle_comparitor = AngularDifferenceComparitor()
         slope_errors = angle_comparitor.compare(normals, ideal_normals)
 
         return areas, normals, coeffs, ideal_normals, slope_errors
+
+    def get_coefficient_labels(self) -> list:
+        return self.reference.get_coefficient_labels()

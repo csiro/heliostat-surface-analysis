@@ -39,3 +39,7 @@ class ANUPolynomial(LinearFunction):
             lambda x, y: 0 * x + 1,
             lambda x, y: 0 * x,
         ]
+
+    @staticmethod
+    def get_coefficient_labels() -> list:
+        return ["ax^2*y^2","bx^2*y","cx^2","dxy^2","exy","fx","gy^2","hy","i"]

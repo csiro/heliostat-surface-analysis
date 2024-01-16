@@ -19,13 +19,13 @@ class FocalLength:
         pass
     def get(self,scan_name):
         pass
-    
+
 class FixedFocalLength(FocalLength):
     def __init__(self,f):
         self.f = f
     def get(self,scan_name):
         return self.f
-    
+
 class PerScanFocalLength(FocalLength):
     def __init__(self,focal_lengths):
         self.focal_lengths = focal_lengths
@@ -40,7 +40,7 @@ class FixedFocalLengthAnalyser(Analyser):
         params: Optional[Dict[str, Union[str, float]]]
     ):
         params = cast(Dict[str, Union[str, float]], params)
-        
+
         if "focal_length" in params:
             self.focal_length_model = FixedFocalLength(float(params["focal_length"]))
         elif "focal_length_file" in params:
@@ -58,9 +58,9 @@ class FixedFocalLengthAnalyser(Analyser):
     ) -> Dict[str, Any]:
         if scan_name == "":
             raise ValueError(f"Scan name not provided")
-        
+
         focal_length = self.focal_length_model.get(scan_name)
-        
+
         x_c, y_c, _, areas, normals = Mesher.get_facets(mesh)
 
         a_parameter = 1 / (4 * focal_length)
@@ -79,6 +79,9 @@ class FixedFocalLengthAnalyser(Analyser):
         slope_errors = angle_comparitor.compare(normals, ideal_normals)
 
         return areas, normals, plane_coeffs, ideal_normals, slope_errors
+
+    def get_coefficient_labels(self) -> list:
+        return Plane().get_coefficient_labels()
 
     def load_design_focal_lengths(self, focal_length_filename: str) -> Dict[str, float]:
         focal_lengths = {}

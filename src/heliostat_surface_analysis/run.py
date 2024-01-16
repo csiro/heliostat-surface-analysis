@@ -1,5 +1,6 @@
 import argparse
 import toml
+import pandas as pd
 
 # add the 'src' directory to the path so that surface_analysis can be imported (only required when running git repo code directly and outside of poetry)
 import os,sys
@@ -18,7 +19,7 @@ def main():
     config = load_config(args.config)
     validate_config(config)
 
-    AnalysisManager.analyse_scans(
+    analysis_results = AnalysisManager.analyse_scans(
         config,
         args.input_dir,
         args.output_dir,
@@ -26,17 +27,32 @@ def main():
         args.stl
     )
 
+    # make a pandas dataframe with the analysis_results
+    if len(analysis_results)>0:
+        labels = [ key for key in analysis_results[0] ]
+        analysis_results_dict = {}
+        for label in labels:
+            analysis_results_dict[label] = []
+        for result in analysis_results:
+            for label in labels:
+                analysis_results_dict[label].append(result[label])
+        df = pd.DataFrame.from_dict(analysis_results_dict)
+        print(df)
+        output_file_path = os.path.join(args.output_dir,"analysis_results.xlsx")
+        df.to_excel(output_file_path)
+        print("analysis results have been writen to file: %s"%output_file_path)
+    print("Done.")
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         prog="heliostat_surface_analysis",
         description="Analyse point cloud measurements of surfaces"
     )
-    parser.add_argument("config", type=str, help="Config file")
-    parser.add_argument("input_dir", type=str, help="Path to scans directory for processing")
-    parser.add_argument("output_dir", type=str, help="Path to output analysis results")
-    parser.add_argument("--plot", action='store_true')
-    parser.add_argument("--stl", action='store_true')
+    parser.add_argument("config", type=str, help="config file")
+    parser.add_argument("input_dir", type=str, help="path to scans directory for processing")
+    parser.add_argument("output_dir", type=str, help="path to a directory for writing output files")
+    parser.add_argument("--plot", action='store_true', help="display plots of point cloud data and mesh with slope error analysis")
+    parser.add_argument("--stl", action='store_true', help="write meshes to STL files in the output directory")
     return parser.parse_args()
 
 def modify_file_paths(params,dir):
