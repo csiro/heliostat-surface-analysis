@@ -14,18 +14,18 @@ The post-processing of mirror surfaces is broken into a sequence of stages:
 
 The user provides a set of ASCII text files containing the *x*, *y* and *z* coordinates of the point cloud data obtained from surface metrology measurements (one file per mirror surface).
 The format of the files (e.g. delimiters, units) can be taken into consideration by the loader.
-A preprocessor can be applied to ensure the positioning of the points in the coordinate system is correct (i.e. basin of mirror at origin with normal in the the positive *z* direction).
+A preprocessor can be applied to ensure the positioning of the points in the coordinate system is correct (i.e. basin of mirror at origin with normal in the positive *z* direction).
 A 3D surface mesh is then generated from the points.
-Currently two meshers are available:
+Currently two meshing methods are available:
 
 1. Regular grid using B-spline interpolation
 2. Unstructured grid using Delaunay triangulation
 
 The B-spline method often needs to apply significant smoothing, resulting in a meshed surface that doesn't pass exactly through the original data points.
-For this reason the Delaunay method is preferred as the mesh vertices are constructured using the original data points.
-When using the Delaunay mesher, however, it is important to filter out mesh facets with high aspect ratio as the normal direction of these facets is highly sensitive to small errors in the data point coordinates.
+For this reason the Delaunay method is preferred as the mesh vertices are constructed using the original data points.
+When using Delaunay triangulation, however, it is important to filter out mesh facets with high aspect ratio as the normal direction of these facets is highly sensitive to small errors in the data point coordinates.
 
-Once the mesh has been generated, the slope error distribution over the mirror surface can then determined by comparing the normal vectors from the mesh facets generated from the point cloud data with a reference surface.
+Once the mesh has been generated, the slope error distribution over the mirror surface can then be determined by comparing the normal vectors from the mesh facets generated from the point cloud data with a reference surface.
 The reference surface can be created using one of these two methods:
 
 1. Known focal length paraboloid
@@ -33,10 +33,10 @@ The reference surface can be created using one of these two methods:
 
 The first method uses a paraboloidal mirror of a particular fixed focal length (e.g. the design focal length) as the reference surface.
 This is useful for determining the slope error distribution relative to the intended design for the facet.
-The fit surface option apply a linear least squares method to fit a surface (planar, paraboloid or deformed paraboloid) to the point cloud data.
+The fit surface option applies a linear least squares method to fit a surface (planar, paraboloid or deformed paraboloid) to the point cloud data.
 For a paraboloidal surface, this allows the focal length that best describes the point cloud data to be found and used for calculating the slope error distribution.
-Typically the resultant slope error using this approach is lower compared to the known focal length method, as the focal length error has been eliminated.
-The deformed paraboloidal surface is described using the equations presented by [Cumpston and Coventry (2017)](http://dx.doi.org/10.1063/1.4984356), and allows curvature and twist to be included in the reference paraboloidal surface.
+Typically, the resultant slope error using this approach is lower compared to the known focal length method, as the focal length error has been eliminated.
+The deformed paraboloidal surface is described using the equations presented by [Cumpston and Coventry (2017)](http://dx.doi.org/10.1063/1.4984356) and allows curvature and twist to be included in the reference paraboloidal surface.
 
 The final step is aggregating the slope error distribution over the facet surface to obtain a single slope error representative of the whole surface.
 Various aggregation methods have been implemented, including:
