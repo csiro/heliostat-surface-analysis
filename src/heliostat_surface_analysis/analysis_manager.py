@@ -87,5 +87,6 @@ class AnalysisManager:
             result["coeff: %s"%label] = coeffs[i][0]
         # result["surface coefficients"] = coeffs # .reshape(-1, 1)
         result["samples"] = len(areas)
+        result["area"] = sum(areas)
 
         return result
