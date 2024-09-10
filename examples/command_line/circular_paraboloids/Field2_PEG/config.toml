@@ -1,7 +1,8 @@
 [loader]
-name = "default"
+name = "scaling"
 
 [loader.params]
+units = "mm"
 
 [preprocessor]
 name = "basic" # basic, none
@@ -26,6 +27,6 @@ name = "fixed_focal_length"
 focal_length_file = "design_focal_lengths.txt"
 
 [aggregator]
-name = "weighted_rms" # mean, rms, weighted_rms
+name = "weighted_mle"
 
 [aggregator.params]

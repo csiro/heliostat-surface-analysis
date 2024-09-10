@@ -15,6 +15,8 @@ class AggregatorFactory:
             return aggregator.RMSAggregator()
         elif option.name == AggregatorOptionName.mode:
             return aggregator.ModeAggregator()
+        elif option.name == AggregatorOptionName.mle:
+            return aggregator.MLEAggregator()
         elif option.name == AggregatorOptionName.weighted_sum:
             return aggregator.WeightedSumAggregator()
         elif option.name == AggregatorOptionName.weighted_squared_sum:
@@ -25,5 +27,7 @@ class AggregatorFactory:
             return aggregator.WeightedRMSAggregator()
         elif option.name == AggregatorOptionName.weighted_mode:
             return aggregator.WeightedModeAggregator()
+        elif option.name == AggregatorOptionName.weighted_mle:
+            return aggregator.WeightedMLEAggregator()
         else:
             raise RuntimeError("aggregator not recognised")

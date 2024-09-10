@@ -40,11 +40,18 @@ class ModeAggregator(Aggregator):
         counts, bin_edges = np.histogram(
             values,
             bins=bins,
-            range=(mini, maxi)    
+            range=(mini, maxi)
         )
 
         index_of_max = counts.argmax()
         return (bin_edges[index_of_max] + bin_edges[index_of_max + 1]) / 2
+
+
+class MLEAggregator(Aggregator):
+    def aggregate(self, values: np.ndarray, weights: np.ndarray) -> float:
+        square = np.square(values)
+        mean_square = np.sum(square) / len(square)
+        return np.sqrt(mean_square/2)
 
 
 class WeightedSumAggregator(Aggregator):
@@ -86,3 +93,10 @@ class WeightedModeAggregator(Aggregator):
 
         index_of_max = counts.argmax()
         return (bin_edges[index_of_max] + bin_edges[index_of_max + 1]) / 2
+
+
+class WeightedMLEAggregator(Aggregator):
+    def aggregate(self, values: np.ndarray, weights: np.ndarray) -> float:
+        weighted_squared_values = np.square(values) * weights
+        mean_square = np.sum(weighted_squared_values) / np.sum(weights)
+        return np.sqrt(mean_square/2)

@@ -5,7 +5,7 @@ name = "scaling"
 units = "mm"
 
 [preprocessor]
-name = "basic" # basic, none
+name = "basic"
 
 [preprocessor.params]
 
@@ -14,19 +14,15 @@ name = "Delaunay"	# Delaunay, B-spline
 
 [mesher.params]
 max_aspect_ratio = 10
-# NOTE: these are options for the B-spline mesher
-# polynomial_degree = 3
-# smoothing_factor = 0
-# dx = 0.01
-# dy = 0.01
 
 [analyser]
 name = "fixed_focal_length"
 
 [analyser.params]
-focal_length_file = "design_focal_lengths.txt"
+max_aspect_ratio = 10
+focal_length_file = "focal_lengths.txt"
 
 [aggregator]
-name = "weighted_rms" # mean, rms, weighted_rms
+name = "weighted_mle"
 
 [aggregator.params]

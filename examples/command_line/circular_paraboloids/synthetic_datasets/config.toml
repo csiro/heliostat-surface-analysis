@@ -5,7 +5,7 @@ name = "default"
 # units = "mm"
 
 [preprocessor]
-name = "none" # none, basic, outlier 
+name = "none" # none, basic, outlier
 
 [preprocessor.params]
 
@@ -29,6 +29,6 @@ write_STLs = true
 focal_length = 29.0
 
 [aggregator]
-name = "weighted_rms" # mean, rms, weighted_rms
+name = "weighted_mle"
 
 [aggregator.params]

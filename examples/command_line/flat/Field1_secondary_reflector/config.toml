@@ -1,8 +1,7 @@
 [loader]
-name = "scaling"
+name = "csv"
 
 [loader.params]
-units = "mm"
 
 [preprocessor]
 name = "basic"
@@ -16,13 +15,12 @@ name = "Delaunay"	# Delaunay, B-spline
 max_aspect_ratio = 10
 
 [analyser]
-name = "fixed_focal_length"
+name = "fit_surface"
 
 [analyser.params]
-max_aspect_ratio = 10
-focal_length_file = "focal_lengths.txt"
+surface = "flat"
 
 [aggregator]
-name = "weighted_rms" # mean, rms, weighted_rms
+name = "weighted_mle"
 
 [aggregator.params]

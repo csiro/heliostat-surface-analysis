@@ -10,11 +10,13 @@ class AggregatorOptionName(Enum):
     mean = "mean"
     rms = "rms"
     mode = "mode"
+    mle = "mle"
     weighted_sum = "weighted_sum"
     weighted_squared_sum = "weighted_squared_sum"
     weighted_mean = "weighted_mean"
     weighted_rms = "weighted_rms"
     weighted_mode = "weighted_mode"
+    weighted_mle = "weighted_mle"
 
 class AggregatorOption(BaseModel):
     name: AggregatorOptionName
