@@ -75,7 +75,7 @@ class AnalysisManager:
         mesh = mesher.create_mesh(x, y, z)
         if write_stls:
             mesh.save(os.path.join(output_dir,f"{scan_name}.stl"))
-        areas, normals, coeffs, ideal_normals, slope_errors = analyser.analyse(x, y, z, mesh, scan_name)
+        areas, normals, coeffs, ideal_normals, ideal_zs, slope_errors = analyser.analyse(x, y, z, mesh, scan_name)
         if plot:
             plot_2d_surface(mesh,slope_errors,label="slope error (rad)",ax=None)
         aggregate = aggregator.aggregate(slope_errors,areas)

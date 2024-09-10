@@ -75,10 +75,13 @@ class FixedFocalLengthAnalyser(Analyser):
         f_n = poly.assemble_normal_function(np.insert(plane_coeffs, 0, a_parameter, axis=0))
         ideal_normals = f_n(x_c, y_c)
 
+        f = poly.assemble_function(np.insert(plane_coeffs, 0, a_parameter, axis=0))
+        ideal_zs = f(x,y)
+
         angle_comparitor = AngularDifferenceComparitor()
         slope_errors = angle_comparitor.compare(normals, ideal_normals)
 
-        return areas, normals, plane_coeffs, ideal_normals, slope_errors
+        return areas, normals, plane_coeffs, ideal_normals, ideal_zs, slope_errors
 
     def get_coefficient_labels(self) -> list:
         return Plane().get_coefficient_labels()

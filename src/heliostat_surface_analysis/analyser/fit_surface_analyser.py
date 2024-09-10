@@ -50,10 +50,13 @@ class FitSurfaceAnalyser(Analyser):
         f_n = self.reference.assemble_normal_function(coeffs)
         ideal_normals = f_n(x_c, y_c)
 
+        f = self.reference.assemble_function(coeffs)
+        ideal_zs = f(x, y)
+
         angle_comparitor = AngularDifferenceComparitor()
         slope_errors = angle_comparitor.compare(normals, ideal_normals)
 
-        return areas, normals, coeffs, ideal_normals, slope_errors
+        return areas, normals, coeffs, ideal_normals, ideal_zs, slope_errors
 
     def get_coefficient_labels(self) -> list:
         return self.reference.get_coefficient_labels()
