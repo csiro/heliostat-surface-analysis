@@ -20,6 +20,6 @@ class DefaultLoader(Loader):
     def whitespace_delim_points(self, file_path: str) -> pd.DataFrame:
         return pd.read_csv(
             file_path,
-            delim_whitespace=True,
+            sep='\\s+',
             names=["x", "y", "z"],
         )

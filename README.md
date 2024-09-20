@@ -66,6 +66,7 @@ A number of third-party Python modules are utilised:
 | numpy-stl   | 2.13.1           |
 | toml        | 0.10.2           |
 | progressbar | 2.5              |
+| openpyxl    | 3.1.0            |
 
 These module dependencies are automatically installed when installing *heliostat-surface-analysis* via pip (see below).
 
