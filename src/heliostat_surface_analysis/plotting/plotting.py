@@ -96,7 +96,7 @@ def plot_3d_surface(mesh : Mesh, values : np.ndarray, label : str, ax : plt.Axes
     m = plt.cm.ScalarMappable(cmap=plt.cm.cool, norm=norm)
     tsp.set_fc(colors)
     m.set_array([])
-    cbar = plt.colorbar(m, pad=0.1)
+    cbar = plt.colorbar(m, pad=0.1, ax=ax)
     #
     ax.set_xlabel("x (m)")
     ax.set_ylabel("y (m)")

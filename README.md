@@ -57,16 +57,17 @@ A number of third-party Python modules are utilised:
 
 | Module      | Minimum version  |
 | :---------: | :--------------: |
-| numpy       | 1.23.3           |
-| scipy       | 1.10.1           |
-| pandas      | 1.4.4            |
-| matplotlib  | 3.1.2            |
-| nlopt       | 2.7.1            |
-| pydantic    | 2.1.1            |
-| numpy-stl   | 2.13.1           |
+| numpy       | 2.1.1            |
+| scipy       | 1.14.1           |
+| pandas      | 2.2.3            |
+| matplotlib  | 3.9.2            |
+| nlopt       | 2.8.0            |
+| pydantic    | 2.9.2            |
+| numpy-stl   | 3.1.2            |
 | toml        | 0.10.2           |
 | progressbar | 2.5              |
-| openpyxl    | 3.1.0            |
+| openpyxl    | 3.1.5            |
+| ipympl      | 0.9.4            |
 
 These module dependencies are automatically installed when installing *heliostat-surface-analysis* via pip (see below).
 
