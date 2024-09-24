@@ -52,22 +52,22 @@ This is the recommended method when using Delaunay meshing where the triangular 
 
 ### Dependencies
 
-*heliostat-surface-analysis* requires Python version 3.8.10 or greater and has been successfuly used on Windows 10, Windows 11, macOS and Ubuntu 20.04.
-A number of third-party Python modules are utilised:
+It is recommended to use *heliostat-surface-analysis* with Python version 3.10.12 or greater.
+A number of third-party Python modules are also utilised:
 
-| Module      | Minimum version  |
-| :---------: | :--------------: |
-| numpy       | 2.1.1            |
-| scipy       | 1.14.1           |
-| pandas      | 2.2.3            |
-| matplotlib  | 3.9.2            |
-| nlopt       | 2.8.0            |
-| pydantic    | 2.9.2            |
-| numpy-stl   | 3.1.2            |
-| toml        | 0.10.2           |
-| progressbar | 2.5              |
-| openpyxl    | 3.1.5            |
-| ipympl      | 0.9.4            |
+| Module      | Recommended version  |
+| :---------: | :------------------: |
+| numpy       | 2.1.1                |
+| scipy       | 1.14.1               |
+| pandas      | 2.2.3                |
+| matplotlib  | 3.9.2                |
+| nlopt       | 2.8.0                |
+| pydantic    | 2.9.2                |
+| numpy-stl   | 3.1.2                |
+| toml        | 0.10.2               |
+| progressbar | 2.5                  |
+| openpyxl    | 3.1.5                |
+| ipympl      | 0.9.4                |
 
 These module dependencies are automatically installed when installing *heliostat-surface-analysis* via pip (see below).
 
