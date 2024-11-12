@@ -96,13 +96,6 @@ Alternatively, *heliostat-surface-analysis* can be installed via PyPI:
 cd heliostat-surface-analysis
 pip install .
 ```
-or used within a poetry virtual environment:
-
-```
-cd heliostat-surface-analysis
-poetry install
-poetry shell
-```
 When installing with PyPI, the scripts directory of your Python distribution can be added to `PATH` for convenient access to the command-line tools supplied with *heliostat-surface-analysis*.  The location of the Python scripts directory (e.g. `c:\users\username\appdata\roaming\python\python39\scripts\`) that was used for the package installation can be found via:
 
 ```
