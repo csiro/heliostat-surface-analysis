@@ -70,44 +70,44 @@ def plot_2d_surface(mesh : Mesh, values : np.ndarray, label : str, ax : plt.Axes
 	if ax==None:
 		plt.show()
 
-def plot_3d_surface(mesh : Mesh, values : np.ndarray, label : str, ax : plt.Axes = None, fontsize : int = None, zero : bool = False, cbxy = (3.5,0.29)):
-    xs = []
-    ys = []
-    zs = []
-    simplices = []
-    for j,triPoints in enumerate(mesh.points):
-        simplex = []
-        for i in range(3):
-            xs.append(triPoints[i*3])
-            ys.append(triPoints[i*3+1])
-            zs.append(triPoints[i*3+2])
-            simplex.append(j*3+i)
-        simplices.append(simplex)
-    #
-    if ax==None:
-        fig = plt.figure()
-        fig.set_size_inches(10,10)
-        ax = fig.add_subplot(111,projection='3d')
-    tsp = ax.plot_trisurf(xs, ys, zs, triangles=simplices)
-    #
-    # Set up colours
-    norm = matplotlib.colors.Normalize()
-    colors = plt.cm.cool(norm(values))
-    m = plt.cm.ScalarMappable(cmap=plt.cm.cool, norm=norm)
-    tsp.set_fc(colors)
-    m.set_array([])
-    cbar = plt.colorbar(m, pad=0.1, ax=ax)
-    #
-    ax.set_xlabel("x (m)")
-    ax.set_ylabel("y (m)")
-    ax.set_zlabel("z (m)")
-    #
-    if fontsize==None:
-        cbar.ax.set_title(label=label,rotation=90,x=cbxy[0],y=cbxy[1])
-    else:
-        cbar.ax.set_title(label=label,fontsize=fontsize,rotation=90,x=cbxy[0],y=cbxy[1])
-        cbar.ax.tick_params(labelsize=fontsize)
-        set_plot_font_size(ax,fontsize,includeZ=True)
-    #
-    if ax==None:
-        plt.show()
+def plot_3d_surface(mesh : Mesh, values : np.ndarray, label : str, ax : plt.Axes = None, fontsize : int = None, cbxy = (3.5,0.29), shrink : float = 1.0, cmap : plt.Colormap = plt.cm.viridis):
+	xs = []
+	ys = []
+	zs = []
+	simplices = []
+	for j,triPoints in enumerate(mesh.points):
+		simplex = []
+		for i in range(3):
+			xs.append(triPoints[i*3])
+			ys.append(triPoints[i*3+1])
+			zs.append(triPoints[i*3+2])
+			simplex.append(j*3+i)
+		simplices.append(simplex)
+	#
+	if ax==None:
+		fig = plt.figure()
+		fig.set_size_inches(10,10)
+		ax = fig.add_subplot(111,projection='3d')
+	tsp = ax.plot_trisurf(xs, ys, zs, triangles=simplices)
+	#
+	# Set up colours
+	norm = matplotlib.colors.Normalize()
+	colors = cmap(norm(values))
+	m = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
+	tsp.set_fc(colors)
+	m.set_array([])
+	cbar = plt.colorbar(m, pad=0.1, shrink=shrink, ax=ax)
+	#
+	ax.set_xlabel("\nx (m)")
+	ax.set_ylabel("\ny (m)")
+	ax.set_zlabel("\nz (m)")
+	#
+	if fontsize==None:
+		cbar.ax.set_title(label=label,rotation=90,x=cbxy[0],y=cbxy[1])
+	else:
+		cbar.ax.set_title(label=label,fontsize=fontsize,rotation=90,x=cbxy[0],y=cbxy[1])
+		cbar.ax.tick_params(labelsize=fontsize)
+		set_plot_font_size(ax,fontsize,includeZ=True)
+	#
+	if ax==None:
+		plt.show()
