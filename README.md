@@ -44,6 +44,7 @@ Various aggregation methods have been implemented, including:
 1. Mean
 2. RMS
 3. Area-weighted RMS
+4. Maximum likelihood estimator (MLE)
 
 The area-weighted RMS method weights the slope error distribution according to the mesh facet area.
 This is the recommended method when using Delaunay meshing where the triangular mesh facet sizes can have a large variation if the point cloud data is not uniformly sampled from over the mirror surface.
