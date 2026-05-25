@@ -42,12 +42,15 @@ The final step is aggregating the slope error distribution over the facet surfac
 Various aggregation methods have been implemented, including:
 
 1. Mean
-2. RMS
+2. Root mean square (RMS)
 3. Area-weighted RMS
 4. Maximum likelihood estimator (MLE)
+5. Area-weighted MLE
 
-The area-weighted RMS method weights the slope error distribution according to the mesh facet area.
-This is the recommended method when using Delaunay meshing where the triangular mesh facet sizes can have a large variation if the point cloud data is not uniformly sampled from over the mirror surface.
+The area-weighted methods weight the slope error distribution according to the mesh facet area.
+This is desirable when using Delaunay meshing where the triangular mesh facet sizes can have a large variation if the point cloud data is not uniformly sampled from over the mirror surface.
+For a Rayleigh distribution of slope error, the $\sigma$ parameter can be approximated by the maximum likelihood estimator (MLE).
+The area-weighted MLE is therefore the recommended aggregator for most cases.
 
 ## Getting Started
 
