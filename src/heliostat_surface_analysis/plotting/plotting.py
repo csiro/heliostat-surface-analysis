@@ -38,7 +38,7 @@ def plot_points_3d(raw_x: np.ndarray,
 	ax.legend(loc='best')
 	plt.show()
 
-def plot_2d_surface(mesh : Mesh, values : np.ndarray, label : str, ax : plt.Axes = None, fontsize : int = None, cbxy = (3.5,0.29)):
+def plot_2d_surface(mesh : Mesh, values : np.ndarray, label : str, ax : plt.Axes = None, fontsize : int = None, cbxy = (3.5,0.29), edgecolors : str = 'k'):
 	xs = []
 	ys = []
 	simplices = []
@@ -53,7 +53,7 @@ def plot_2d_surface(mesh : Mesh, values : np.ndarray, label : str, ax : plt.Axes
 	if ax==None:
 		f,ax = plt.subplots()
 	if len(values)>0:
-		tpc = ax.tripcolor(xs, ys, simplices, facecolors=np.ravel(values), edgecolors='k')
+		tpc = ax.tripcolor(xs, ys, simplices, facecolors=np.ravel(values), edgecolors=edgecolors)
 		#
 		if fontsize==None:
 			cbar = plt.colorbar(tpc,label=label)
@@ -66,7 +66,7 @@ def plot_2d_surface(mesh : Mesh, values : np.ndarray, label : str, ax : plt.Axes
 	else:
 		# FIXME: this isn't working
 		cmap = matplotlib.colors.ListedColormap("violet")
-		ax.tripcolor(xs, ys, simplices, facecolors=np.ones(len(simplices)), edgecolors='k', cmap=cmap)
+		ax.tripcolor(xs, ys, simplices, facecolors=np.ones(len(simplices)), edgecolors=edgecolors, cmap=cmap)
 	#
 	ax.set_xlabel("x (m)")
 	ax.set_ylabel("y (m)")
