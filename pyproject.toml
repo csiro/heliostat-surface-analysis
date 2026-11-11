@@ -1,0 +1,50 @@
+[build-system]
+requires = ["setuptools>=59.6.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "heliostat-surface-analysis"
+version = "1.0.0"
+description = ""
+authors = [
+	{ name = "Daniel Potter", email = "daniel.potter@csiro.au" },
+	{ name = "Mike Collins", email = "mike.collins@fprenergy.com" },
+	{ name = "Calum Acutt", email = "calum.acutt@fprenergy.com" },
+	{ name = "Matt Thorn", email = "matt.thorne@csiro.au" },
+	{ name = "Michael Elliot", email = "michael.elliot@csiro.au" },
+]
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+	"numpy >= 2.1.1",
+	"scipy >= 1.14.1",
+	"pandas >= 2.2.3",
+	"matplotlib >= 3.9.2",
+	"nlopt >= 2.8.0",
+	"pydantic >= 2.9.2",
+	"numpy-stl >= 3.1.2",
+	"progressbar >= 2.5",
+	"openpyxl >= 3.1.5",
+	"odfpy >= 1.4.1",
+]
+
+[project.optional-dependencies]
+notebook = [
+    "jupyter>=1.1.1",
+    "notebook>=7.2.2",
+    "ipympl>=0.9.4",
+]
+
+test = [
+    "pytest>=8.0",
+]
+
+dev = [
+    "pytest>=8.0",
+    "jupyter>=1.1.1",
+    "notebook>=7.2.2",
+    "ipympl>=0.9.4",
+]
+
+[project.scripts]
+heliostat_surface_analysis = "heliostat_surface_analysis.run:main"

@@ -1,0 +1,27 @@
+[loader]
+name = "csv"
+
+[loader.params]
+units = "m"
+
+[preprocessor]
+name = "basic"
+
+[preprocessor.params]
+
+[mesher]
+name = "Delaunay"	# Delaunay, B-spline
+
+[mesher.params]
+max_aspect_ratio = 10
+
+[analyser]
+name = "fit_surface"
+
+[analyser.params]
+surface = "flat"
+
+[aggregator]
+name = "weighted_mle"
+
+[aggregator.params]

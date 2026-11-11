@@ -1,0 +1,6 @@
+.project
+.pydevproject
+.vscode/
+*.ods
+__pycache__/
+outputs/
