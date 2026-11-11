@@ -24,22 +24,31 @@ class BSplineMesher(Mesher):
         y: np.ndarray,
         z: np.ndarray,
     ) -> Tuple[Mesh, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
-        # NOTE: best results seemed to be obtained when the smoothing factor is automatically determined
-        tck = interpolate.bisplrep(x, y, z, kx=self.polynomial_degree, ky=self.polynomial_degree) # , s=self.smoothing_factor)
-        
+        x = np.ravel(np.asarray(x))
+        y = np.ravel(np.asarray(y))
+        z = np.ravel(np.asarray(z))
+
+        if x.size != y.size or x.size != z.size:
+            raise ValueError("x, y, and z must have the same length")
+
+        tck = interpolate.bisplrep(
+            x, y, z,
+            kx=self.polynomial_degree,
+            ky=self.polynomial_degree
+        )
+
         xmin = x.min()
         xmax = x.max()
         ymin = y.min()
         ymax = y.max()
-        
-        nx = int(round((xmax - xmin) / self.dx))
-        xi = np.linspace(xmin,xmax,nx)
-        
-        ny = int(round((ymax - ymin) / self.dy))
-        yi = np.linspace(ymin,ymax,ny)
-        
-        zi = interpolate.bisplev(xi,yi,tck)
-        
+
+        nx = max(2, int(round((xmax - xmin) / self.dx)))
+        ny = max(2, int(round((ymax - ymin) / self.dy)))
+
+        xi = np.linspace(xmin, xmax, nx)
+        yi = np.linspace(ymin, ymax, ny)
+        zi = interpolate.bisplev(xi, yi, tck)
+
         # FIXME: might be a more pythonic way to do this 
         # NOTE: order of vertices is important to get direction of normal correct
         tris = []
